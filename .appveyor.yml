@@ -1,0 +1,28 @@
+build: false
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Miniconda3-x64"
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+
+install:
+  # Install and configure miniconda.
+  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no --set show_channel_urls true
+  - conda update conda --quiet
+
+  # Create the test env.
+  - conda env create --file environment.yml --name TEST
+  - conda install --name TEST --channel conda-forge nbval pytest
+  - activate TEST
+
+  # Debug.
+  - conda info --all
+  - conda list
+
+test_script:
+  # The option `--nbval-lax` won't compare the notebooks cell results,
+  # it will only run them! Use `--nbval` instead if you wish to validate outputs.
+  - pytest --nbval-lax -p no:python .

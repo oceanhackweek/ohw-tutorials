@@ -1,0 +1,44 @@
+language: minimal
+
+sudo: false
+
+matrix:
+  include:
+    - name: "linux"
+      os: linux
+    - name: "osx"
+      os: osx
+
+before_install:
+  # Install and configure miniconda.
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      URL="https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+    elif [ "$TRAVIS_OS_NAME" == "linux" ] ; then
+      URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    fi
+    wget $URL -O miniconda.sh
+    echo ""
+    bash miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    conda config --set always_yes yes --set changeps1 no --set show_channel_urls true
+    conda update conda --quiet
+    conda config --add channels conda-forge --force
+    conda config --remove channels defaults --force
+    conda config --set channel_priority strict
+
+install:
+  # Create the test env.
+  - |
+    conda env create --file environment.yml --name TEST
+    conda install --name TEST --channel conda-forge nbval pytest
+    source activate TEST
+
+  # Debug.
+  - conda info --all
+  - conda list
+
+script:
+  # The option `--nbval-lax` won't compare the notebooks cell results,
+  # it will only run them! Use `--nbval` instead if you wish to validate outputs.
+  - pytest --nbval-lax -p no:python .
