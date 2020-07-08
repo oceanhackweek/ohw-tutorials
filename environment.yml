@@ -26,6 +26,8 @@ dependencies:
   - ioos-tools
   - ipyleaflet
   - jupyter
+  - jupyter-rsession-proxy
+  - jupyter_contrib_nbextensions
   - matplotlib
   - netcdf4
   - numpy
@@ -50,8 +52,7 @@ dependencies:
   - xarray
   - xlrd
   # R packages
-  - jupyter-rsession-proxy
-  - r-base=3.6.2
+  - r-base
   - r-dt
   - r-finch
   - r-ggfortify
