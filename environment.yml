@@ -53,5 +53,8 @@ dependencies:
   - xlrd
   # R packages
   - r-base
-  - rpy2
+  - r-irkernel
   - r-tidyverse
+  - rpy2
+  - r-gsw
+  - r-oce
