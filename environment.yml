@@ -53,22 +53,5 @@ dependencies:
   - xlrd
   # R packages
   - r-base
-  - r-dt
-  - r-finch
-  - r-ggfortify
-  - r-ggplot2
-  - r-gsw
-  - r-httr
-  - r-irkernel
-  - r-lubridate
-  - r-mapdata
-  - r-ncdf4
-  - r-oce
-  - r-rcolorbrewer
-  - r-rerddap
-  - r-reshape2
-  - r-robis
-  - r-sp
-  - r-xtractomatic
-  - r-xts
   - rpy2
+  - r-tidyverse
