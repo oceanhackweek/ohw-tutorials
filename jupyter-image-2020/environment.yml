@@ -6,6 +6,8 @@ dependencies:
   - argopy
   - bokeh
   - cartopy
+  - cdsapi
+  - cf-units
   - colorcet
   - datashader
   - erddapy
@@ -14,11 +16,13 @@ dependencies:
   - gsw
   - holoviews
   - hvplot
+  - ioos-tools
   - ipyleaflet
   - jupyter
   - jupyter-rsession-proxy
   - jupyter_contrib_nbextensions
   - matplotlib-base
+  - nc-time-axis
   - netcdf4
   - numpy
   - palettable
