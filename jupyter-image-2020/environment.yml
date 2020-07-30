@@ -34,7 +34,6 @@ dependencies:
   - rasterio
   - requests
   - retrying
-  - rise
   - seaborn
   - shapely
   - siphon
