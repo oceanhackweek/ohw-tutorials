@@ -58,3 +58,7 @@ dependencies:
   - rpy2
   - r-gsw
   - r-oce
+  - pip
+  - pip:
+    - OceansDB
+    - CoTeDe
