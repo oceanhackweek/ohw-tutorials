@@ -14,7 +14,7 @@ install:
   - conda update conda --quiet
 
   # Create the test env.
-  - conda env create --file jupyter-image-2020\environment.yml --name TEST
+  - conda env create --file environment.yml --name TEST
   - conda install --name TEST --channel conda-forge nbval pytest
   - activate TEST
 
