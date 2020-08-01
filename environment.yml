@@ -18,6 +18,7 @@ dependencies:
   - holoviews
   - hvplot
   - ioos-tools
+  - ioos_qc
   - ipyleaflet
   - jupyter
   - jupyter-rsession-proxy
