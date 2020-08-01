@@ -3,52 +3,42 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
-  - altair
-  - basemap
+  - argopy
   - bokeh
-  - boto3
   - cartopy
-  - cc-plugin-ncei
-  - ciso
-  - cmocean
+  - cdsapi
+  - cf-units
   - colorcet
-  - compliance-checker
   - datashader
-  - descartes
   - erddapy
-  - folium
   - geolinks
   - geopandas
   - geoviews
-  - gridgeo
+  - gsw
   - holoviews
   - hvplot
   - ioos-tools
+  - ioos_qc
   - ipyleaflet
   - jupyter
   - jupyter-rsession-proxy
   - jupyter_contrib_nbextensions
-  - matplotlib
+  - matplotlib-base
+  - nc-time-axis
   - netcdf4
   - numpy
-  - owslib
   - palettable
   - pandas
   - panel
   - param
-  - pocean-core
   - podaacpy
   - pyoos
   - rasterio
   - requests
   - retrying
-  - rise
   - seaborn
   - shapely
-  - sympy
-  - unyt
-  - utide
-  - vega_datasets
+  - siphon
   - xarray
   - xlrd
   # R packages
@@ -58,3 +48,25 @@ dependencies:
   - rpy2
   - r-gsw
   - r-oce
+  - r-vegan
+  - r-rcolorbrewer
+  - r-magrittr
+  - r-dplyr
+  - r-gridextra
+  - r-maps
+  - r-mapdata
+  - r-maptools
+  - r-scales
+  - r-plotly
+  - r-cowplot
+  - r-patchwork
+  # - r-phyloseq (not in cran)
+  - r-ape
+  # extras
+  - vim
+  - emacs
+  - git
+  - graphviz
+  - zip
+  - unzip
+  - conda-lock
