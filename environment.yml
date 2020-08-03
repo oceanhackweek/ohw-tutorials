@@ -43,30 +43,36 @@ dependencies:
   - xlrd
   # R packages
   - r-base
-  - r-irkernel
-  - r-tidyverse
-  - rpy2
-  - r-gsw
-  - r-oce
-  - r-vegan
-  - r-rcolorbrewer
-  - r-magrittr
-  - r-dplyr
-  - r-gridextra
-  - r-maps
-  - r-mapdata
-  - r-maptools
-  - r-scales
-  - r-plotly
-  - r-cowplot
-  - r-patchwork
   # - r-phyloseq (not in cran)
   - r-ape
+  - r-cowplot
+  - r-crul
+  - r-dplyr
+  - r-ggplot2
+  - r-gridextra
+  - r-gsw
+  - r-irkernel
+  - r-leaflet
+  - r-magrittr
+  - r-mapdata
+  - r-maps
+  - r-maptools
+  - r-ncdf4
+  - r-oce
+  - r-patchwork
+  - r-plotly
+  - r-raster
+  - r-rcolorbrewer
+  - r-readr
+  - r-scales
+  - r-tidyverse
+  - r-vegan
+  - rpy2
   # extras
-  - vim
+  - conda-lock
   - emacs
   - git
   - graphviz
-  - zip
   - unzip
-  - conda-lock
+  - vim
+  - zip
