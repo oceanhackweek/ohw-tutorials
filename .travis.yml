@@ -41,4 +41,4 @@ install:
 script:
   # The option `--nbval-lax` won't compare the notebooks cell results,
   # it will only run them! Use `--nbval` instead if you wish to validate outputs.
-  - pytest --nbval-lax -p no:python .
+  - pytest --nbval-lax -p no:python tests
