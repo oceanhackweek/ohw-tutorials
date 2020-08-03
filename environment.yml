@@ -46,10 +46,13 @@ dependencies:
   # - r-phyloseq (not in cran)
   - r-ape
   - r-cowplot
+  - r-crul
   - r-dplyr
+  - r-ggplot2
   - r-gridextra
   - r-gsw
   - r-irkernel
+  - r-leaflet
   - r-magrittr
   - r-mapdata
   - r-maps
