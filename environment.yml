@@ -22,7 +22,6 @@ dependencies:
   - ipyleaflet
   - jupyter
   - jupyter-rsession-proxy
-  - jupyter_contrib_nbextensions
   - matplotlib-base
   - nc-time-axis
   - netcdf4
