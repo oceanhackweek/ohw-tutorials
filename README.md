@@ -20,4 +20,5 @@
 1. If you don't have conda (either with Miniconda or the full AnacondaDistribution) already installed we recommend [installing miniconda](http://conda.pydata.org/miniconda.html) for latest Python 3.
 2. Then clone this repository and, at the root directory, you will find the environment.yml file. That files is basically the list of packages we are going to install.
 3. Now create the environment with `conda env create --file environment.yml`
-4. activate the environment, `conda activate OHW20`, and call `jupyter notebook` to get started! Happy hacking!!
+4. activate the environment with: `conda activate OHW20`
+5. call `jupyter-lab` to get started! Happy hacking!!
