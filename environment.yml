@@ -67,6 +67,8 @@ dependencies:
   # - r-rcolorbrewer installs with ggplot2
   # - r-readr installs with tidyverse
   # - r-scales installs with ggplot2
+  -r-rgdal
+  -r-rgeos
   - r-sf
   - r-tidyverse
   - r-vegan
