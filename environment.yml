@@ -75,6 +75,7 @@ dependencies:
   - emacs
   - git
   - graphviz
+  - nano
   - unzip
   - vim
   - zip
