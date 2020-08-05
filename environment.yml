@@ -47,13 +47,13 @@ dependencies:
   - r-ape
   - r-cowplot
   - r-crul
-  - r-dplyr
-  - r-ggplot2
+  # - r-dplyr  installs with tidyverse
+  # - r-ggplot2 installs with tidyverse
   - r-gridextra
   - r-gsw
   - r-irkernel
   - r-leaflet
-  - r-magrittr
+  # - r-magrittr installs with tidyverse
   - r-mapdata
   - r-maps
   - r-maptools
@@ -61,10 +61,13 @@ dependencies:
   - r-oce
   - r-patchwork
   - r-plotly
+  - r-remotes
   - r-raster
-  - r-rcolorbrewer
-  - r-readr
-  - r-scales
+  - r-rastervis
+  # - r-rcolorbrewer installs with ggplot2
+  # - r-readr installs with tidyverse
+  # - r-scales installs with ggplot2
+  - r-sf
   - r-tidyverse
   - r-vegan
   - rpy2
