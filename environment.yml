@@ -9,6 +9,7 @@ dependencies:
   - cartopy
   - cdsapi
   - cf-units
+  - cf_xarray
   - colorcet
   - compilers
   - ctd
@@ -32,7 +33,7 @@ dependencies:
   - netcdf4
   - numpy
   - palettable
-  - pandas
+  - pandas<1.1
   - panel
   - param
   - podaacpy
