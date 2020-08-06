@@ -3,12 +3,15 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
+  - pangeo-notebook=2020.06.03
   - argopy
   - bokeh
   - cartopy
   - cdsapi
   - cf-units
   - colorcet
+  - compilers
+  - ctd
   - datashader
   - erddapy
   - geolinks
@@ -22,6 +25,8 @@ dependencies:
   - ipyleaflet
   - jupyter
   - jupyter-rsession-proxy
+  - jupyter_contrib_nbextensions
+  - jupyterlab
   - matplotlib-base
   - nc-time-axis
   - netcdf4
@@ -42,17 +47,13 @@ dependencies:
   - xlrd
   # R packages
   - r-base
-  # - r-phyloseq (not in cran)
   - r-ape
   - r-cowplot
   - r-crul
-  # - r-dplyr  installs with tidyverse
-  # - r-ggplot2 installs with tidyverse
   - r-gridextra
   - r-gsw
   - r-irkernel
   - r-leaflet
-  # - r-magrittr installs with tidyverse
   - r-mapdata
   - r-maps
   - r-maptools
@@ -60,24 +61,35 @@ dependencies:
   - r-oce
   - r-patchwork
   - r-plotly
-  - r-remotes
   - r-raster
   - r-rastervis
-  # - r-rcolorbrewer installs with ggplot2
-  # - r-readr installs with tidyverse
-  # - r-scales installs with ggplot2
+  - r-remotes
   - r-rgdal
   - r-rgeos
+  - r-rnaturalearth
+  - r-rnaturalearthdata
   - r-sf
   - r-tidyverse
   - r-vegan
   - rpy2
+  # robis deps
+  - r-commonmark
+  - r-httr
+  - r-dplyr
+  - r-jsonlite
+  - r-leaflet
+  - r-ggplot2
+  - r-tidyr
+  - r-httpcache
+  - r-tibble
+  - r-mapedit
+  - r-sf
+  - r-rlang
   # extras
   - conda-lock
   - emacs
   - git
   - graphviz
-  - nano
   - unzip
   - vim
   - zip
