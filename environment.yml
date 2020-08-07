@@ -6,6 +6,7 @@ dependencies:
   - pangeo-notebook=2020.06.03
   - argopy
   - bokeh
+  - bottleneck
   - cartopy
   - cdsapi
   - cf-units
@@ -13,12 +14,14 @@ dependencies:
   - colorcet
   - compilers
   - ctd
+  - dask
   - datashader
   - erddapy
   - geolinks
   - geopandas
   - geoviews
   - gsw
+  - h5netcdf
   - holoviews
   - hvplot
   - ioos-tools
@@ -41,11 +44,14 @@ dependencies:
   - rasterio
   - requests
   - retrying
+  - scipy
   - seaborn
+  - seawater
   - shapely
   - siphon
   - xarray
-  - xlrd
+  - xlrd 
+  - zarr
   # R packages
   - r-base
   - r-ape
