@@ -44,13 +44,14 @@ dependencies:
   - rasterio
   - requests
   - retrying
+  - s3fs
   - scipy
   - seaborn
   - seawater
   - shapely
   - siphon
   - xarray
-  - xlrd 
+  - xlrd
   - zarr
   # R packages
   - r-base
@@ -81,17 +82,20 @@ dependencies:
   - rpy2
   # robis deps
   - r-commonmark
-  - r-httr
   - r-dplyr
+  - r-ggplot2
+  - r-httpcache
+  - r-httr
   - r-jsonlite
   - r-leaflet
-  - r-ggplot2
-  - r-tidyr
-  - r-httpcache
-  - r-tibble
   - r-mapedit
-  - r-sf
+  - r-robis
+  - r-tibble
+  - r-tidyr
   - r-rlang
+  # cannot do latest r-sf for now, so no latest r-obis as well :-/
+  # - r-sf >=0.9_5
+  - r-sf
   # extras
   - conda-lock
   - emacs
