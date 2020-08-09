@@ -1,5 +1,5 @@
 // Don't use the standard CSS import mechanism so that we can easily support directories of notebooks.
-$('head').append('<link rel="stylesheet" href="static/theme/rise.css" type="text/css" />');
+$('head').append('<link rel="stylesheet" href="/files/static/theme/rise.css" type="text/css" />');
 
 header = `
 <a href="https://oceanhackweek.github.io">
@@ -13,28 +13,27 @@ header = `
 `;
 
 footer = `
-<a href="https://github.com/oceanhackweek/ohw19-tutorial-data-access-viz">https://github.com/oceanhackweek/ohw19-tutorial-data-access-viz</a>
+<a href="https://github.com/oceanhackweek/ohw20-tutorials/tree/master/01-Data-Access">https://github.com/oceanhackweek/ohw20-tutorials/tree/master/01-Data-Access</a>
 
-<div style="float: right;">Filipe Fernandes</div>
+<div style="float: right;"><a href="https://github.com/ocefpaf">Filipe Fernandes</a></div>
 `;
 
 
 $('#rise-header').html(header);
 $('#rise-footer').html(footer);
 
+index = Reveal.getIndices();
+if (index.h == 0 & index.v == 0) {
+    onFirstSlide();
+}
 
-// index = Reveal.getIndices();
-// if (index.h == 0 & index.v == 0) {
-//     onFirstSlide();
-// }
-
-// Reveal.addEventListener('slidechanged', function(evt) {
-//   if (evt.indexh == 0 & evt.indexv == 0) {
-//     onFirstSlide();
-//   }
-// });
+Reveal.addEventListener('slidechanged', function(evt) {
+  if (evt.indexh == 0 & evt.indexv == 0) {
+    onFirstSlide();
+  }
+});
 
 
-// function onFirstSlide() {
-//   // Do the thing when first slide is being shown.
-// }
+function onFirstSlide() {
+  // Do the thing when first slide is being shown.
+}

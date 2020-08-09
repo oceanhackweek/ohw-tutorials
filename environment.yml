@@ -7,7 +7,7 @@ dependencies:
   - argopy
   - bokeh
   - bottleneck
-  - cartopy
+  - cartopy <0.18
   - cdsapi
   - cf-units
   - cf_xarray
