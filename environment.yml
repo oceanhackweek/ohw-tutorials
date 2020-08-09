@@ -16,6 +16,7 @@ dependencies:
   - ctd
   - dask
   - datashader
+  - descartes
   - erddapy
   - geolinks
   - geopandas
@@ -24,6 +25,7 @@ dependencies:
   - h5netcdf
   - holoviews
   - hvplot
+  - intake
   - ioos-tools
   - ioos_qc
   - ipyleaflet
@@ -101,6 +103,7 @@ dependencies:
   - emacs
   - git
   - graphviz
+  - nano
   - unzip
   - vim
   - zip
