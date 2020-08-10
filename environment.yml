@@ -13,6 +13,7 @@ dependencies:
   - cf_xarray
   - colorcet
   - compilers
+  - cotede
   - ctd
   - dask
   - datashader
@@ -37,6 +38,7 @@ dependencies:
   - nc-time-axis
   - netcdf4
   - numpy
+  - oceansdb
   - palettable
   - pandas<1.1
   - panel
