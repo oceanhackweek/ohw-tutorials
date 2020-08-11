@@ -1,0 +1,189 @@
+---
+title: "08-Intro-to-OBPG"
+author: "btupper"
+date: "8/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Install ohwobpg package
+installed <- rownames(installed.packages())
+if (!("ohwobpg" %in% installed))  remotes::install_github("BigelowLab/ohwobpg", quiet = TRUE)
+```
+# [OBPG](https://oceancolor.gsfc.nasa.gov/) for [Ocean Hack Week 2020](https://oceanhackweek.github.io/)
+
+Ocean Color Processing Group (OPBG) serves satellite data via [OPeNDAP](https://www.opendap.org/).  This packages provides simple tools in [R language](https://www.r-project.org/) for downloading subsets of global data files, and proposes a simple method for storing and managing the datasets.
+
+This package is deminstrates working with [Level 3](https://oceancolor.gsfc.nasa.gov/products/) (simple global grids) specifically from the [AQUA_MODIS](https://oceancolor.gsfc.nasa.gov/data/aqua/) instrumentation.  The package may be adaptable for other products/instruments, but we haven't tried anything other than AQUA_MODIS Level 3 mapped images.
+
+OBPG managers are migrating from an old-style [naming convention](https://oceancolor.gsfc.nasa.gov/docs/filenaming-convention/) to a new-style. Currently, only recently reprocessed data (SST) are served in the new-style. That means this code attemtps to handle either convention seamlessly while navigating the system. Eventually, all products will be served in the new-style filenaming format, so we have kept that in mind when proposing a local storage and management system.
+
+## Storing data
+
+OBPG data naturally organize under a simple heirarchy `<root>/region/yyyy/mmdd/files`. We find that allowing the end user to specify the `<root>/region` while autmatically enforcing the remainder `yyyy/mmdd/files` works really well. For example, suppose you are going to download daily SST and CHLOR_A from AQUA_MODIS covering the Gulf of Maine in 2018.  We suggest that you create the root path like the following shows - a simple directory in you home directory (but whatever works for you works for us.)
+
+```{r}
+library(ohwobpg)
+path <- "~/gom"
+dir.create(path, recursive = TRUE)
+```
+
+Any data you subsequently download using this package will automatically create subdirectories that are required. Below is an example from our own lab where `<root>/region` is `/mnt/ecocast/coredata/obpg2/nwa/AQUA_MODIS/L3m` and the automatically generated subdirectories, `yyyy/mmdd`, are `2018/0101`.
+
+```
+/mnt/ecocast/coredata/obpg2/nwa/AQUA_MODIS/L3m/2018/0101
+  ├── AQUA_MODIS.20180101.L3m.16DR.CHL.chlor_a.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.32DR.CHL.chlor_a.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.CHL.chlor_a.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.PAR.par.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.PIC.pic.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.POC.poc.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.SST.sst.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.8DR.SST.sst_slope.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.CHL.chlor_a.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.CHL.chlor_a_cum.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.CHL.chlor_a_fill.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.PAR.par.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.PIC.pic.4km.tif
+  ├── AQUA_MODIS.20180101.L3m.DAY.POC.poc.4km.tif
+  └── AQUA_MODIS.20180101.L3m.DAY.SST.sst.4km.tif
+```
+
+## Downloading example
+
+Let's download 2018 monthly CHLOR_A data at 9km resoltion just for the Gulf of Maine region. First we build a series of URLs for the data using `obpg_build_url()`.  The function has a number of arguments, but we'll just focus on what we need and accept the default values for the others.  Complete documentation is available by typing at the console, `?obpg_build_url`.
+
+```{r}
+library(ohwobpg)
+
+  
+# and define our bounding box [west, east, south, north]
+BB <- c(-72, -63, 39, 46)
+
+# we need a sequence of dates
+dates <- seq(
+  from = as.Date("2018-01-01"), 
+  to = as.Date("2018-12-01"), 
+  by = "month")
+
+# then we build the URLs
+urls <- obpg_build_url(
+  dates = dates,
+  param = "chlor_a",
+  suite = "CHL",
+  period = "MO",
+  res = "9km")
+head(urls)
+```
+
+Now we'll open just the first NCDF resource.  From that we'll build a simple list of items we need to successfully navigate the remainder of the URLs. Then we can close the NCDF resource.
+
+```{r}
+nc1 <- obpg_open(urls[1])
+nav <- obpg_nc_nav(nc1,
+  bb = BB,
+  res = obpg_res(what = "9km"),
+  varname = "chlor_a")
+obpg_close(nc1)
+```
+
+Now we simply need to iterate through the dates - downloading the subset data and storing in our path.
+
+```{r}
+for (this_url in urls){
+  cat("fetching", basename(this_url), "\n")
+  new_data <- obpg_fetch(this_url, nav, outpath = path)
+}
+```
+
+
+> **Note** We have downloaded a larger dataset of sst, par and chlor_a for the Gulf of Maine which we will work with later.  The script we used for downloading can be found [here](https://github.com/BigelowLab/ohwobpg/blob/master/inst/scripts/fetch_ohw_obpg.R).
+
+## Make a database and save it
+
+It is easy to create a database by first creating a list of files, then parsing to the database format.  We actually have that list of files in hand already in our URLs, but for the sake of example, let's do a listing by file search instead.  Note that we use the pipe operator `%>%`, provided to us by the [dplyr](https://CRAN.R-project.org/package=dplyr) package, to pipe the output of one function to the the input of the next. There are [boat loads](https://rseek.org/?q=dplyr+tutorial) of tutorials on using dplyr available to you.
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+
+db <- list.files(path, pattern = glob2rx("*.tif"), full.names = TRUE, recursive = TRUE) %>%
+  as_database() %>%
+  write_database(path)
+db
+```
+
+## The database contents
+
+The database is a very simple table (data frame) build from various elements of a filename. All of the parts could be compute as-needed which would make the file smaller to store on disk, but the ease of parsing and saving is worth the extra bit of disk required.  The OBPG filenames have all of the necessary information to uniquely identify each file - details can found in the documentation `?as_database`.  For now, let's just print it out and look at it.
+
+> **Note** The nrt column refers to "near real time" data. OBPG group first publishes it data flagged as "nrt".  Some time later (weeks? months?), after quality review and adjustments, the data is republished without the "nrt" flag. For this tutorial we'll ignore it, but one could use that to identify local files suitable for updating when OBPG updates. 
+
+
+Use the `read_database(path)` and `write_database(db, path)` functions for input and output.
+
+
+## A larger dataset
+
+We provide with the [ohwobpg](https://github.com/BigelowLab/ohwobpg) package a slightly larger and more complex dataset. This will save the need for each participant to download from the OBPG servers.  The larger dataset includes ...
+
+  + monthly sst, chlor_a and par data from 2018 in the Gulf of Maine  
+  
+  + daily sst data from August 2018 in the Gulf of Maine
+  
+The path must now be redefined, and then we can read in the new associated database.
+
+```{r}
+path <- system.file("gom", package = "ohwobpg")
+db <- read_database(path)
+```
+
+We can do a quick summary by counting the records by period and parameter. 
+
+```{r}
+db %>%                       # start with the database
+  dplyr::count(per, param)   # count instance first by period then by parameter 
+```
+
+> **Note** almost every function in R comes from a package - it can be hard to remember where each comes from.  To help jog one's memory it can be helpful to prepend the package name to the function - for instance, instead of writing `count(...)` note that we wrote `dplyr::count(...)`.  In this case, there is no difference between the two other than it is easy to recall to which package `count()` belongs. 
+
+## Using the database to select files to read
+
+The database can be easily filtered to chose just the images needed; for this task we continue leveraging the tools in the [dplyr](https://CRAN.R-project.org/package=dplyr) package.  Let's grab par monthly data between May and September of 2018. First we filter the database to a smaller subset, then convert it to a set of filenames, and finally load it into a raster stack. 
+
+```{r}
+library(raster)
+
+par_db <- db %>% 
+  dplyr::filter(param == "sst" & 
+                per == "MO" &
+                dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
+par_db
+```
+
+Using the filtered database we then read in a subset of records into a raster stack of images.  By default each layer's name is assigned the filename from which it came, but that can make for really names.  We know that each layer is one month, so we will assign each a new name: "Jun", "Jul", "Aug", "Sep".  You can lean more about formatting dates here `?strftime`. The are many [raster tutorials](https://rseek.org/?q=raster+tutorial) available and a handy [cheatsheet](https://rpubs.com/etiennebr/visualraster).
+
+```{r}
+par <- par_db %>%                # start with the subset database
+  as_filename(path = path) %>%   # build filenames and append to the path
+  raster::stack()                # read them into a stack of images
+  
+names(par) <- format(par_db$date, "%b")
+
+par
+```
+
+## Drawing rasters
+
+There are lots of ways to draw a raster.  We show three simple ones in a [brief tutorial](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/plotting_rasters.Rmd).  
+
+> **Note** If you [clone](https://github.com/git-guides/git-clone) the package to your lcoal computer you can easily view these tutorials from within an RStudio session.
+
+## Extracting data from a stack of rasters
+
+Extracting from a stack at a point, a patch of points, or a polygon is very staright forward. See this [tutorial for an example](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/extracting_rasters.Rmd).
+
+## Deriving new rasters - raster math!
+
+Creating a derived stack is easy with raster math - see this [page for an example](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/deriving_rasters.md).
+

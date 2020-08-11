@@ -1,0 +1,117 @@
+---
+title: "Extracting rasters"
+author: "Camille Ross"
+date: "8/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install and load packages
+
+```{r load_libraries, message=FALSE}
+# Load libraries
+library(tidyverse)
+library(raster)
+library(ggplot2)
+library(leaflet)
+library(dplyr)
+library(remotes)
+library(lubridate)
+# Install ohwobpg package
+installed <- rownames(installed.packages())
+if (!("ohwobpg" %in% installed))  remotes::install_github("BigelowLab/ohwobpg", quiet = TRUE)
+# Load ohwobpg package
+library(ohwobpg)
+```
+
+## Initialize raster for visualization
+
+Once the necessary packages are loaded, we will start by creating a raster object from a pre-loaded ohwobpg database.  Specifically, we will be creating a raster object of sea surface temperature (SST) data for 2018.
+
+```{r init_raster, message=FALSE, warning=FALSE}
+# Load database
+path <- system.file("gom", package = "ohwobpg")
+db <- read_database(path)
+
+# Subset database
+par_db <- db %>% 
+  dplyr::filter(param == "sst" & 
+                per == "MO" &
+                dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
+
+# Create raster stack
+sat <- par_db %>%                # start with the subset database
+  as_filename(path = path) %>%   # build filenames and append to the path
+  raster::stack()                # read them into a stack of images
+ 
+# Name layers
+names(sat) <- format(par_db$date, "%b")
+
+# Read in buoy data
+buoy <- read_buoy(buoy = "M01")
+# Name layers
+names(buoy) <- c("time", "sal", "sigma_t", "conductivity", "temp")
+
+# Read in buoy locations
+buoy_loc <- buoy_locations()[, c("lon", "lat")]
+
+```
+
+## Extract buoy location from satellite data
+
+The buoy location is extracted from the satellite data raster using the code below.  For more examples of extracting point data from rasters and other raster manipulations, see https://mgimond.github.io/megug2017/#raster-manipulation-basics. 
+
+```{r base_plot, message=FALSE, warning=FALSE}
+raster::extract(sat, buoy_loc)
+```
+
+## Plot buoy location and satellite data using leaflet
+
+Finally, we will plot the satellite data and the buoy location on a leaflet interactive map.  The leaflet::addRasterImage() function allows the user to plot raster objects on the map.  The leaflet::addCircles() function allows the user to plot point data on the map.  For a more detailed example, see https://rstudio.github.io/leaflet/raster.html.
+
+```{r leaflet, message=FALSE, warning=FALSE}
+leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>% 
+            # Add satellite imagery
+            leaflet::addProviderTiles('Esri.WorldImagery', group = "Satellite") %>%
+            # Define bounds
+            leaflet::fitBounds(lng1 = xmin(sat), 
+                               lat1 = ymin(sat), 
+                               lng2 = xmax(sat), 
+                               lat2 = ymax(sat)) %>%
+            # Add raster data
+            leaflet::addRasterImage(sat$Jul) %>%
+            # Add buoy data
+            leaflet::addCircles(lng = buoy_loc$lon, lat = buoy_loc$lat)
+```
+
+
+## Plot time series of buoy and satellite data
+
+Finally, we plot a time series of the buoy data and satellite data.  Both datasets are formatted to plot using the ggplot2 package.
+
+```{r time_series, message=FALSE, warning=FALSE}
+# Format satellite data
+sat_df <- tidyr::gather(as.data.frame(raster::extract(sat, buoy_loc)), month, value, Jun:Sep) %>%
+  dplyr::mutate(month_num = 6:9)
+
+# Format buoy data
+buoy_df <- buoy %>%
+  dplyr::mutate(month_num = lubridate::month(time)) %>%
+  dplyr::group_by(month_num) %>%
+  # Compute monthly average
+  dplyr::summarise(mean = mean(temp))
+
+# Initialize colors
+colors <- c("Satellite" = "red", "Buoy" = "blue")
+# Plot time series of buoy and satellite data
+ggplot(data = sat_df, mapping = aes(x = month_num, y = value, color = "Satellite")) +
+  geom_path() + 
+  geom_path(data = buoy_df, aes(x = month_num, y = mean, color = "Buoy")) +
+  labs(x = "Month",
+       y = "Temp (°C)",
+       color = "")
+```
+
