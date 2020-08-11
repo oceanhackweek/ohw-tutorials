@@ -1,0 +1,13 @@
+Sample	Material	Date	Location	Coordinates	Oxygen	Depth	Fraction	Temperature	Salinity	H2S	Particulate_S	TSVS	CH4
+CarOxic_Nov_143	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	82.02	143	0.2-2.7	19.40	36.61	0.00	0.00	0.00	0.02
+CarDysox_Nov_200	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	14.07	200	0.2-2.7	18.09	36.43	0.00	0.00	0.00	0.01
+CarSuboxic_Nov_237	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.41	237	0.2-2.7	17.88	36.40	0.00	0.03	0.02	0.01
+CarAnox_Nov_247	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.00	247	0.2-2.7	17.83	36.39	0.00	0.03	0.01	0.01
+CarSulf_Nov_267	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.00	267	0.2-2.7	17.76	36.38	0.00	0.13	0.01	0.18
+CarEux_Nov_900	seawater	Nov-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.00	900	0.2-2.7	17.11	36.26	119.98	0.00	0	10.83
+CarOxic_May_103	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	122.9	103	0.2-2.7	19.7	36.7	0	0.00	0.00	0.02
+CarDysox_May_198	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	31.9	198	0.2-2.7	18.1	36.4	0	0.00	0.00	0.02
+CarSuboxic_May_234	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	12.0	234	0.2-2.7	17.9	36.4	0	0.03	0.02	0.08
+CarAnox_May_295	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.0	295	0.2-2.7	17.7	36.4	0	0.14	0.22	0.81
+CarSulf_May_314	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W	0.0	314	0.2-2.7	17.6	36.4	6.76	0.46	0.20	1.75
+CarEux_May_900	seawater	May-2014	Venezuela: Cariaco Basin	10.617 N 65.167 W		900	0.2-2.7	17.1	36.3	70.33	0.00	0.00	12.42
