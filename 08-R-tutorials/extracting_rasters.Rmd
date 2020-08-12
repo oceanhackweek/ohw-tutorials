@@ -20,6 +20,7 @@ library(leaflet)
 library(dplyr)
 library(remotes)
 library(lubridate)
+library(viridis)
 # Install ohwobpg package
 installed <- rownames(installed.packages())
 if (!("ohwobpg" %in% installed))  remotes::install_github("BigelowLab/ohwobpg", quiet = TRUE)
@@ -29,34 +30,35 @@ library(ohwobpg)
 
 ## Initialize raster for visualization
 
-Once the necessary packages are loaded, we will start by creating a raster object from a pre-loaded ohwobpg database.  Specifically, we will be creating a raster object of sea surface temperature (SST) data for 2018.
+Once the necessary packages are loaded, we will start by creating a raster object from a pre-loaded ohwobpg database.  Specifically, we will be creating a raster object of sea surface temperature (SST) data for June through September of 2018.
 
 ```{r init_raster, message=FALSE, warning=FALSE}
+# Read in satellite data ----
 # Load database
 path <- system.file("gom", package = "ohwobpg")
 db <- read_database(path)
 
 # Subset database
-par_db <- db %>% 
+sst_db <- db %>% 
   dplyr::filter(param == "sst" & 
                 per == "MO" &
-                dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
+                dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-12-26")))
 
 # Create raster stack
-sat <- par_db %>%                # start with the subset database
+sat <- sst_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
  
 # Name layers
-names(sat) <- format(par_db$date, "%b")
+names(sat) <- format(sst_db$date, "%b")
 
-# Read in buoy data
+# Read in buoy data ----
 buoy <- read_buoy(buoy = "M01")
 # Name layers
 names(buoy) <- c("time", "sal", "sigma_t", "conductivity", "temp")
 
-# Read in buoy locations
-buoy_loc <- buoy_locations()[, c("lon", "lat")]
+# Read in buoy locations, select first buoy only
+buoy_loc <- buoy_locations()[, c("lon", "lat")][1, ]
 
 ```
 
@@ -73,6 +75,9 @@ raster::extract(sat, buoy_loc)
 Finally, we will plot the satellite data and the buoy location on a leaflet interactive map.  The leaflet::addRasterImage() function allows the user to plot raster objects on the map.  The leaflet::addCircles() function allows the user to plot point data on the map.  For a more detailed example, see https://rstudio.github.io/leaflet/raster.html.
 
 ```{r leaflet, message=FALSE, warning=FALSE}
+# Initialize color palette
+pal <- leaflet::colorNumeric(palette = "viridis", domain = r_df$Jun, na.color = "#00000000")
+# Render leaflet map
 leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>% 
             # Add satellite imagery
             leaflet::addProviderTiles('Esri.WorldImagery', group = "Satellite") %>%
@@ -82,7 +87,7 @@ leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>%
                                lng2 = xmax(sat), 
                                lat2 = ymax(sat)) %>%
             # Add raster data
-            leaflet::addRasterImage(sat$Jul) %>%
+            leaflet::addRasterImage(sat$Jul, colors = pal) %>%
             # Add buoy data
             leaflet::addCircles(lng = buoy_loc$lon, lat = buoy_loc$lat)
 ```
@@ -94,8 +99,8 @@ Finally, we plot a time series of the buoy data and satellite data.  Both datase
 
 ```{r time_series, message=FALSE, warning=FALSE}
 # Format satellite data
-sat_df <- tidyr::gather(as.data.frame(raster::extract(sat, buoy_loc)), month, value, Jun:Sep) %>%
-  dplyr::mutate(month_num = 6:9)
+sat_df <- tidyr::gather(as.data.frame(raster::extract(sat, buoy_loc)), month, value, Jun:Dec) %>%
+  dplyr::mutate(month_num = 6:12)
 
 # Format buoy data
 buoy_df <- buoy %>%

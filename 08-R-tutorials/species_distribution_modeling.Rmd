@@ -2,9 +2,7 @@
 title: "Species Distribution Modeling"
 author: "Camille Ross"
 date: "8/11/2020"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
