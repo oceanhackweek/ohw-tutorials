@@ -2,7 +2,7 @@ name: OHW
 channels:
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.8
   - pangeo-notebook=2020.06.03
   - argopy
   - bokeh
