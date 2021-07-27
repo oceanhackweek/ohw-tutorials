@@ -1,13 +1,13 @@
-name: OHW20
+name: OHW
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
-  - pangeo-notebook=2020.06.03
+  - python=3.9
+  - pangeo-notebook=2021.07.24
   - argopy
   - bokeh
   - bottleneck
-  - cartopy <0.18
+  - cartopy
   - cdsapi
   - cf-units
   - cf_xarray
@@ -40,7 +40,7 @@ dependencies:
   - numpy
   - oceansdb
   - palettable
-  - pandas<1.1
+  - pandas
   - panel
   - param
   - podaacpy
@@ -97,15 +97,8 @@ dependencies:
   - r-tibble
   - r-tidyr
   - r-rlang
-  # cannot do latest r-sf for now, so no latest r-obis as well :-/
-  # - r-sf >=0.9_5
   - r-sf
   # extras
   - conda-lock
-  - emacs
   - git
   - graphviz
-  - nano
-  - unzip
-  - vim
-  - zip

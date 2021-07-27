@@ -1,0 +1,35 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  run:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Conda
+      uses: s-weigand/setup-conda@v1
+      with:
+        activate-conda: false
+        update-conda: true
+        conda-channels: conda-forge
+
+    - name: Create Env
+      shell: bash -l {0}
+      run: |
+        conda env create --name OHW --file environment.yml
+
+    - name: Tests
+      shell: bash -l {0}
+      run: |
+        source activate TEST
+        conda install pytest nbval
+        pytest --nbval-lax -p no:python tests
