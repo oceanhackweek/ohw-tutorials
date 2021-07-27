@@ -30,6 +30,6 @@ jobs:
     - name: Tests
       shell: bash -l {0}
       run: |
-        source activate TEST
+        source activate OHW
         conda install pytest nbval
         pytest --nbval-lax -p no:python tests
