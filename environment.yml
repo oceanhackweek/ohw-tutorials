@@ -11,8 +11,10 @@ dependencies:
   - cdsapi
   - cf-units
   - cf_xarray
+  - cmip6_preprocessing
   - colorcet
   - compilers
+  - compliance-checker
   - cotede
   - ctd
   - dask
@@ -70,7 +72,6 @@ dependencies:
   - r-maps
   - r-maptools
   - r-ncdf4
-  - r-oce
   - r-patchwork
   - r-plotly
   - r-raster
@@ -98,6 +99,26 @@ dependencies:
   - r-tidyr
   - r-rlang
   - r-sf
+  - r-oce
+  # r-oce Suggests
+  - r-akima
+  - r-automap
+  - r-dbi
+  - r-foreign
+  - r-knitr
+  - r-lubridate
+  # - r-marmap :: https://github.com/conda-forge/staged-recipes/pull/15763
+  - r-ncdf4
+  # - r-ocedata :: https://github.com/conda-forge/staged-recipes/pull/15763
+  - r-raster >=1.4.3
+  - r-rgeos
+  - r-rmarkdown
+  - r-rsqlite
+  - r-r.utils
+  - r-sp
+  - r-tiff
+  - r-xml2
+
   # extras
   - conda-lock
   - git
