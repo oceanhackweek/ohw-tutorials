@@ -25,11 +25,21 @@ jobs:
     - name: Create Env
       shell: bash -l {0}
       run: |
-        conda env create --name OHW --file environment.yml
+         if [ "$RUNNER_OS" == "Linux" ]; then
+              conda create --name OHW --file .binder/conda-linux-64.lock
+         elif [ "$RUNNER_OS" == "Windows" ]; then
+              conda create --name OHW --file .binder/conda-win-64.lock
+         elif [ "$RUNNER_OS" == "macOS" ]; then
+              conda create --name OHW --file .binder/conda-osx-64.lock
+         else
+              echo "$RUNNER_OS not supported"
+              exit 1
+         fi
+         source activate OHW
 
     - name: Tests
       shell: bash -l {0}
       run: |
-        source activate TEST
+        source activate OHW
         conda install pytest nbval
         pytest --nbval-lax -p no:python tests
