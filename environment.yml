@@ -67,6 +67,7 @@ dependencies:
   - r-gridextra
   - r-gsw
   - r-irkernel
+  - r-keras
   - r-leaflet
   - r-mapdata
   - r-maps
