@@ -4,7 +4,7 @@ channels:
 dependencies:
   - python=3.9
   - pangeo-notebook=2021.07.24
-  - argopy
+  - argopy>=0.1.7
   - bokeh
   - bottleneck
   - cartopy
@@ -12,18 +12,22 @@ dependencies:
   - cf-units
   - cf_xarray
   - cmip6_preprocessing
+  - cmocean
   - colorcet
   - compilers
   - compliance-checker
-  - cotede
+  - conda-lock
   - ctd
   - dask
   - datashader
   - descartes
   - erddapy
+  - fastparquet
+  - ffmpeg
   - geolinks
   - geopandas
   - geoviews
+  - graphviz
   - gsw
   - h5netcdf
   - holoviews
@@ -36,20 +40,26 @@ dependencies:
   - jupyter-rsession-proxy
   - jupyter_contrib_nbextensions
   - jupyterlab
+  - jupyterlab-git
   - matplotlib-base
+  - movingpandas
+  - nb_conda_kernels
+  - nbgitpuller
   - nc-time-axis
   - netcdf4
   - numpy
-  - oceansdb
   - palettable
   - pandas
   - panel
   - param
   - podaacpy
   - pyoos
+  - python-snappy
   - rasterio
+  - regionmask
   - requests
   - retrying
+  - rise
   - s3fs
   - scipy
   - seaborn
@@ -57,70 +67,91 @@ dependencies:
   - shapely
   - siphon
   - xarray
+  - xgcm
   - xlrd
   - zarr
   # R packages
   - r-base
+  - r-abind
+  - r-akima
   - r-ape
+  - r-automap
+  - r-biomod2
+  - r-bitops
+  - r-caret
+  - r-catools
+  - r-checkmate
+  - r-commonmark
   - r-cowplot
   - r-crul
+  - r-dbi
+  - r-dismo
+  - r-doparallel
+  - r-dplyr
+  - r-earth
+  - r-foreach
+  - r-foreign
+  - r-gbm >=2.1.3
+  - r-geometry
+  - r-geosphere
+  - r-ggplot2
+  - r-glmnet
   - r-gridextra
   - r-gsw
-  - r-irkernel
-  - r-keras
-  - r-leaflet
-  - r-mapdata
-  - r-maps
-  - r-maptools
-  - r-ncdf4
-  - r-patchwork
-  - r-plotly
-  - r-raster
-  - r-rastervis
-  - r-remotes
-  - r-rgdal
-  - r-rgeos
-  - r-rnaturalearth
-  - r-rnaturalearthdata
-  - r-sf
-  - r-tidyverse
-  - r-vegan
-  - rpy2
-  # robis deps
-  - r-commonmark
-  - r-dplyr
-  - r-ggplot2
+  - r-hexbin
   - r-httpcache
   - r-httr
+  - r-irkernel
   - r-jsonlite
+  - r-keras
+  - r-knitr
+  - r-lattice
   - r-leaflet
+  - r-lpsolve
+  - r-lubridate
+  - r-mapdata
   - r-mapedit
+  - r-maps
+  - r-maptools
+  - r-marmap
+  - r-mass
+  - r-mda
+  - r-ncdf4
+  - r-nnet
+  - r-oce
+  - r-ocedata
+  - r-patchwork
+  - r-plotly
+  - r-proc >=1.15.0
+  - r-ps>=1.3.4
+  - r-purrr
+  - r-r.utils
+  - r-randomforest
+  - r-rann
+  - r-raster >=1.4.3
+  - r-rastervis
+  - r-readr
+  - r-remotes
+  - r-reshape
+  - r-rgdal>=1.5
+  - r-rgeos
+  - r-rlang
+  - r-rmarkdown
+  - r-rnaturalearth
+  - r-rnaturalearthdata
   - r-robis
+  - r-rpart
+  - r-rsqlite
+  - r-rstackdeque
+  - r-s2
+  - r-sf >=0.9_5
+  - r-sp
   - r-tibble
   - r-tidyr
-  - r-rlang
-  - r-sf
-  - r-oce
-  # r-oce Suggests
-  - r-akima
-  - r-automap
-  - r-dbi
-  - r-foreign
-  - r-knitr
-  - r-lubridate
-  # - r-marmap :: https://github.com/conda-forge/staged-recipes/pull/15763
-  - r-ncdf4
-  # - r-ocedata :: https://github.com/conda-forge/staged-recipes/pull/15763
-  - r-raster >=1.4.3
-  - r-rgeos
-  - r-rmarkdown
-  - r-rsqlite
-  - r-r.utils
-  - r-sp
+  - r-tidyverse
   - r-tiff
+  - r-tzdb
+  - r-vegan
+  - r-vroom
   - r-xml2
-
-  # extras
-  - conda-lock
-  - git
-  - graphviz
+  - rpy2
