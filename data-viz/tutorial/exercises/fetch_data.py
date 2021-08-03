@@ -15,7 +15,7 @@ def get_earthquake_data():
         print('Earthquakes dataset present, skipping download')
         return
 
-    for yr in range(2000, 2010):
+    for yr in range(2000, 2002):
         for m in range(1, 13):
             if os.path.isfile('{yr}_{m}.csv'.format(yr=yr, m=m)):
                 continue
@@ -26,12 +26,16 @@ def get_earthquake_data():
                 f.write(requests.get(URL.format(start=start, end=end)).content.decode('utf-8'))
 
     dfs = []
-    for i in range(2000, 2010):
+    for i in range(2000, 2002):
         for m in range(1, 13):
             if not os.path.isfile('%d_%d.csv' % (i, m)):
                 continue
-            df = pd.read_csv('%d_%d.csv' % (i, m), dtype={'nst': 'float64'})
-            dfs.append(df)
+            try:
+                df = pd.read_csv('%d_%d.csv' % (i, m), dtype={'nst': 'float64'})
+                dfs.append(df)
+            except:
+                print('skipping: ' + '%d_%d.csv' % (i, m))
+                
 
     # Get a list of all the file paths that ends with .csv from in specified directory
     fileList = glob.glob('*.csv')
