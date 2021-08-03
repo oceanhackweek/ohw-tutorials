@@ -142,16 +142,9 @@ log_inputs <- function(data,
 #' @export
 make_image_list <- function(raw_data, tox_levels, forecast_steps, n_steps, minimum_gap, maximum_gap, toxins, environmentals) {
   
-  stations <- pspdata::read_station_metadata()
-  
-  lon_lut <- stations$lon
-  names(lon_lut) <- stations$location_id
-  
   normalized_data <- raw_data %>% 
     dplyr::mutate(classification = recode_classification(.data$total_toxicity, tox_levels),
-                  meets_gap = check_gap(.data$gap_days, minimum_gap, maximum_gap),
-                  week = date_to_week(.data$date),
-                  lon = lon_lut[.data$location_id]) %>% 
+                  meets_gap = check_gap(.data$gap_days, minimum_gap, maximum_gap)) %>% 
     normalize_input(toxins, environmentals)
   
   find_images <- function(tbl, key, forecast_steps, n_steps, minimum_gap, maximum_gap, toxins, environmentals) {
