@@ -1,0 +1,48 @@
+---
+title: "Data analysis in R with the oce package"
+author: "Clark Richards"
+date: "2021-08-04"
+output: html_notebook
+---
+
+# Introduction
+
+The `oce` package was designed by observational oceanographers (originally just Dan Kelley from Dalhousie University) to make it easy to import various oceanographic data formats into R for analysis. As time progressed, and more and more disparate data formats were supported (including data from different instrument manufacturers, e.g. SBE and RBR, but also data from different *types* of instruments, such as CTDs and ADCPs), the package evolved to incorporate other useful aspects of oceanographic analysis, including:
+
+* seawater equation of state (`sw*()` functions, and then later the separate `gsw` package for the TEOS-10 fuctions)
+* specialized oceanographic plots (e.g. TS plots, profile plots, sections, etc)
+* better image/pcolor-like plots (more Matlab/python-like, at least)
+* tidal analysis (based on the canonical `t_tide` for Matlab)
+* easier mapping (especially projections)
+* data quality flags
+
+
+## `oce` Resources
+
+* The official [CRAN](https://cran.r-project.org/web/packages/oce/index.html) package page
+
+* The [`oce` webpage](https://dankelley.github.io/oce/) has several useful vignettes, covering a range topics (not exhaustive) that the package touches on.
+
+* [My blog](https://clarkrichards.org) has quite a few posts were I go through aspects of oce, including sometimes new package features that I am playing around with.
+
+* Dan Kelley's fantastic [book](https://www.springer.com/us/book/9781493988426), "Oceanographic Analysis with R" (OAR).
+
+# Package details
+
+## Installing
+
+The `oce` package is hosted on CRAN, and has been for approximately 15 years. Because it is near the size limit for packages (5 MB!), mostly due to some of the included data sets, we try not too update it too frequently (as all the old versions are also archived on the CRAN server). Typically CRAN updates happen about twice a year.
+
+The development version of `oce` can be obtained from the [Github page](https://github.com/dankelley/oce/), and installed using `R CMD ...` or the `remotes`/`devtools` packages. Note that `oce` includes a number of tools that use compiled code, including Fortran (for the geomagnetic library), C, and C++, so in order to install the package from source you have to configure your system with the appropriate compilers and system dependencies.
+
+Issues (i.e. bug reports, questions, feature requests, etc) can also be submitted at the [Github Issues page](https://github.com/dankelley/oce/issues). We are also happy to consider pull requests, though given the specialized nature of many of the components, it is encouraged to discuss any potential PRs with the authors before doing too much work, so ensure minimal back and forth and easier code reviews.
+
+## Object orientation
+
+`oce` uses the S4 object orientation system, which for me is just magical enough to be mind-blowing, and just enough of a pain-in-the-ass to figure out to be really annoying (hence, the warning about checking before going off on a crazy new PR). Probably there are better OO systems out there now, but S4 is included in base-R and the package is large so updating systems is not a small task. For users, at least, the S4 system is easy and fairly intuitive. 
+
+## Graphics
+
+`oce` uses base graphics exclusively for all plot types and plotting methods -- i.e. NOT ggplot2. We are old, and stubborn about our love of base graphics (stemming at least partly from the fact that the classic "data.frame" approach to analysis is often not appropriate for detailed oceanographic data objects). Similarly, the "tidyverse" functions typically won't work on `oce` objects, unless some coercion to data frames is done first (which strips out a lot of the information contained in the object).
+
+There is an in-development package by called [`ggoce`](https://github.com/paleolimbot/ggoce) that provides some bindings for commonly-used plot types.
