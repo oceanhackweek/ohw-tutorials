@@ -261,23 +261,92 @@ ctdRaw %>% ctdTrim(method='sbe') %>% plotProfile()
 
 Much better!
 
+Aside from soak/downcast trimming, the object orientation provides `subset()` methods for almost all `oce` objects, including ctds. The `oce` version of `subset()` works much like the default data method, but specialized for the `oce` object structure.
+
+```{r}
+ctd %>% plotTS()
+ctd %>% subset(10 <= pressure & pressure <= 30) %>% plotTS(add=TRUE, col=2)
+ctd %>% subset(temperature > 10) %>% plotTS(add=TRUE, col=3)
+```
+
+
+### Note: Reading vs creating `ctd` objects
+
+Supported file formats create a `ctd-class` object when they are read in, but as you are aware there are as many data file formats out in the wild as there are drops in the ocean (ok, maybe that's a bit of an exaggeration ...). In cases where there isn't already a supported `read.ctd.*()` function, you can always created a `ctd` object using the `as.ctd()` function, combined with the `oceSetData()` `oceSetMetadata()` functions, e.g.
+
+```{r}
+myCTD <- as.ctd(salinity=35 + rnorm(100),
+                temperature = 5 + rnorm(100),
+                pressure = 1:100)
+myCTD <- oceSetData(myCTD, 'nitrate', rnorm(100), unit=list(unit=expression(mu*mol),
+                                                             scale=''))
+myCTD <- oceSetMetadata(myCTD, 'ship', 'HMS BoatyMcBoatface')
+par(mfrow=c(1, 2))
+plotProfile(myCTD)
+plotProfile(myCTD, xtype='nitrate')
+```
+The `as.ctd()` function can also be used to *coerce* other object classes into `ctd` class objects, where appropriate. This includes `rsk` objects which come from RBR instruments (not all of them are CTDs), and `argo` objects (which are sort of a special case of a ctd object).
+
 ## Seawater functions
 
+The `oce` package contains a full suite of seawater equation of state functions, based on the "old" UNESCO formulae. Each of the functions is prefixed with `sw`, e.g. `swTheta()`, `swSCTp()` (salinity from conductivity, temperature, and pressure), etc. See the [introductory vignette](https://dankelley.github.io/oce/articles/oce.html#calculation-of-seawater-properties-1) for an overview.
+
+Access to the "new" [TEOS-10](http://teos-10.org/) seawater functions is provided through the [`gsw` package](http://teos-10.github.io/GSW-R/) which is a dependency of `oce`. Depending on the goals, you can use either the UNESCO or TEOS direct functions, can specify the `eos=` argument in relevant functions (e.g. `plotTS()`), or you can set the option `oceEOS` to be either "unesco" or "gsw".
+
+```{r}
+getOption('oceEOS') # default is unesco
+```
+
+```{r}
+par(mfrow=c(1, 2))
+plotTS(ctd, eos="unesco")
+plotTS(ctd, eos="gsw")
+```
 
 
 ## Section objects
 
+Sequences of CTD stations are often done along a line, referred to as a "ocean section", as it represents a sort of slice through the ocean over a relatively short period of time. Dealing with a pile of CTD profiles, to be strung together as a "section" can be accomplished with the `section` class in `oce`.
 
+While there are some datasets that are actually stored with all the stations from a line in one file (see e.g. the WOCE formats), typically a `section` object is created from a *sequence* of `ctd` objects, usually contained in a list, using the `as.section()` function. A canonical example of creating a section from a directory of CTD files could be:
 
-## Data quality flags
+```{r eval=FALSE}
+files <- dir('data_folder/', pattern='*.cnv')
+ctd <- lapply(files, read.oce)
+section <- as.section(ctd)
+```
 
+Inside, a `section` object is really just a list of `ctd` objects, with some metadata to tie them together and a suite of plotting methods that make it easy to make nice quick plots. We can experiment using the included `section` dataset in `oce`:
 
+```{r}
+data(section)
+plot(section)
+```
+Like other `oce` objects, sections can be subsetted:
 
-## Argo data
+```{r}
+gulf_stream <- subset(section, longitude < -70)
+```
 
+We can fancy up the plot using colours:
 
+```{r}
+plot(gulf_stream, which='temperature', ztype='image', zbreaks=4:26, col=oceColorsTemperature)
+```
+Section objects can also be passed to other oce plotting functions, like `plotTS()`:
 
-## Acoustic Dopper Current Profiler (ADCP) data
+```{r}
+plotTS(section, pch=19)
+plotTS(gulf_stream, pch=19, add=TRUE, col=2)
+```
+
+# Other topics!
+
+Other topics that I would have loved to talk about, but you'll just have to read the book/vignettes:
+
+* Data quality flags
+* Argo data (see also the `argoFloats` package!)
+* Acoustic Dopper Current Profiler (ADCP) data
 
 
 
