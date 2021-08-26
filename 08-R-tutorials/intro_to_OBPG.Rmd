@@ -57,14 +57,14 @@ Let's download 2018 monthly CHLOR_A data at 9km resoltion just for the Gulf of M
 ```{r}
 library(ohwobpg)
 
-  
+
 # and define our bounding box [west, east, south, north]
 BB <- c(-72, -63, 39, 46)
 
 # we need a sequence of dates
 dates <- seq(
-  from = as.Date("2018-01-01"), 
-  to = as.Date("2018-12-01"), 
+  from = as.Date("2018-01-01"),
+  to = as.Date("2018-12-01"),
   by = "month")
 
 # then we build the URLs
@@ -117,7 +117,7 @@ db
 
 The database is a very simple table (data frame) build from various elements of a filename. All of the parts could be compute as-needed which would make the file smaller to store on disk, but the ease of parsing and saving is worth the extra bit of disk required.  The OBPG filenames have all of the necessary information to uniquely identify each file - details can found in the documentation `?as_database`.  For now, let's just print it out and look at it.
 
-> **Note** The nrt column refers to "near real time" data. OBPG group first publishes it data flagged as "nrt".  Some time later (weeks? months?), after quality review and adjustments, the data is republished without the "nrt" flag. For this tutorial we'll ignore it, but one could use that to identify local files suitable for updating when OBPG updates. 
+> **Note** The nrt column refers to "near real time" data. OBPG group first publishes it data flagged as "nrt".  Some time later (weeks? months?), after quality review and adjustments, the data is republished without the "nrt" flag. For this tutorial we'll ignore it, but one could use that to identify local files suitable for updating when OBPG updates.
 
 
 Use the `read_database(path)` and `write_database(db, path)` functions for input and output.
@@ -127,10 +127,10 @@ Use the `read_database(path)` and `write_database(db, path)` functions for input
 
 We provide with the [ohwobpg](https://github.com/BigelowLab/ohwobpg) package a slightly larger and more complex dataset. This will save the need for each participant to download from the OBPG servers.  The larger dataset includes ...
 
-  + monthly sst, chlor_a and par data from 2018 in the Gulf of Maine  
-  
+  + monthly sst, chlor_a and par data from 2018 in the Gulf of Maine
+
   + daily sst data from August 2018 in the Gulf of Maine
-  
+
 The path must now be redefined, and then we can read in the new associated database.
 
 ```{r}
@@ -138,24 +138,24 @@ path <- system.file("gom", package = "ohwobpg")
 db <- read_database(path)
 ```
 
-We can do a quick summary by counting the records by period and parameter. 
+We can do a quick summary by counting the records by period and parameter.
 
 ```{r}
 db %>%                       # start with the database
-  dplyr::count(per, param)   # count instance first by period then by parameter 
+  dplyr::count(per, param)   # count instance first by period then by parameter
 ```
 
-> **Note** almost every function in R comes from a package - it can be hard to remember where each comes from.  To help jog one's memory it can be helpful to prepend the package name to the function - for instance, instead of writing `count(...)` note that we wrote `dplyr::count(...)`.  In this case, there is no difference between the two other than it is easy to recall to which package `count()` belongs. 
+> **Note** almost every function in R comes from a package - it can be hard to remember where each comes from.  To help jog one's memory it can be helpful to prepend the package name to the function - for instance, instead of writing `count(...)` note that we wrote `dplyr::count(...)`.  In this case, there is no difference between the two other than it is easy to recall to which package `count()` belongs.
 
 ## Using the database to select files to read
 
-The database can be easily filtered to chose just the images needed; for this task we continue leveraging the tools in the [dplyr](https://CRAN.R-project.org/package=dplyr) package.  Let's grab par monthly data between May and September of 2018. First we filter the database to a smaller subset, then convert it to a set of filenames, and finally load it into a raster stack. 
+The database can be easily filtered to chose just the images needed; for this task we continue leveraging the tools in the [dplyr](https://CRAN.R-project.org/package=dplyr) package.  Let's grab par monthly data between May and September of 2018. First we filter the database to a smaller subset, then convert it to a set of filenames, and finally load it into a raster stack.
 
 ```{r}
 library(raster)
 
-par_db <- db %>% 
-  dplyr::filter(param == "sst" & 
+par_db <- db %>%
+  dplyr::filter(param == "sst" &
                 per == "MO" &
                 dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
 par_db
@@ -167,7 +167,7 @@ Using the filtered database we then read in a subset of records into a raster st
 par <- par_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
-  
+
 names(par) <- format(par_db$date, "%b")
 
 par
@@ -175,7 +175,7 @@ par
 
 ## Drawing rasters
 
-There are lots of ways to draw a raster.  We show three simple ones in a [brief tutorial](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/plotting_rasters.Rmd).  
+There are lots of ways to draw a raster.  We show three simple ones in a [brief tutorial](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/plotting_rasters.Rmd).
 
 > **Note** If you [clone](https://github.com/git-guides/git-clone) the package to your lcoal computer you can easily view these tutorials from within an RStudio session.
 
@@ -186,4 +186,3 @@ Extracting from a stack at a point, a patch of points, or a polygon is very star
 ## Deriving new rasters - raster math!
 
 Creating a derived stack is easy with raster math - see this [page for an example](https://github.com/BigelowLab/ohwobpg/blob/master/inst/tutorials/deriving_rasters.md).
-

@@ -402,7 +402,7 @@ library(viridis, quietly = TRUE)</code></pre>
 <div id="plot-occurrences" class="section level2">
 <h2>Plot occurrences</h2>
 <p>Next, let’s plot the E. glacialis occurrences on a map to take a closer look at the data</p>
-<pre class="r"><code># Load world map data 
+<pre class="r"><code># Load world map data
 worldmap &lt;- ggplot2::map_data(&quot;world&quot;)
 
 # Plot occurrences on world map
@@ -411,9 +411,9 @@ ggplot2::ggplot(data = E.glacialis, mapping = aes(x = decimalLongitude, y = deci
   geom_point() +
   # Add map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = &quot;gray43&quot;) +
-        coord_quickmap(xlim = c(round(min(E.glacialis$decimalLongitude)), 
-                                round(max(E.glacialis$decimalLongitude))), 
-                       ylim = c(round(min(E.glacialis$decimalLatitude)), 
+        coord_quickmap(xlim = c(round(min(E.glacialis$decimalLongitude)),
+                                round(max(E.glacialis$decimalLongitude))),
+                       ylim = c(round(min(E.glacialis$decimalLatitude)),
                                 round(max(E.glacialis$decimalLatitude))),
                        expand = TRUE) +
   # Clean up theme
@@ -430,8 +430,8 @@ path &lt;- system.file(&quot;gom&quot;, package = &quot;ohwobpg&quot;)
 db &lt;- read_database(path)
 
 # Load sst ----
-sst_db &lt;- db %&gt;% 
-  dplyr::filter(param == &quot;sst&quot; &amp; 
+sst_db &lt;- db %&gt;%
+  dplyr::filter(param == &quot;sst&quot; &amp;
                 per == &quot;MO&quot; &amp;
                 dplyr::between(date, as.Date(&quot;2018-05-15&quot;), as.Date(&quot;2018-09-26&quot;)))
 
@@ -439,13 +439,13 @@ sst_db &lt;- db %&gt;%
 sst &lt;- sst_db %&gt;%                # start with the subset database
   as_filename(path = path) %&gt;%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(sst) &lt;- format(sst_db$date, &quot;%b&quot;)
 
 # Load chlor_a ----
-chlor_a_db &lt;- db %&gt;% 
-  dplyr::filter(param == &quot;chlor_a&quot; &amp; 
+chlor_a_db &lt;- db %&gt;%
+  dplyr::filter(param == &quot;chlor_a&quot; &amp;
                 per == &quot;MO&quot; &amp;
                 dplyr::between(date, as.Date(&quot;2018-05-15&quot;), as.Date(&quot;2018-09-26&quot;)))
 
@@ -453,7 +453,7 @@ chlor_a_db &lt;- db %&gt;%
 chlor_a &lt;- chlor_a_db %&gt;%                # start with the subset database
   as_filename(path = path) %&gt;%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(chlor_a) &lt;- format(chlor_a_db$date, &quot;%b&quot;)
 
@@ -463,7 +463,7 @@ sst[is.na(chlor_a)] &lt;- NA</code></pre>
 <div id="subset-e.-glacialis-data" class="section level2">
 <h2>Subset E. glacialis data</h2>
 <p>Next, we will subset the E. glacialis data so it’s in the same bounding box as our environmental data. We will also subset to only include occurrence records from August, which is the peak feeding season for E. glacialis in the Gulf of Maine.</p>
-<pre class="r"><code>E.glacialis.subset &lt;- E.glacialis %&gt;% 
+<pre class="r"><code>E.glacialis.subset &lt;- E.glacialis %&gt;%
   # Shorten names
   dplyr::rename(lon = decimalLongitude,
                 lat = decimalLatitude) %&gt;%
@@ -484,7 +484,7 @@ E.glacialis.biomod &lt;- E.glacialis.subset %&gt;%
 
 # Add background points
 # Select points using unique latitude and longitude code
-background_locs &lt;- as.data.frame(sst$Aug, xy = TRUE) %&gt;% 
+background_locs &lt;- as.data.frame(sst$Aug, xy = TRUE) %&gt;%
   dplyr::rename(lon = x, lat = y) %&gt;%
   sample_n(500) %&gt;%
   dplyr::mutate(pa = 0, code = paste0(lon, lat)) %&gt;%
@@ -498,7 +498,7 @@ E.glacialis.biomod &lt;- rbind(E.glacialis.biomod, background_locs)</code></pre>
 <h2>Plot occurrences with background points</h2>
 <p>Next, we will plot the occurrences again to ensure they are within the bounding box and do not overlap with the background points. To determine this, we will plot the points on top of the SST layer.</p>
 <pre class="r"><code># Plot occurrences and background points on top of sst data
-ggplot2::ggplot() + 
+ggplot2::ggplot() +
   geom_tile(data = as.data.frame(sst$Aug, xy = TRUE), mapping = aes(x = x, y = y, fill = Aug)) +
   scale_fill_viridis(na.value = &quot;white&quot;) +
   # Add occurrence data
@@ -507,9 +507,9 @@ ggplot2::ggplot() +
   geom_point(data = background_locs, mapping = aes(x = lon, y = lat), color = &quot;red&quot;) +
   # Add map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = &quot;gray43&quot;) +
-  coord_quickmap(xlim = c(xmin(sst), 
-                          xmax(sst)), 
-                 ylim = c(ymin(sst), 
+  coord_quickmap(xlim = c(xmin(sst),
+                          xmax(sst)),
+                 ylim = c(ymin(sst),
                           ymax(sst)),
                  expand = TRUE) +
   # Clean up theme
@@ -538,33 +538,33 @@ formatted_data &lt;- biomod2::BIOMOD_FormatingData(resp.var = species_occurrence
                                                 expl.var = env_covars,
                                                 resp.xy = species_xy,
                                                 resp.name = species_name)</code></pre>
-<pre><code>## 
+<pre><code>##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-= E.glacialis Data Formating -=-=-=-=-=-=-=-=-=-=-=-=-=
-## 
+##
 ## &gt; No pseudo absences selection !
 ##       ! No data has been set aside for modeling evaluation
 ##          ! Some NAs have been automatically removed from your data
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Done -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=</code></pre>
 <pre class="r"><code># Check data
 formatted_data</code></pre>
-<pre><code>## 
+<pre><code>##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-= 'BIOMOD.formated.data' -=-=-=-=-=-=-=-=-=-=-=-=-=-=
-## 
+##
 ## sp.name =  E.glacialis
-## 
+##
 ##   1184 presences,  344 true absences and  0 undifined points in dataset
-## 
-## 
+##
+##
 ##   2 explanatory variables
-## 
-##      Aug.1           Aug.2         
-##  Min.   :13.46   Min.   : 0.07466  
-##  1st Qu.:15.52   1st Qu.: 1.28588  
-##  Median :15.95   Median : 2.18417  
-##  Mean   :17.25   Mean   : 1.90436  
-##  3rd Qu.:17.06   3rd Qu.: 2.34817  
-##  Max.   :28.59   Max.   :38.14736  
-## 
+##
+##      Aug.1           Aug.2
+##  Min.   :13.46   Min.   : 0.07466
+##  1st Qu.:15.52   1st Qu.: 1.28588
+##  Median :15.95   Median : 2.18417
+##  Mean   :17.25   Mean   : 1.90436
+##  3rd Qu.:17.06   3rd Qu.: 2.34817
+##  Max.   :28.59   Max.   :38.14736
+##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=</code></pre>
 </div>
 <div id="define-modeling-options" class="section level2">
@@ -588,49 +588,49 @@ model &lt;- BIOMOD_Modeling(data = formatted_data,
                          models.eval.meth = c(&quot;ROC&quot;),
                          do.full.models = FALSE,
                          modeling.id = paste0(species_name,&quot;Modeling&quot;))</code></pre>
-<pre><code>## 
-## 
+<pre><code>##
+##
 ## Loading required library...
-## 
+##
 ## Checking Models arguments...
-## 
+##
 ## Creating suitable Workdir...
-## 
+##
 ##  &gt; No weights : all observations will have the same weight
-## 
-## 
+##
+##
 ## -=-=-=-=-=-=-=-=-=-=-=-= E.glacialis Modeling Summary -=-=-=-=-=-=-=-=-=-=-=-=
-## 
+##
 ##  2  environmental variables ( Aug.1 Aug.2 )
 ## Number of evaluation repetitions : 3
-## Models selected : GAM 
-## 
-## Total number of model runs : 3 
-## 
+## Models selected : GAM
+##
+## Total number of model runs : 3
+##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-## 
-## 
-## -=-=-=- Run :  E.glacialis_AllData 
-## 
-## 
-## -=-=-=--=-=-=- E.glacialis_AllData_RUN1 
-## 
+##
+##
+## -=-=-=- Run :  E.glacialis_AllData
+##
+##
+## -=-=-=--=-=-=- E.glacialis_AllData_RUN1
+##
 ## Model=GAM
 ##   GAM_mgcv algorithm chosen
 ##  Automatic formula generation...
 ##  &gt; GAM (mgcv) modelling...
 ##  Evaluating Model stuff...
-## 
-## -=-=-=--=-=-=- E.glacialis_AllData_RUN2 
-## 
+##
+## -=-=-=--=-=-=- E.glacialis_AllData_RUN2
+##
 ## Model=GAM
 ##   GAM_mgcv algorithm chosen
 ##  Automatic formula generation...
 ##  &gt; GAM (mgcv) modelling...
 ##  Evaluating Model stuff...
-## 
-## -=-=-=--=-=-=- E.glacialis_AllData_RUN3 
-## 
+##
+## -=-=-=--=-=-=- E.glacialis_AllData_RUN3
+##
 ## Model=GAM
 ##   GAM_mgcv algorithm chosen
 ##  Automatic formula generation...
@@ -639,22 +639,22 @@ model &lt;- BIOMOD_Modeling(data = formatted_data,
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Done -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=</code></pre>
 <pre class="r"><code># Check summary
 model</code></pre>
-<pre><code>## 
+<pre><code>##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-= BIOMOD.models.out -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-## 
+##
 ## Modeling id : E.glacialisModeling
-## 
+##
 ## Species modeled : E.glacialis
-## 
+##
 ## Considered variables : Aug.1 Aug.2
-## 
-## 
-## Computed Models :  E.glacialis_AllData_RUN1_GAM E.glacialis_AllData_RUN2_GAM 
+##
+##
+## Computed Models :  E.glacialis_AllData_RUN1_GAM E.glacialis_AllData_RUN2_GAM
 ## E.glacialis_AllData_RUN3_GAM
-## 
-## 
+##
+##
 ## Failed Models :  none
-## 
+##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=</code></pre>
 </div>
 <div id="assess-the-model" class="section level2">
@@ -665,7 +665,7 @@ evals &lt;- get_evaluations(model)
 
 # Assess the area under the receiver operator characteristic curve (ROC)
 evals[&quot;ROC&quot;,&quot;Testing.data&quot;,&quot;GAM&quot;,,]</code></pre>
-<pre><code>##  RUN1  RUN2  RUN3 
+<pre><code>##  RUN1  RUN2  RUN3
 ## 0.954 0.985 0.988</code></pre>
 <p>From the evaluations, it looks like our models performed relatively well.</p>
 </div>
@@ -674,29 +674,29 @@ evals[&quot;ROC&quot;,&quot;Testing.data&quot;,&quot;GAM&quot;,,]</code></pre>
 <p>Finally, we will project the model back onto the original environmental data layers. This just means we will be using our model to make a guess, or projection, about the probability of E. glacialis being present in any given grid cell within our domain.</p>
 <pre class="r"><code># Project model
 proj &lt;- BIOMOD_Projection(modeling.output = model,
-                          new.env = env_covars, 
-                          proj.name = 'current', 
-                          selected.models = 'all', 
-                          binary.meth = 'ROC', 
-                          compress = 'xz', 
-                          clamping.mask = F, 
+                          new.env = env_covars,
+                          proj.name = 'current',
+                          selected.models = 'all',
+                          binary.meth = 'ROC',
+                          compress = 'xz',
+                          clamping.mask = F,
                           output.format = '.grd')</code></pre>
-<pre><code>## 
+<pre><code>##
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-= Do Models Projections -=-=-=-=-=-=-=-=-=-=-=-=-=-=
-## 
+##
 ##  &gt; Building clamping mask
-## 
+##
 ##  &gt; Projecting E.glacialis_AllData_RUN1_GAM ...
 ##  &gt; Projecting E.glacialis_AllData_RUN2_GAM ...
 ##  &gt; Projecting E.glacialis_AllData_RUN3_GAM ...
-## 
+##
 ##  &gt; Building ROC binaries
 ## -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Done -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=</code></pre>
 <pre class="r"><code># See where projection files are stored
 list.files(&quot;E.glacialis/proj_current/&quot;)</code></pre>
-<pre><code>## [1] &quot;E.glacialis.current.projection.out&quot;  &quot;proj_current_ClampingMask.grd&quot;      
+<pre><code>## [1] &quot;E.glacialis.current.projection.out&quot;  &quot;proj_current_ClampingMask.grd&quot;
 ## [3] &quot;proj_current_ClampingMask.gri&quot;       &quot;proj_current_E.glacialis_ROCbin.grd&quot;
-## [5] &quot;proj_current_E.glacialis_ROCbin.gri&quot; &quot;proj_current_E.glacialis.grd&quot;       
+## [5] &quot;proj_current_E.glacialis_ROCbin.gri&quot; &quot;proj_current_E.glacialis.grd&quot;
 ## [7] &quot;proj_current_E.glacialis.gri&quot;</code></pre>
 <pre class="r"><code># Load projection as a dataframe
 proj_df &lt;- raster::raster(file.path(&quot;E.glacialis/proj_current/proj_current_E.glacialis.grd&quot;)) %&gt;%
@@ -707,19 +707,19 @@ proj_df &lt;- raster::raster(file.path(&quot;E.glacialis/proj_current/proj_curre
   dplyr::rename(prob = E.glacialis_AllData_RUN1_GAM)
 
 #Plot map, probabilities, and sightings data
-ggplot() + 
+ggplot() +
   # Add probability data
   geom_tile(data = proj_df, aes(x, y, fill = prob)) +
   # Add probabilitiy color gradient and label
   scale_fill_gradientn(colours = inferno(500), limits = c(0,1), name = 'Probability', na.value = &quot;white&quot;) +
   # Add sightings data
   geom_point(data = E.glacialis.biomod %&gt;% dplyr::filter(pa == 1), mapping = aes(x = lon, y = lat), color = &quot;white&quot;, fill = &quot;black&quot;, pch = 21, cex = 1, stroke = 0.5) +
-  labs(x = &quot;Longitude&quot;, 
-       y = &quot;Latitude&quot;, 
+  labs(x = &quot;Longitude&quot;,
+       y = &quot;Latitude&quot;,
        title = &quot;August E. glacialis Distribution&quot;) +
   # Add world map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = &quot;gray43&quot;) +
-  coord_quickmap(xlim = c(round(min(proj_df$x)), round(max(proj_df$x))), 
+  coord_quickmap(xlim = c(round(min(proj_df$x)), round(max(proj_df$x))),
                  ylim = c(round(min(proj_df$y)), round(max(proj_df$y))),
                  expand = TRUE) +
   # Remove grid lines

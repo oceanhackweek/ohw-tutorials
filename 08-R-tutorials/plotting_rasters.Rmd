@@ -35,8 +35,8 @@ path <- system.file("gom", package = "ohwobpg")
 db <- read_database(path)
 
 # Subset database
-par_db <- db %>% 
-  dplyr::filter(param == "sst" & 
+par_db <- db %>%
+  dplyr::filter(param == "sst" &
                 per == "MO" &
                 dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
 
@@ -44,7 +44,7 @@ par_db <- db %>%
 par <- par_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(par) <- format(par_db$date, "%b")
 
@@ -62,7 +62,7 @@ plot(r)
 
 ## Plot rasters using ggplot2
 
-Next, we will plot the same raster object using the package ggplot2.  First, the user needs to convert the raster object to a dataframe with coordinates, using as.data.frame(*raster*, xy = TRUE).  Next, the dataframe can be plotted using geom_tile().  For an in-depth example of how to plot a raster using ggplot2 and geom_tile(), see https://ggplot2.tidyverse.org/reference/geom_tile.html. 
+Next, we will plot the same raster object using the package ggplot2.  First, the user needs to convert the raster object to a dataframe with coordinates, using as.data.frame(*raster*, xy = TRUE).  Next, the dataframe can be plotted using geom_tile().  For an in-depth example of how to plot a raster using ggplot2 and geom_tile(), see https://ggplot2.tidyverse.org/reference/geom_tile.html.
 
 ```{r ggplot2, message=FALSE, warning=FALSE}
 # Convert raster to dataframe
@@ -84,15 +84,14 @@ ggplot(data = r_df, mapping = aes(x = x, y = y, color = Jun, fill = Jun)) +
 Finally, we will plot the raster object on a leaflet interactive map.  The leaflet::addRasterImage() function allows the user to plot raster objects on the map.  For a more detailed example, see https://rstudio.github.io/leaflet/raster.html.
 
 ```{r leaflet, message=FALSE, warning=FALSE}
-leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>% 
+leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>%
             # Add satellite imagery
             leaflet::addProviderTiles('Esri.WorldImagery', group = "Satellite") %>%
             # Define bounds
-            leaflet::fitBounds(lng1 = min(r_df$x), 
-                               lat1 = min(r_df$y), 
-                               lng2 = max(r_df$x), 
+            leaflet::fitBounds(lng1 = min(r_df$x),
+                               lat1 = min(r_df$y),
+                               lng2 = max(r_df$x),
                                lat2 = max(r_df$y)) %>%
             # Add raster data
             leaflet::addRasterImage(r)
 ```
-
