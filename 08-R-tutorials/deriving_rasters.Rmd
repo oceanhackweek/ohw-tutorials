@@ -51,7 +51,7 @@ if ("rasterVis" %in% installed){
   breaks <- seq(from = -1, to = 2.5, by = 0.5)
   # adapted from the [viridisLite]() package
   # pal <- viridisLite::magma(length(breaks) - 1)
-  pal <- c("#000004FF", "#1D1147FF", "#51127CFF", "#822681FF", "#B63679FF", 
+  pal <- c("#000004FF", "#1D1147FF", "#51127CFF", "#822681FF", "#B63679FF",
            "#E65164FF", "#FB8861FF", "#FEC287FF", "#FCFDBFFF")
   plot(log10(chl), col = pal, breaks = breaks)
 }

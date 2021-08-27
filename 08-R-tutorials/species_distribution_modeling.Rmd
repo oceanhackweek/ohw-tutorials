@@ -34,7 +34,7 @@ library(viridis, quietly = TRUE)
 
 ## Fetching E. glacialis occurences
 
-OBIS contains global location data for marine taxa. 
+OBIS contains global location data for marine taxa.
 
 Here, we will fetch North Atlantic right whale, or E. glacialis, occurrence data.
 
@@ -49,7 +49,7 @@ E.glacialis <- robis::occurrence("Eubalaena glacialis")
 Next, let's plot the E. glacialis occurrences on a map to take a closer look at the data
 
 ```{r}
-# Load world map data 
+# Load world map data
 worldmap <- ggplot2::map_data("world")
 
 # Plot occurrences on world map
@@ -58,9 +58,9 @@ ggplot2::ggplot(data = E.glacialis, mapping = aes(x = decimalLongitude, y = deci
   geom_point() +
   # Add map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = "gray43") +
-        coord_quickmap(xlim = c(round(min(E.glacialis$decimalLongitude)), 
-                                round(max(E.glacialis$decimalLongitude))), 
-                       ylim = c(round(min(E.glacialis$decimalLatitude)), 
+        coord_quickmap(xlim = c(round(min(E.glacialis$decimalLongitude)),
+                                round(max(E.glacialis$decimalLongitude))),
+                       ylim = c(round(min(E.glacialis$decimalLatitude)),
                                 round(max(E.glacialis$decimalLatitude))),
                        expand = TRUE) +
   # Clean up theme
@@ -68,7 +68,7 @@ ggplot2::ggplot(data = E.glacialis, mapping = aes(x = decimalLongitude, y = deci
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 ```
 
-From this plot, we can see that our dataset is pretty extensive  
+From this plot, we can see that our dataset is pretty extensive
 
 ## Load OBPG environmental data
 
@@ -80,8 +80,8 @@ path <- system.file("gom", package = "ohwobpg")
 db <- read_database(path)
 
 # Load sst ----
-sst_db <- db %>% 
-  dplyr::filter(param == "sst" & 
+sst_db <- db %>%
+  dplyr::filter(param == "sst" &
                 per == "MO" &
                 dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
 
@@ -89,13 +89,13 @@ sst_db <- db %>%
 sst <- sst_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(sst) <- format(sst_db$date, "%b")
 
 # Load chlor_a ----
-chlor_a_db <- db %>% 
-  dplyr::filter(param == "chlor_a" & 
+chlor_a_db <- db %>%
+  dplyr::filter(param == "chlor_a" &
                 per == "MO" &
                 dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-09-26")))
 
@@ -103,7 +103,7 @@ chlor_a_db <- db %>%
 chlor_a <- chlor_a_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(chlor_a) <- format(chlor_a_db$date, "%b")
 
@@ -117,7 +117,7 @@ sst[is.na(chlor_a)] <- NA
 Next, we will subset the E. glacialis data so it's in the same bounding box as our environmental data.  We will also subset to only include occurrence records from August, which is the peak feeding season for E. glacialis in the Gulf of Maine.
 
 ```{r}
-E.glacialis.subset <- E.glacialis %>% 
+E.glacialis.subset <- E.glacialis %>%
   # Shorten names
   dplyr::rename(lon = decimalLongitude,
                 lat = decimalLatitude) %>%
@@ -127,7 +127,7 @@ E.glacialis.subset <- E.glacialis %>%
                 month == "08") %>%
   # Select relevant columns
   dplyr::select(lon, lat)
-                
+
 ```
 
 ## Add background points
@@ -142,7 +142,7 @@ E.glacialis.biomod <- E.glacialis.subset %>%
 
 # Add background points
 # Select points using unique latitude and longitude code
-background_locs <- as.data.frame(sst$Aug, xy = TRUE) %>% 
+background_locs <- as.data.frame(sst$Aug, xy = TRUE) %>%
   dplyr::rename(lon = x, lat = y) %>%
   sample_n(500) %>%
   dplyr::mutate(pa = 0, code = paste0(lon, lat)) %>%
@@ -161,7 +161,7 @@ Next, we will plot the occurrences again to ensure they are within the bounding 
 
 ```{r}
 # Plot occurrences and background points on top of sst data
-ggplot2::ggplot() + 
+ggplot2::ggplot() +
   geom_tile(data = as.data.frame(sst$Aug, xy = TRUE), mapping = aes(x = x, y = y, fill = Aug)) +
   scale_fill_viridis(na.value = "white") +
   # Add occurrence data
@@ -170,9 +170,9 @@ ggplot2::ggplot() +
   geom_point(data = background_locs, mapping = aes(x = lon, y = lat), color = "red") +
   # Add map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = "gray43") +
-  coord_quickmap(xlim = c(xmin(sst), 
-                          xmax(sst)), 
-                 ylim = c(ymin(sst), 
+  coord_quickmap(xlim = c(xmin(sst),
+                          xmax(sst)),
+                 ylim = c(ymin(sst),
                           ymax(sst)),
                  expand = TRUE) +
   # Clean up theme
@@ -269,12 +269,12 @@ Finally, we will project the model back onto the original environmental data lay
 ```{r}
 # Project model
 proj <- BIOMOD_Projection(modeling.output = model,
-                          new.env = env_covars, 
-                          proj.name = 'current', 
-                          selected.models = 'all', 
-                          binary.meth = 'ROC', 
-                          compress = 'xz', 
-                          clamping.mask = F, 
+                          new.env = env_covars,
+                          proj.name = 'current',
+                          selected.models = 'all',
+                          binary.meth = 'ROC',
+                          compress = 'xz',
+                          clamping.mask = F,
                           output.format = '.grd')
 
 # See where projection files are stored
@@ -289,19 +289,19 @@ proj_df <- raster::raster(file.path("E.glacialis/proj_current/proj_current_E.gla
   dplyr::rename(prob = E.glacialis_AllData_RUN1_GAM)
 
 #Plot map, probabilities, and sightings data
-ggplot() + 
+ggplot() +
   # Add probability data
   geom_tile(data = proj_df, aes(x, y, fill = prob)) +
   # Add probabilitiy color gradient and label
   scale_fill_gradientn(colours = inferno(500), limits = c(0,1), name = 'Probability', na.value = "white") +
   # Add sightings data
   geom_point(data = E.glacialis.biomod %>% dplyr::filter(pa == 1), mapping = aes(x = lon, y = lat), color = "white", fill = "black", pch = 21, cex = 1, stroke = 0.5) +
-  labs(x = "Longitude", 
-       y = "Latitude", 
+  labs(x = "Longitude",
+       y = "Latitude",
        title = "August E. glacialis Distribution") +
   # Add world map data
   geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = "gray43") +
-  coord_quickmap(xlim = c(round(min(proj_df$x)), round(max(proj_df$x))), 
+  coord_quickmap(xlim = c(round(min(proj_df$x)), round(max(proj_df$x))),
                  ylim = c(round(min(proj_df$y)), round(max(proj_df$y))),
                  expand = TRUE) +
   # Remove grid lines
@@ -310,4 +310,3 @@ ggplot() +
 ```
 
 The regions in yellow represent the parts of the domain where the model projects high probability of an E. glacialis occurrence.  The regions in black indicate that the model projected a low probability of occurrence.  We can see that the projection lines up relatively well with the E. glacialis sightings data.
-

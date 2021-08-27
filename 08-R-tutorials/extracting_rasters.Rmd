@@ -39,8 +39,8 @@ path <- system.file("gom", package = "ohwobpg")
 db <- read_database(path)
 
 # Subset database
-sst_db <- db %>% 
-  dplyr::filter(param == "sst" & 
+sst_db <- db %>%
+  dplyr::filter(param == "sst" &
                 per == "MO" &
                 dplyr::between(date, as.Date("2018-05-15"), as.Date("2018-12-26")))
 
@@ -48,7 +48,7 @@ sst_db <- db %>%
 sat <- sst_db %>%                # start with the subset database
   as_filename(path = path) %>%   # build filenames and append to the path
   raster::stack()                # read them into a stack of images
- 
+
 # Name layers
 names(sat) <- format(sst_db$date, "%b")
 
@@ -64,7 +64,7 @@ buoy_loc <- buoy_locations()[, c("lon", "lat")][1, ]
 
 ## Extract buoy location from satellite data
 
-The buoy location is extracted from the satellite data raster using the code below.  For more examples of extracting point data from rasters and other raster manipulations, see https://mgimond.github.io/megug2017/#raster-manipulation-basics. 
+The buoy location is extracted from the satellite data raster using the code below.  For more examples of extracting point data from rasters and other raster manipulations, see https://mgimond.github.io/megug2017/#raster-manipulation-basics.
 
 ```{r base_plot, message=FALSE, warning=FALSE}
 raster::extract(sat, buoy_loc)
@@ -78,13 +78,13 @@ Finally, we will plot the satellite data and the buoy location on a leaflet inte
 # Initialize color palette
 pal <- leaflet::colorNumeric(palette = "viridis", domain = r_df$Jun, na.color = "#00000000")
 # Render leaflet map
-leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>% 
+leaflet::leaflet() %>% leaflet::addTiles(group = "Standard") %>%
             # Add satellite imagery
             leaflet::addProviderTiles('Esri.WorldImagery', group = "Satellite") %>%
             # Define bounds
-            leaflet::fitBounds(lng1 = xmin(sat), 
-                               lat1 = ymin(sat), 
-                               lng2 = xmax(sat), 
+            leaflet::fitBounds(lng1 = xmin(sat),
+                               lat1 = ymin(sat),
+                               lng2 = xmax(sat),
                                lat2 = ymax(sat)) %>%
             # Add raster data
             leaflet::addRasterImage(sat$Jul, colors = pal) %>%
@@ -113,10 +113,9 @@ buoy_df <- buoy %>%
 colors <- c("Satellite" = "red", "Buoy" = "blue")
 # Plot time series of buoy and satellite data
 ggplot(data = sat_df, mapping = aes(x = month_num, y = value, color = "Satellite")) +
-  geom_path() + 
+  geom_path() +
   geom_path(data = buoy_df, aes(x = month_num, y = mean, color = "Buoy")) +
   labs(x = "Month",
        y = "Temp (°C)",
        color = "")
 ```
-

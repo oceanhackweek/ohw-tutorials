@@ -22,7 +22,7 @@ library(robis)
 
 ## Fetching occurences
 
-OBIS contains global location data for marine taxa. 
+OBIS contains global location data for marine taxa.
 
 To fetch all occurrences for a taxon, pass a taxon name or vector of taxon names to the occurrence() function. The names() function will give a list of the column names, so you know what data is included. You can see that there is quite a lot of information for each sample.
 
@@ -54,7 +54,7 @@ The ggplot package has a lot of plotting and mapping functionality. More introdu
 For this example, first we put the latitude and longitude coordinates of the species sightings into a data frame called 'sites':
 
 ```{r}
-sites <- data.frame(longitude = E.glacialis$decimalLongitude, 
+sites <- data.frame(longitude = E.glacialis$decimalLongitude,
                     latitude = E.glacialis$decimalLatitude)
 ```
 
@@ -79,7 +79,7 @@ You can pull all records within a polygon using the same occurrence function. In
 CascoBay <- occurrence(geometry = "POLYGON ((-70.2 43.5, -69.8 43.5, -69.8 43.9, -70.2 43.9, -70.2 43.5)) ")
 ggplot() +
  geom_histogram(
-   data = CascoBay[(CascoBay$year>2000 & CascoBay$kingdom=="Animalia"),], 
+   data = CascoBay[(CascoBay$year>2000 & CascoBay$kingdom=="Animalia"),],
    aes(x = year, fill = phylum), binwidth = 5, stat="count") +
    scale_fill_brewer(palette = "Paired")
 ```
@@ -89,12 +89,12 @@ There are too many phyla to plot on this graph, so lets drill down taxonomically
 ```{r}
 ggplot() +
  geom_histogram(
-   data = CascoBay[(CascoBay$year>2000 & CascoBay$phylum=="Chordata"),], 
+   data = CascoBay[(CascoBay$year>2000 & CascoBay$phylum=="Chordata"),],
    aes(x = year, fill = class), binwidth = 5, stat="count") +
    scale_fill_brewer(palette = "Paired")
 ggplot() +
  geom_histogram(
-   data = CascoBay[(CascoBay$year>2000 & CascoBay$class=="Elasmobranchii"),], 
+   data = CascoBay[(CascoBay$year>2000 & CascoBay$class=="Elasmobranchii"),],
    aes(x = year, fill = species), binwidth = 5, stat="count") +
    scale_fill_brewer(palette = "Paired")
 
@@ -125,6 +125,3 @@ ggplot(data = world) +
     geom_sf() +
     geom_point(data = PVsites, aes(x = longitude, y = latitude), colour='blue')
 ```
-
- 
- 
