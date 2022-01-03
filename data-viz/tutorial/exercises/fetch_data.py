@@ -35,7 +35,7 @@ def get_earthquake_data():
                 dfs.append(df)
             except:
                 print('skipping: ' + '%d_%d.csv' % (i, m))
-                
+
 
     # Get a list of all the file paths that ends with .csv from in specified directory
     fileList = glob.glob('*.csv')
@@ -54,12 +54,12 @@ def download_url(url, save_path, chunk_size=128):
     with open(save_path, 'wb') as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
-            
+
 def get_population_data():
     fname = 'gpw_v4_population_density_rev11_2010_2pt5_min.zip'
     if os.path.isfile(f'{data_path}/{fname}'):
         print('Population dataset present, skipping download')
-        return    
+        return
     download_url(f'https://earth-data.s3.amazonaws.com/{fname}', fname)
     with zipfile.ZipFile(fname, 'r') as zip_ref:
         zip_ref.extractall(data_path)

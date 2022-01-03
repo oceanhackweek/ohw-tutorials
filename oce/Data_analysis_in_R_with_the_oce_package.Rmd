@@ -42,7 +42,7 @@ Issues (i.e. bug reports, questions, feature requests, etc) can also be submitte
 
 ## Object orientation
 
-`oce` uses the S4 object orientation system, which for me is just magical enough to be mind-blowing, and just enough of a pain-in-the-ass to figure out to be really annoying (hence, the warning about checking before going off on a crazy new PR). Probably there are better OO systems out there now, but S4 is included in base-R and the package is large so updating systems is not a small task. For users, at least, the S4 system is easy and fairly intuitive. 
+`oce` uses the S4 object orientation system, which for me is just magical enough to be mind-blowing, and just enough of a pain-in-the-ass to figure out to be really annoying (hence, the warning about checking before going off on a crazy new PR). Probably there are better OO systems out there now, but S4 is included in base-R and the package is large so updating systems is not a small task. For users, at least, the S4 system is easy and fairly intuitive.
 
 ## Graphics
 
@@ -216,7 +216,7 @@ So nothing is lost in the re-mapping. The power of this approach is that tempera
 
 ## CTD processing
 
-Typically raw data from a CTD instrument doesn't come out looking as clean as the example above. Often there is a "surface soak" where the instrument equilibrates with the ambient water conditions, a "downcast" where the instrument is lowered (sensors first) through the water column, and then an "upcast" where the instrument is raised back up to the surface. 
+Typically raw data from a CTD instrument doesn't come out looking as clean as the example above. Often there is a "surface soak" where the instrument equilibrates with the ambient water conditions, a "downcast" where the instrument is lowered (sensors first) through the water column, and then an "upcast" where the instrument is raised back up to the surface.
 
 Trimming SBE CTD data is commonly done in the SBEDataProcessing software, but this is a) closed source, b) Windows-only, and c) kind-of annoying to run (and re-run). Besides, this won't work for any non-SBE CTD such as RBR, YSI CastAway, AML, etc.
 
@@ -347,6 +347,3 @@ Other topics that I would have loved to talk about, but you'll just have to read
 * Data quality flags
 * Argo data (see also the `argoFloats` package!)
 * Acoustic Dopper Current Profiler (ADCP) data
-
-
-
