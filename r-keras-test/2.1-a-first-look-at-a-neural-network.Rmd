@@ -1,7 +1,7 @@
 ---
 title: "A first look at a neural network"
-output: 
-  html_notebook: 
+output:
+  html_notebook:
     theme: cerulean
     highlight: textmate
 ---
@@ -18,7 +18,7 @@ This notebook contains the code samples found in Chapter 2, Section 1 of [Deep L
 
 Let's look at a concrete example of a neural network that uses the Keras R package to learn to classify hand-written digits. Unless you already have experience with Keras or similar libraries, you will not understand everything about this first example right away. You probably haven't even installed Keras yet. Don't worry, that is perfectly fine. In the next chapter, we will review each element in our example and explain them in detail. So don't worry if some steps seem arbitrary or look like magic to you! We've got to start somewhere.
 
-The problem we're trying to solve here is to classify grayscale images of handwritten digits (28 pixels by 28 pixels) into their 10 categories (0 to 9). We'll use the MNIST dataset, a classic dataset in the machine-learning community, which has been around almost as long as the field itself and has been intensively studied. It's a set of 60,000 training images, plus 10,000 test images, assembled by the National Institute of Standards and Technology (the NIST in MNIST) in the 1980s. You can think of "solving" MNIST as the "Hello World" of deep learning—it's what you do to verify that your algorithms are working as expected. As you become a machine-learning practitioner, you'll see MNIST come up over and over again, in scientific papers, blog posts, and so on. 
+The problem we're trying to solve here is to classify grayscale images of handwritten digits (28 pixels by 28 pixels) into their 10 categories (0 to 9). We'll use the MNIST dataset, a classic dataset in the machine-learning community, which has been around almost as long as the field itself and has been intensively studied. It's a set of 60,000 training images, plus 10,000 test images, assembled by the National Institute of Standards and Technology (the NIST in MNIST) in the 1980s. You can think of "solving" MNIST as the "Hello World" of deep learning—it's what you do to verify that your algorithms are working as expected. As you become a machine-learning practitioner, you'll see MNIST come up over and over again, in scientific papers, blog posts, and so on.
 
 The MNIST dataset comes preloaded in Keras, in the form of `train` and `test` lists, each of which includes a set of images (`x`) and associated labels (`y`):
 
@@ -59,8 +59,8 @@ The workflow will be as follows: first we'll feed the neural network the trainin
 Let's build the network -- again, remember that you aren't supposed to understand everything about this example yet.
 
 ```{r}
-network <- keras_model_sequential() %>% 
-  layer_dense(units = 512, activation = "relu", input_shape = c(28 * 28)) %>% 
+network <- keras_model_sequential() %>%
+  layer_dense(units = 512, activation = "relu", input_shape = c(28 * 28)) %>%
   layer_dense(units = 10, activation = "softmax")
 ```
 
@@ -119,4 +119,3 @@ metrics
 Our test set accuracy turns out to be 98.1% -- that's quite a bit lower than the training set accuracy. This gap between training accuracy and test accuracy is an example of "overfitting", the fact that machine learning models tend to perform worse on new data than on their training data. Overfitting will be a central topic in chapter 3.
 
 This concludes our first example -- you just saw how you can build and a train a neural network to classify handwritten digits in less than 20 lines of R code. In the next chapter, we'll go into detail about every moving piece we just previewed and clarify what's going on behind the scenes. You'll learn about tensors, the data-storing objects going into the network; about tensor operations, which layers are made of; and about gradient descent, which allows your network to learn from its training examples.
-
