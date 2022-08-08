@@ -1,0 +1,128 @@
+image,r,g,b,size (mm),color,description,erosion,erosion index,yellowing,yellowing index
+cl1_p11_moca2_deixa5_a0001,152,150,143,4.021,transparent,sphere,high erosion,3,low,1
+cl1_p12_lagoinha_deixa1_g0006,221,218,219,4.244,white,light erosion,low erosion,1,low,1
+cl1_p12_lagoinha_deixa1_g0007,140,137,129,3.946,white,not erosion,low erosion,1,low,1
+cl1_p12_lagoinha_deixa1_g0008,188,178,146,3.948,white,moderate erosion,high erosion,3,moderate,2
+cl1_p12_lagoinha_deixa2_h0004,207,200,189,6.043,white,light erosion,low erosion,1,moderate,2
+cl1_p12_lagoinha_deixa2_h0005,187,198,223,3.768,white,light erosion,low erosion,1,low,1
+cl1_p12_lagoinha_deixa2_h0006,244,250,252,4.766,white,light erosion,high erosion,3,moderate,2
+cl1_p12_lagoinha_deixa2_h0007,184,168,84,4.71,transparent,light erosion,low erosion,1,high,3
+cl1_p12_lagoinha_deixa2_h0009,187,149,7,3.7,yellow,heavy erosion,high erosion,3,high,3
+cl1_p12_lagoinha_deixa3_h0012,173,200,231,4.967,transparent,heavy erosion,moderate erosion,2,low,1
+cl1_p12_moca1_limsup5_f0011,122,126,144,4.337,transparent,not erosion,low erosion,1,low,1
+cl1_p12_moca2_deixa4_a0004,176,121,3,6.258,yellow,disk,moderate erosion,2,very high,4
+cl1_p12_moca2_deixa4_b0004,157,156,134,4.184,transparent,sphere,low erosion,1,low,1
+cl1_p12_moca2_deixa4_b0007,170,171,151,3.894,transparent,sphere,moderate erosion,2,low,1
+cl1_p12_moca2_deixa4_b0010,147,136,86,3.209,yellow,sphere,moderate erosion,2,high,3
+cl1_p12_moca2_deixa4_b0012,141,127,96,3.876,white,sphere,moderate erosion,2,low,1
+cl1_p12_moca2_deixa4_c0001,137,131,113,3.413,transparent,cylinder,low erosion,1,low,1
+cl1_p12_moca2_deixa4_c0008,131,112,33,4.086,transparent,cylinder,moderate erosion,2,high,3
+cl1_p1_psul_deixa1_g0005,152,116,3,4.4,transparent,disk,moderate erosion,2,high,3
+cl1_p1_psul_deixa1_g0006,146,146,72,4.6,transparent,sphere,low erosion,1,moderate,2
+cl1_p1_psul_deixa5_h0011,255,253,4,3.59,white,sphere,high erosion,3,high,3
+cl1_p2_joaq_dunai_c0001,215,221,187,4.43,transparent,sphere,high erosion,3,low,1
+cl1_p2_joaq_dunai_c0002,226,221,143,4.27,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunai_c0004,185,159,38,3.6,transparent,sphere,high erosion,3,high,3
+cl1_p2_joaq_dunai_c0007,224,211,83,3.69,transparent,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_dunai_c0008,206,204,152,3.61,transparent,sphere,moderate erosion,2,low,1
+cl1_p2_joaq_dunai_c0009,199,187,90,2.9,white,sphere,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunai_c0011,200,200,161,4.39,transparent,sphere,high erosion,3,low,1
+cl1_p2_joaq_dunai_c0012,180,178,121,5.14,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunai_d0001,220,212,129,4.32,transparent,sphere,high erosion,3,moderate,2
+cl1_p2_joaq_dunai_d0002,169,162,108,4.18,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunai_d0003,194,187,128,3.75,transparent,sphere,high erosion,3,low,1
+cl1_p2_joaq_dunai_d0004,189,190,147,4.3,transparent,sphere,high erosion,3,low,1
+cl1_p2_joaq_dunai_d0006,179,176,128,4.39,transparent,sphere,moderate erosion,2,low,1
+cl1_p2_joaq_dunai_d0012,254,253,124,3.79,white,sphere,high erosion,3,moderate,2
+cl1_p2_joaq_dunai_e0004,240,225,97,2.83,white,sphere,high erosion,3,high,3
+cl1_p2_joaq_dunai_e0005,138,122,61,3.1,yellow,ovoid,high erosion,3,very high,4
+cl1_p2_joaq_dunai_e0007,200,193,15,3.66,yellow,sphere,high erosion,3,high,3
+cl1_p2_joaq_dunaiii_f0012,178,170,122,3.75,white,disk,low erosion,1,low,1
+cl1_p2_joaq_dunaiii_g0002,191,165,8,4.62,transparent,disk,low erosion,1,high,3
+cl1_p2_joaq_dunaiii_g0003,179,178,130,4.92,transparent,disk,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunaiii_g0004,156,111,3,3.84,transparent,disk,low erosion,1,very high,4
+cl1_p2_joaq_dunaiii_g0005,154,152,91,4.57,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p2_joaq_dunaiii_g0007,224,208,125,4.11,transparent,sphere,low erosion,1,moderate,2
+cl1_p2_joaq_dunaiii_g0008,146,126,10,4.2,white,disk,low erosion,1,moderate,2
+cl1_p2_joaq_dunaiii_g0009,180,167,117,3.5,white,sphere,low erosion,1,low,1
+cl1_p2_joaq_dunaiii_g0010,225,216,119,4.34,white,sphere,high erosion,3,moderate,2
+cl1_p2_joaq_dunaiii_g0011,180,192,183,4.32,transparent,sphere,low erosion,1,low,1
+cl1_p2_joaq_dunaiii_g0012,210,175,2,3.8,white,sphere,high erosion,3,high,3
+cl1_p2_joaq_dunaiii_h0001,192,165,2,4.261,transparent,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_dunaiii_h0002,178,170,114,4.194,transparent,disk,low erosion,1,low,1
+cl1_p2_joaq_dunaiii_h0003,184,168,64,4.827,transparent,disk,high erosion,3,moderate,2
+cl1_p2_joaq_dunaiii_h0004,126,125,90,4.095,white,disk,moderate erosion,2,low,1
+cl1_p2_joaq_dunaiii_h0005,194,167,2,3.938,white,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_dunaiii_h0007,116,125,96,3.995,transparent,sphere,low erosion,1,low,1
+cl1_p2_joaq_dunaiii_h0008,191,180,30,3.631,white,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_dunaiii_h0009,209,193,65,3.508,white,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_dunaiii_h0010,231,167,2,3.191,white,square,moderate erosion,2,very high,4
+cl1_p2_joaq_dunaiii_h0012,139,138,96,4.101,transparent,disk,low erosion,1,low,1
+cl1_p2_joaq_limsup1_b0003,176,168,96,3.14,white,sphere,low erosion,1,low,1
+cl1_p2_joaq_limsup2_b0004,169,157,54,4.06,transparent,sphere,moderate erosion,2,high,3
+cl1_p2_joaq_limsup3_b0009,226,219,152,3.45,transparent,sphere,high erosion,3,moderate,2
+cl1_p2_psul_deixa6_a0005,190,175,100,5.01,white,sphere,moderate erosion,2,moderate,2
+cl1_p2_psul_deixa6_a0007,130,71,46,5.2,transparent,sphere,moderate erosion,2,very high,4
+cl1_p3_brava_deixa0_f0004,205,198,152,3.55,transparent,ovoid,low erosion,1,low,1
+cl1_p3_brava_deixa2_g0001,138,130,79,3.487,transparent,sphere,high erosion,3,low,1
+cl1_p3_brava_deixa2_g0004,178,171,121,3.331,transparent,disk,moderate erosion,2,low,1
+cl1_p3_brava_deixa2_g0005,193,188,160,2.54,transparent,sphere,moderate erosion,2,low,1
+cl1_p3_brava_deixa3_h0001,220,214,154,3.517,transparent,sphere,low erosion,1,low,1
+cl1_p3_brava_deixa3_h0005,186,187,150,3.204,transparent,cylinder,low erosion,1,low,1
+cl1_p3_brava_deixa3_h0006,202,193,102,4.497,white,sphere,moderate erosion,2,moderate,2
+cl1_p3_brava_deixa3_h0007,170,168,131,3.461,transparent,sphere,low erosion,1,low,1
+cl1_p3_brava_deixa3_h0009,184,180,157,3.132,white,sphere,moderate erosion,2,low,1
+cl1_p3_brava_deixa3_h0010,176,173,142,3.199,transparent,sphere,low erosion,1,low,1
+cl1_p3_brava_deixa3_h0012,208,202,149,3.117,transparent,cylinder,moderate erosion,2,low,1
+cl1_p3_brava_limsup4_c0001,120,127,101,3.671,transparent,sphere,moderate erosion,2,low,1
+cl1_p3_brava_limsup4_c0002,169,174,130,3.39,transparent,cylinder,low erosion,1,low,1
+cl1_p3_brava_limsup6_d0009,188,182,132,3.88,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p3_brava_limsup6_d0010,227,226,184,4.454,transparent,sphere,low erosion,1,low,1
+cl1_p3_joaq_dunaiii_a0001,186,185,129,3.75,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p3_joaq_dunaiii_a0002,185,131,2,4.211,transparent,cylinder,low erosion,1,very high,4
+cl1_p3_joaq_dunaiii_a0003,223,160,2,3.433,transparent,sphere,high erosion,3,very high,4
+cl1_p3_joaq_dunaiii_a0004,173,156,69,4.85,white,ovoid,high erosion,3,high,3
+cl1_p3_joaq_dunaiii_a0005,168,137,2,4.645,white,sphere,high erosion,3,high,3
+cl1_p3_joaq_dunaiii_a0006,216,205,48,3.382,white,sphere,high erosion,3,high,3
+cl1_p3_joaq_dunaiii_a0007,247,226,3,3.639,white,sphere,high erosion,3,high,3
+cl1_p3_joaq_dunaiii_a0008,109,116,101,2.987,transparent,cylinder,moderate erosion,2,low,1
+cl1_p3_joaq_dunaiii_b0009,187,183,141,2.686,transparent,cylinder,moderate erosion,2,low,1
+cl1_p4_brava_deixa3_a0001,211,205,151,3.365,transparent,sphere,low erosion,1,low,1
+cl1_p4_brava_deixa3_a0002,160,154,116,3.93,transparent,sphere,high erosion,3,low,1
+cl1_p4_brava_deixa3_a0003,157,158,132,3.435,transparent,sphere,low erosion,1,low,1
+cl1_p4_brava_deixa3_a0006,147,143,102,4.065,transparent,cylinder,low erosion,1,low,1
+cl1_p4_brava_deixa3_a0007,133,123,75,3.448,white,sphere,moderate erosion,2,low,1
+cl1_p4_brava_deixa3_a0008,191,173,88,3.858,transparent,square,high erosion,3,high,3
+cl1_p4_brava_deixa3_a0009,204,196,152,3.946,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p4_brava_deixa3_a0010,153,135,7,3.695,white,sphere,high erosion,3,high,3
+cl1_p4_brava_deixa3_a0011,166,167,121,3.455,transparent,sphere,moderate erosion,2,low,1
+cl1_p4_brava_deixa3_b0001,208,202,113,3.27,transparent,sphere,high erosion,3,moderate,2
+cl1_p4_brava_deixa3_b0002,191,182,110,4.477,transparent,sphere,low erosion,1,moderate,2
+cl1_p4_brava_deixa3_b0003,186,166,61,3.167,transparent,cylinder,high erosion,2,high,3
+cl1_p4_brava_deixa3_b0012,200,188,93,4.701,white,square,low erosion,1,moderate,2
+cl1_p4_brava_deixa3_c0004,188,192,194,3.236,transparent,rectangle,low erosion,1,low,1
+cl1_p4_brava_deixa4_d0002,167,151,3,3.279,white,sphere,high erosion,3,high,3
+cl1_p4_brava_deixa4_d0003,174,158,27,3.555,transparent,cylinder,high erosion,3,high,3
+cl1_p4_brava_deixa4_d0005,120,119,87,4.528,transparent,cylinder,low erosion,1,low,1
+cl1_p4_brava_deixa4_d0009,186,167,6,3.034,transparent,cylinder,moderate erosion,2,high,3
+cl1_p4_brava_deixa4_d0012,168,181,146,3.992,transparent,sphere,low erosion,1,low,1
+cl1_p4_brava_deixa5_f0003,148,156,157,4.086,transparent,sphere,moderate erosion,2,low,1
+cl1_p4_brava_deixa5_f0005,145,143,137,3.369,transparent,cylinder,low erosion,1,low,1
+cl1_p4_brava_deixa5_f0007,149,146,142,3.525,transparent,cylinder,moderate erosion,2,low,1
+cl1_p4_brava_deixa5_f0008,145,153,177,3.771,transparent,cylinder,low erosion,1,low,1
+cl1_p4_brava_deixa5_f0010,132,68,10,3.868,transparent,sphere,moderate erosion,2,very high,4
+cl1_p4_brava_deixa5_f0012,130,98,4,3.831,transparent,disk,low erosion,1,very high,4
+cl1_p4_brava_deixa6_g0009,190,200,209,3.591,white,sphere,low erosion,1,low,1
+cl1_p4_brava_deixa6_g0011,173,149,40,2.196,transparent,square,moderate erosion,2,high,3
+cl1_p4_brava_deixa6_g0012,161,150,104,3.655,transparent,sphere,moderate erosion,2,moderate,2
+cl1_p4_brava_deixa6_h0001,165,140,10,4.23,white,disk,moderate erosion,2,high,3
+cl1_p5_moca2_deixa2_b0005,178,175,5,4.145,transparent,cylinder,high erosion,3,high,3
+cl1_p5_moca2_deixa3_d0004,158,176,202,4.119,white,disk,high erosion,3,low,1
+cl1_p6_moca2_deixa3_a0002,179,183,151,3.499,white,cylinder,moderate erosion,2,moderate,2
+cl1_p6_moca2_deixa3_a0004,162,160,149,4.324,transparent,cylinder,low erosion,1,high,3
+cl1_p6_moca2_deixa3_a0005,174,191,162,4.319,transparent,cylinder,moderate erosion,2,moderate,2
+cl1_p6_moca2_deixa3_a0006,186,193,155,4.546,transparent,cylinder,moderate erosion,2,low,1
+cl1_p8_moca2_deixa5_b0001,169,168,106,3.082,transparent,sphere,low erosion,1,low,1
+cl1_p8_moca2_deixa5_b0003,191,189,152,3.932,white,sphere,low erosion,1,low,1
+cl1_p8_moca2_deixa5_b0004,181,156,70,3.23,white,sphere,moderate erosion,3,moderate,2
+cl1_p9_moca2_deixa5_b0001,193,192,198,3.763,transparent,sphere,high erosion,3,low,1
