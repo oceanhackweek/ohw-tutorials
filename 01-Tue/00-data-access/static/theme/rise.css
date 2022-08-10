@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans');
+
+
+#rise-header {
+    margin: 0px;
+    padding: 15px 80px;
+    width: 100%;
+    background-color: #232323;
+    z-index: 10000;
+}
+
+#rise-header, #rise-header a, #rise-header a:hover {
+  color: white;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 2rem;
+  text-decoration-line: none;
+}
+
+#rise-header img {
+  max-height: inherit;
+  max-width: inherit;
+}
+
+#rise-footer {
+    margin: 0px;
+    padding: 20px 150px 20px 80px;
+    height: 55px;
+    width: 100%;
+    color: gray;
+}
+
+#rise-footer a {
+    color: gray;
+}
+
+#exit_b {
+   color: white;
+   z-index: 10001;
+}
+
+#exit_b, #help_b {
+   font-size: x-large !important;
+}
