@@ -1,0 +1,63 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+## Load packages
+
+```{r}
+library(stringr)
+library(readr)
+library(tidyr)
+library(dplyr)
+```
+
+## Read the text from the NAO 
+
+```{r}
+nao <- readLines("https://www.cpc.ncep.noaa.gov/products/precip/CWlink/pna/norm.nao.monthly.b5001.current.ascii.table")
+
+nao
+```
+
+
+## Format the text into a nice looking wide form tibble (one row per year)
+
+```{r}
+wide_form <- nao  |>
+  str_trim(side = "both") |>
+  str_squish() |>
+  str_replace_all(stringr::fixed(" "), stringr::fixed(",")) |>
+  paste(collapse = "\n") |>
+  read_csv(col_names = c("Year", month.abb),
+           col_types = strrep("d", 13))
+
+wide_form
+```
+
+
+## Convert the tibble into long form (one row per month/year)
+
+```{r}
+long_form <- wide_form |>
+  pivot_longer(all_of(month.abb), 
+               names_to = "Month",
+               values_to = "AMO")
+
+long_form
+```
+
+
+
+```{r}
+means <- long_form |> 
+  group_by(Year) |> 
+  summarise(mean = mean(AMO))
+
+nao_w_mean <- wide_form |> 
+  mutate(mean_nao = means$mean)
+
+nao_w_mean
+```
+
