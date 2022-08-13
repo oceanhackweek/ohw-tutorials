@@ -1,0 +1,236 @@
+---
+title: "Terra and Stars"
+output: 
+  github_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## The spatial paradigm
+
+R provides a wide variety of tools for reading, writing, analyzing and displaying spatial data.  Most of the computational work for input-output and geometry manipulations is passed off to well known and stable external libraries.  Much of the display and analysis happens within R (but not exclusively).
+
+![spatial-paradigm](spatial-paradigm.png)
+
+## The recent spatial journey
+
+From the beginning the authors of R were interested in showing spatial information.  Soon, supporting packages were added that provided access to various input-output utilities, spatial statistics and world vector datasets.  Over time the computational demands increased so new packages were developed and became defacto standards.
+
+
+![spatial-journey](spatial-journey.png)
+
+To the innocent bystander, like yours truly, it feels like there is a recent split in the road.  On the one hand the recently developed successor to the [raster](https://CRAN.R-project.org/package=raster) package, [terra](https://CRAN.R-project.org/package=terra), provides modern and fast handling of both vector and raster data.  On the other hand is the development of simple features, [sf](https://CRAN.R-project.org/package=sf) and space-time-arrays [stars](https://CRAN.R-project.org/package=stars).  Eeek!  Which way to go?
+
+
+## Now which way?
+
+We decided to pursue the [sf](https://CRAN.R-project.org/package=sf)/ [stars](https://CRAN.R-project.org/package=stars) route. It's quite [tidyverse](https://www.tidyverse.org/) friendly, has lots of community development activity and [stars](https://CRAN.R-project.org/package=stars) handles more complex data arrays.  Change comes hard as our shop used/uses [raster](https://CRAN.R-project.org/package=raster)/[terra](https://CRAN.R-project.org/package=terra) to very good outcomes.  But it's been a positive learning journey, too.
+
+
+```{r load packages from library}
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(maps)
+  library(sf)
+  library(stars)
+  library(ncdf4)
+  library(xyzt)
+  library(ghrsst)
+})
+```
+
+Your may have seen the data access from R tutorial yesterday.  In that tutorial Johnathan Evanilla showed some of the built-in datasets and use them to collect online data.
+
+This tutorial is a deeper dive into [sf](https://CRAN.R-project.org/package=sf)/ [stars](https://CRAN.R-project.org/package=stars).
+
+### Sample Point Data
+
+First we'll load the location data for the array of [CalCOFI](https://calcofi.org) sampling stations.  They have been used since 1984.
+
+![CalCOFI](CalCOFI.png)
+
+We provide a function to read these sampling locations, but oddly they are not identified by an actual station id.  Instead they are served with station id as an incremental number. Sigh.  However, the semiannual cruise always takes the stations in the same order... we can use that!
+
+```{r read calcofi}
+x <- xyzt::read_calcofi()
+head(x)
+```
+
+### Making it spatial
+
+Let's convert these to an [sf](https://CRAN.R-project.org/package=sf) object, assuming simple lon-lat coordinates and the WGS84 datum. We'll pause to examine the bits and pieces.
+
+```{r as sf}
+x <- sf::st_as_sf(x, coords = c("lon", "lat"),
+                  dim = 'XY', crs = 4326)
+x
+```
+It's just a data frame, a list-like object,  with special attributes. Programmatically there isn't anything special about an `sf` object unless you are unfamiliar with [tibbles](https://tibble.tidyverse.org/) or [list columns](https://www.rstudio.com/resources/webinars/how-to-work-with-list-columns/) (which the `geometry` column is.)
+
+### Subsetting
+
+Subsetting works just like it does for any data frame in R.  `[` returns a subset number of variables (columns), while `[[` drills in deeper and returns the actual values of one variable (column).
+
+A shallow subset, `[`, yields the same type of sf object, but with just the specified variables.  Not that it is still a simple feature object.
+
+```{r subset shallow}
+x['depth']
+```
+
+A deep subset will pull the values for just one variable.  I'm [piping](https://r4ds.had.co.nz/pipes.html) the values extracted from `depth` to `hist()`.
+
+```{r subset deep}
+x[['depth']] |>
+  hist(main = "CalCOFI station depths")
+```
+
+
+### Filtering
+
+Since `sf` are just data frames we can use the many [dplyr](https://dplyr.tidyverse.org/) verbs (`filter`, `slice`, `arrange`, etc)
+
+```{r filter}
+middepth <- x |>
+  dplyr::filter(dplyr::between(depth, 2000, 3000)) |>
+  print()
+```
+
+### Out of the box plotting
+
+Base graphics utilities for `sf` objects are pretty well developed. Other graphics systems are also supported ([ggplot2](https://ggplot2.tidyverse.org/), [lattice](https://CRAN.R-project.org/package=lattice), [leaflet](http://rstudio.github.io/leaflet/), etc).  Here we show some simple base graphics plotting.
+
+```{r plotting}
+plot(x['station'], 
+     axes = TRUE, 
+     key.pos = NULL, 
+     type = "l", 
+     reset = F)
+plot(middepth['depth'],
+     add = TRUE,
+     cex = 2, 
+     col = "purple")
+text(sf::st_coordinates(x), 
+     labels = x[['station']], 
+     adj = c(1,0),
+     cex = 0.5)
+map("world", add = TRUE, lwd = 2)
+```
+
+### Example raster data
+
+Raster data (images, grids, etc) have a convenient container, `stars`, that follows the same `sf` paradigm.  `stars` objects are list-like objects with special attributes.  
+
+```{r make a bbox}
+bb <- xyzt::as_BBOX(x) |>
+  print()
+```
+
+Let's make a little function to grab the raster datasets we want by date.
+
+```{r raster by date function}
+# @param date charcater, POSIXct or Date class
+# @return stars object
+get_mur <- function(date){
+  # manufacture a URL
+  mur_url <- ghrsst::mur_url(date[1])
+  # open the connection
+  NC <- ncdf4::nc_open(mur_url)
+  # extract all of the available variables
+  mur <- ghrsst::extract(bb, NC)
+  # close the connection
+  ncdf4::nc_close(NC)
+  return(mur)
+}
+```
+
+Let's get 2 dates for comparison.
+
+```{r example raster}
+  day1 <- get_mur("2018-09-14")
+  day2 <- get_mur("2018-12-18")
+```
+
+So what is in this thing we have extracted?  Let's see.
+
+```{r stars object}
+day1
+```
+
+Now, it's not a data frame, but it acts like one in many ways, such as subsetting.
+
+```{r subset stars shallow}
+day1['analysed_sst']
+```
+
+A deeper subset extracts the actual values, which in this case is a simple matrix, but it may be higher dimensioned arrays if the variable is layered (timeslices?, depths?).
+
+```{r subset stars deep}
+day1[['analysed_sst']] |>
+  str()
+```
+
+Speaking of layers, we can layer these two.  Notice how we pick up a time dimension, which applies to each variable.
+
+```{r layering}
+days <- c(day1, day2, 
+          along = list(time = as.Date(c("2018-09-14", "2018-12-18")))) |> 
+  print()
+```
+
+Let's see about that deep subsetting...
+
+```{r deep subset of layers}
+days[['analysed_sst']] |>
+  str()
+```
+
+### Extracting points
+
+```{r extract points}
+p <- stars::st_extract(day1, at = x) |>
+  print()
+```
+
+### Extracting along a path
+
+With a bit of hoop-jumping we can convert the station locations into a pseudo-path that we can imagine the ship to have taken.  I gloss over the details, but essential we'll convert the 133 feature data set into a single feature dataset with multiple points, then segmentize by interpolating an assumed location every ~500m between stations, and then unpack that into individual features Doing this we go to from 113 locations to almost 20,000 locations, but note that we lose any association with the original metadata.
+
+```{r multipoint}
+path <- sf::st_combine(x) |>
+  sf::st_cast("LINESTRING") |>
+  sf::st_segmentize(500) |>
+  sf::st_cast("POINT")
+path
+```
+
+Let's show these locations on the sst map for each day.
+
+```{r multi layer plot}
+plot(days['analysed_sst'],
+     hook = function(){plot(path, col = 'orange', pch = ".", add = TRUE)})
+```
+
+OK - now how about getting the sst value for each day?
+
+```{r extract}
+points <- sf::st_cast(path, "POINT")
+sst <- stars::st_extract(days['analysed_sst'], at = points) |>
+  sf::st_as_sf()
+sst
+```
+
+And let's see that map again, this time showing the temperature difference.
+
+```{r plot sst}
+sst <- sst |>
+  dplyr::mutate(diff = `2018-12-18` - `2018-09-14`)
+
+plot(days['analysed_sst'],
+     hook = function(){
+       plot(sst["diff"], breaks = pretty(sst$diff), add = TRUE)
+       })
+```
