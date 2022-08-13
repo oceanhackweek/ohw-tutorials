@@ -1,0 +1,86 @@
+---
+title: "NDBC"
+output: html_document
+---
+
+
+# [National Data Buoy Center](https://www.ndbc.noaa.gov/)
+
+To read [NDBC](https://www.ndbc.noaa.gov/) data we suggest that you use the [rnoaa](https://docs.ropensci.org/rnoaa/) package from [rOpenSci](https://ropensci.org/).
+
+### Requirements
+
+You only need the [rnoaa](https://docs.ropensci.org/rnoaa/) package to get data, but we include helper packages, `dplyr` and `ggplot2`, for the purpose of this tutorial. 
+
+```{r}
+suppressPackageStartupMessages({
+  required <- c("dplyr", "ggplot2", "rnoaa")
+  installed <- installed.packages() |>
+    dplyr::as_tibble() 
+  needed <- !(required %in% installed$Package)
+  if (any(needed)){
+    install.packages(required[needed])
+  }
+  ok <- sapply(required, library, character.only = TRUE)
+})
+```
+
+## Generate a list of buoys, and, as an example, narrow the list to Gulf of Maine.
+
+```{r}
+bb <- c(xmin = -72, xmax = -63, ymin = 39, ymax = 46)
+buoys <- buoy_stations() |>
+  filter(between(lat, bb['ymin'], bb['ymax']),
+         between(lon, bb['xmin'], bb['xmax']))
+
+glimpse(buoys)
+```
+
+## We select one buoy, Cutler Farris Wharf, in Maine and filter the listing down to just that one record (row).
+ 
+```{r}
+CFW_id <- buoys |>
+filter(grepl("Cutler Farris Wharf", description, fixed = TRUE))
+
+glimpse(CFW_id)
+```
+
+## Now we can pull buoy data, but only one dataset, such as standard meteorology, for a single year at a time may be requested. The function yields a list of two elements... 
+
+ + `meta` a list variable descriptions
+ 
+ + `data` a data frame (tibble) with reported data 
+
+```{r, message = FALSE}
+stdmet <- buoy("stdmet", CFW_id$station[1], year = 2021)
+names(stdmet)
+```
+
+
+```{r}
+glimpse(stdmet$data)
+```
+
+
+With just a little manipulation, we can start viewing the data graphically. First we must convert the timestamp data from character to numeric, specifically a POSIX timestamp (seconds of time since that start of an arbitrary origin, in this case 1970-01-01 00:00:00).
+
+```{r}
+stdmet$data <- mutate(stdmet$data, time = as.POSIXct(time, format = "%Y-%m-%dT%H:%M:%SZ"))
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+sst_meta <- stdmet$meta$sea_surface_temperature
+
+ggplot(data = stdmet$data, 
+       aes(x = time, 
+           y = sea_surface_temperature)) +
+  geom_point(size = 0.2, alpha = 0.4) + 
+  labs(title = sub("National Data Buoy Center - Recent observations from station ", 
+                   "",
+                   CFW_id$description),
+       y = sprintf("%s\n(%s)", sst_meta$longname, sst_meta$units),
+       x = "Date") 
+```
+
+
