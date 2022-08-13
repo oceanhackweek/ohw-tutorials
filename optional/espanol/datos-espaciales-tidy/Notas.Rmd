@@ -1,0 +1,149 @@
+---
+title: "Notas"
+author: "Pao"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+library(ggplot2)
+library(dplyr)
+library(metR)
+library(rnaturalearth)
+```
+
+## Lectura de datos
+
+Primero le pegamos un vistaso al archivo netCDF. Esto es particularmente importante si queremos (o tenemos) que leer solo una parte.
+
+```{r}
+GlanceNetCDF(here("datos/sea_variables.nc"))
+```
+En este caso el archivo contiene información de la temperatura de la superficie del mar (`sst`) y la fracción de mar cubierta por hielo (`siconc`) para todos los meses de 2021. Podemos leerlo completo, pero por ahora vamos a trabajar con la `sst`.
+
+```{r}
+sst <- ReadNetCDF("datos/sea_variables.nc", vars = "sst")
+```
+
+Hagamos nuestro primer gráfico
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst))
+```
+
+Para tener un mapa se necesitan datos de la localización de las costas o las fronteras. Existen varias fuentes de estos datos, pero una muy buena es Natural Earth. El paquete {rnaturalearth} provee una interfaz amigable para usar estos datos directamente en {ggplot2}.
+
+Primero hay que cargar el mapa que queramos. Por ejemplo para obtener un mapa de las costas usamos:
+
+```{r}
+mapa <- rnaturalearth::ne_coastline(returnclass = "sf")
+
+sf::sf_use_s2(FALSE)
+
+ggplot(mapa) +
+  geom_sf() +
+  scale_y_continuous(limits = c(-80, 80))
+```
+El argumento returnclass hace referencia a la estructura que queremos que devuelva. En este caso, returnclass = "sf" hace que devuelva un objeto de clase “Simple Features”. Las “Simple Features” son cualquier cosa menos simple internamente pero con {ggplot2} se pueden graficar con un geom específico.
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst)) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80))
+```
+A veces la longitud va de 0 a 360 grados, otras de -180 a 180 grados. con `ConvertLongitude()` podemos unificar los datos.
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  mutate(longitude = ConvertLongitude(longitude)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst)) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80))
+```
+
+## Colores y pinta general
+
+Seguro para cada variable tenemos en la cabeza una escala de colores específica. En este caso, al tratarse de temperatura podríamos usar una escala continua de color Brewer. Vamos a agregarla
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  mutate(longitude = ConvertLongitude(longitude)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst)) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80)) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1)
+```
+La leyenda está ok, pero podríamos mejorarla. 
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  mutate(longitude = ConvertLongitude(longitude)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst, fill = stat(level))) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80)) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1,
+                       super = metR::ScaleDiscretised,
+                       guide = guide_colorsteps(barwidth = 15)) +
+  theme(legend.position = "bottom")
+```
+Paron muchas cosas:
+
+* `fill = stat(level)` en la geometría nos permite usar la variable "level" (que no es la del data.frame) que calcula internamente ggplot. Esto es necesario para acceder a la información de los contornos.
+* `super = metR::ScaleDiscretised` nos permite discretizar la legenda.
+* `guide = guide_colorsteps()` va a cambiar la pinta de la leyenda para mostrarla como "cuadraditos" de colores en vez de una barra continua.
+* El `barwidth = 15` adentro de la guía cambia el ancho de la leyenda para que se vea un poco mejor una vez que la posicionamos abajo con `legend.position = "bottom"` 
+
+
+Ahora podemos trabajar sobre los elementos de texto de nuestro gráfico.
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  mutate(longitude = ConvertLongitude(longitude)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst, fill = stat(level))) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80)) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1,
+                       super = metR::ScaleDiscretised,
+                       guide = guide_colorsteps(barwidth = 15)) +
+  labs(x = NULL, y =  NULL, fill = "[K]",
+       title = "Temperatura del superficie del mar", 
+       subtitle = "Enero 2021") +
+  theme(legend.position = "bottom")
+```
+
+Y en mi caso me gusta cambiarle el tema:
+
+
+```{r}
+sst %>% 
+  filter(time == lubridate::ymd(20210101)) %>% 
+  mutate(longitude = ConvertLongitude(longitude)) %>% 
+  ggplot(aes(longitude, latitude)) +
+  geom_contour_fill(aes(z = sst, fill = stat(level))) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  scale_y_continuous(limits = c(-80, 80)) +
+  scale_fill_distiller(palette = "YlOrRd", direction = 1,
+                       super = metR::ScaleDiscretised,
+                       guide = guide_colorsteps(barwidth = 15)) +
+  labs(x = NULL, y =  NULL, fill = "[K]",
+       title = "Temperatura del superficie del mar", 
+       subtitle = "Enero 2021") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
