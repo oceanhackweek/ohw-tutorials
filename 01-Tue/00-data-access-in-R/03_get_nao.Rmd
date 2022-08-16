@@ -1,19 +1,27 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Data Access in R - Part 3"
+author: "Johnathan Evanilla"
+date: "8/10/2022"
+output: 
+  html_document: default
+  github_document: default
 ---
 
+# Reading Climate Index Data
 
-## Load packages
+[NOAA PSL Climate Index Listing](https://psl.noaa.gov/data/climateindices/list/)
+
+### Load packages
 
 ```{r}
-library(stringr)
-library(readr)
-library(tidyr)
-library(dplyr)
+suppressPackageStartupMessages({
+  # from CRAN
+  library(stringr)
+  library(readr)
+  library(tidyr)
+  library(dplyr)
+})
 ```
-
-## Read the text from the NAO 
 
 ```{r}
 nao <- readLines("https://www.cpc.ncep.noaa.gov/products/precip/CWlink/pna/norm.nao.monthly.b5001.current.ascii.table")
@@ -22,7 +30,7 @@ nao
 ```
 
 
-## Format the text into a nice looking wide form tibble (one row per year)
+### Format the text into a nice looking wide form tibble (one row per year)
 
 ```{r}
 wide_form <- nao  |>
@@ -37,7 +45,7 @@ wide_form
 ```
 
 
-## Convert the tibble into long form (one row per month/year)
+### Convert the tibble into long form (one row per month/year)
 
 ```{r}
 long_form <- wide_form |>
@@ -48,7 +56,7 @@ long_form <- wide_form |>
 long_form
 ```
 
-
+### Compute anual means and add them as a new column
 
 ```{r}
 means <- long_form |> 
