@@ -1,0 +1,288 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Live demo
+
+## Paquetes
+
+```{r}
+library(tidyverse)
+library(sf)
+library(tidygraph)
+library(sfnetworks)
+library(tmap)
+```
+
+## Datos espaciales 
+
+Una pequeña introducción a `sf` y su estructura de datos. 
+Comenzamos con un archivo geojson con los cantones del Ecuador:
+
+```{r sf}
+cantones = read_sf("https://gist.githubusercontent.com/emamut/25912e117ab46fa00a63c6e890575201/raw/5a17bbadd509568a39fdb2994b2b9a205b720ad9/cantones-ecuador.geojson")
+cantones
+```
+
+El poder de `sf` recae en su capacidad de manejar datos espaciales de una manera
+intuitiva y organizada: "tidy"!
+Por ejemplo, podemos cambiar rápidamente el sistema de coordenadas:
+
+```{r sfcoord}
+cantones |> st_crs()
+cantones |> st_coordinates() |> head()
+cantones |> st_transform(24817) |> st_coordinates() |> head()
+```
+
+Y visualizar la geometría con una línea de código:
+
+```{r sfplot}
+plot(cantones$geometry)
+```
+
+¿Mapa interactivo? Podemos usar `tmap`:
+
+```{r sftmap}
+tmap_mode('view')
+qtm(cantones, fill = '#88398A', border = 'white')
+```
+
+## Redes espaciales
+
+Ahora que somos expertos en `sf`, vamos directo a las redes espaciales. 
+Llamamos a la libreria `sfnetworks` y a su red para ejemplos `roxel`.
+
+```{r roxel}
+roxel$geometry |> plot()
+```
+Roxel es un pueblo en Münster, Alemania. 
+Un poco lejano del Ecuador...
+
+```{r}
+de = st_point(c(7.525859,51.9504935))
+ec = st_point(c(-79.0243995,-2.892183))
+qtm(st_sfc(c(de,ec)))
+```
+Vamos, un poco más cerca: 
+
+```{r cuenca}
+load('data/cuenca.rda')
+par(mar = c(0,0,0,0))
+plot(cuenca$geometry)
+```
+El código para generar el objecto `cuenca` lo encuentran en [data/data_preparation.R](data/data_preparation.R).
+
+Los datos son obtenidos con [`osmdata`](https://cran.r-project.org/package=osmdata). 
+Por favor, úsenlo con moderación. 
+Descargas desde la API de OSM son limitadas, en especial para zonas grandes. 
+Opciones para obtener datos de ciudades más grandes son por ejemplo [`osmextract`](https://cran.r-project.org/package=osmextract).
+
+### Explorar
+
+Vamos a explorar un poco los datos:
+```{r cuencaexp}
+cuenca
+```
+Ahora podemos convertir nuestra red vial en un objeto `sfnetwork`. 
+Existen varias formas de construir una red, y varias opciones. 
+Puedes explorarlas con `?sfnetwork`.
+
+```{r cuencacreate}
+cuenca |>
+  select(name, type) |>
+  as_sfnetwork() # prueba las opciones!
+```
+
+Guardemos la red en un objeto
+```{r cuencasave}
+net = cuenca |>
+  as_sfnetwork(directed = FALSE)
+net
+par(mar = c(0,0,0,0))
+plot(net)
+```
+
+### Wrangle
+
+Podemos explorar la red con verbos de `dplyr`
+
+```{r verbs}
+ net |> 
+  activate('edges') |>
+  filter(type == 'residential')
+```
+
+O, podemos aplicar filtros espaciales!
+
+```{r sffilter}
+net |> 
+  st_filter(sansebas) 
+```
+
+O funciones específicas para análisis de redes.
+Como por ejemplo la intermediación (cuantifica la frecuencia en que un nodo se encuentra entre los caminos más cortos de la red, https://es.wikipedia.org/wiki/Centralidad_de_intermediaci%C3%B3n)
+
+```{r central}
+net |>
+  activate('nodes') |>
+  mutate(intermed = centrality_betweenness())
+```
+
+Por último, podemos aplicar funciones específicas para redes espaciales,
+diseñadas para `sfnetworks`
+
+```{r sfnfunc}
+net |>
+  activate('edges') |>
+  select(to, from, geometry) |>
+  st_transform(24817) |> 
+  mutate(
+    longitud = edge_length()
+  )
+```
+
+### Limpieza y pre-procesamiento
+
+```{r clean}
+net_clean  = net |>
+  convert(to_spatial_subdivision) |>
+  convert(to_spatial_smooth) |>
+  convert(to_spatial_simple) 
+```
+
+## Aplicaciones 
+
+### Ruteo
+
+Podemos hacer ruteo con `sfnetworks` gracias a los algoritmos implementados en `igraph`.
+
+En este ejemplo, podemos encontrar la ruta más corta desde el Parque Calderón hasta la Facultad de Artes o el Estadio 
+```{r ruteo}
+parque = st_sfc(st_point(c(-79.0044, -2.8977)), crs = 4326)
+artes = st_sfc(st_point(c(-79.0252, -2.9203)), crs= 4326)
+estadio = st_sfc(st_point(c(-79.00586, -2.90672)), crs= 4326) 
+paths = st_network_paths(
+  net_clean, 
+  from = parque, 
+  to = c(artes,estadio)
+) 
+paths
+paths |>
+  pull(node_paths) |>
+  unlist() 
+```
+
+Mucho número, más visual por favor!
+
+```{r ruteoplot}
+plot_path = function(node_path) {
+  net_clean |>
+    activate("nodes") |>
+    slice(node_path) |>
+    plot(cex = 0.5, lwd = 1, add = TRUE)
+} 
+par(mar = c(0,0,0,0), mfrow = c(1,1))
+plot(net_clean, col = 'grey') 
+plot(parque, col = "purple", pch = 8, add = T)
+plot(artes, col = "red", pch = 8, add = T)
+plot(estadio, col = "orange", pch = 8, add = T) 
+paths |>
+  pull(node_paths) |>
+  purrr::walk(plot_path)
+```
+
+### Detección de comunidades
+
+```{r comm}
+grouped_net = net_clean |>
+  morph(to_linegraph) |>
+  mutate(group = group_louvain()) |>
+  unmorph()
+  
+grouped_net  |>
+  activate("edges")  |>
+  pull(group)  |>
+  unique()  |>
+  length() 
+
+par(mar = c(0,0,0,0), mfrow = c(1,1))
+plot(
+  st_geometry(net, "edges"), 
+  col = "grey", lwd = 0.5
+) 
+grouped_net |>
+  activate("edges") |>
+  st_as_sf() |>
+  transmute(group = as.factor(group)) |>
+  filter(group %in% c(1:20)) |>
+  plot(lwd = 2, add = TRUE) 
+```
+
+### Centros más cercanos
+
+Podemos hacer un análisis de los centros más cercanos a puntos específicos de la ciudad. 
+
+Creemos puntos y centros aleatorios para el ejemplo. 
+
+```{r centros1}
+set.seed(7612)
+hull = net_clean |>
+  activate("nodes") |>
+  st_geometry() |>
+  st_transform(24817) |>
+  st_combine() |>
+  st_convex_hull() |>
+  st_buffer(-1000) |>
+  st_transform(4326)
+sites = st_sample(hull, 50, type = "random")
+facilities = st_sample(hull, 5, type = "random")
+```
+
+Combinemos los puntos y centros para mejores resultados. 
+
+Vamos a trabajar solo con la red conectada más grande.
+```{r centros2}
+new_net = net |>
+  activate("nodes") |>
+  filter(group_components() == 1) |>
+  st_network_blend(c(sites, facilities))
+```
+
+Calculamos la matriz de costos.
+El default es que la columna del peso sea `weight`.
+En nuestro caso crearemos esta columna como la longitud de las aristas.
+
+Vamos a aplicar un `morpher` para esta operación.
+
+```{r centros3}
+new_net_2 = new_net |>
+  activate('edges') |>
+  morph(to_spatial_transformed, 24817) |>
+  mutate(weight = edge_length()) |>
+  unmorph()
+  
+cost_matrix = st_network_cost(new_net_2, from = sites, to = facilities)
+```
+
+Encontramos el centro mas cercano y creamos una linea entre los centros y los puntos para visualizar el resultado
+
+```{r centros4}
+closest = facilities[apply(cost_matrix, 1, function(x) which(x == min(x))[1])]
+draw_lines = function(sources, targets) {
+  lines = mapply(
+    function(a, b) st_sfc(st_cast(c(a, b), "LINESTRING"), crs = st_crs(net)),
+    sources,
+    targets,
+    SIMPLIFY = FALSE
+  )
+  do.call("c", lines)
+}
+connections = draw_lines(sites, closest)
+colors = sf.colors(3, categorical = TRUE)
+plot(new_net_2, col = "grey")
+plot(connections, col = colors[2], lwd = 2, add = TRUE)
+plot(facilities, pch = 8, cex = 2, lwd = 2, col = colors[3], add = TRUE)
+plot(sites, pch = 20, cex = 2, col = colors[2], add = TRUE)
+```
+
