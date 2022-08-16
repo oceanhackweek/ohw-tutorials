@@ -23,8 +23,6 @@ suppressPackageStartupMessages({
 })
 ```
 
-### Read the text from the NAO 
-
 ```{r}
 nao <- readLines("https://www.cpc.ncep.noaa.gov/products/precip/CWlink/pna/norm.nao.monthly.b5001.current.ascii.table")
 

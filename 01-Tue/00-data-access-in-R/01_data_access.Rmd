@@ -44,7 +44,6 @@ s <- servers()
 s
 ```
 
-
 ```{r}
 #View(s)
 ```
@@ -64,6 +63,10 @@ ds_t <- ed_datasets(url="https://coastwatch.pfeg.noaa.gov/erddap/")
 ds_g <- ed_datasets(url="https://coastwatch.pfeg.noaa.gov/erddap/", which="griddap")
 
 paste("We have", sum(ds_t$tabledap!=""), "tabledap", sum(ds_g$griddap!=""), "griddap", sep=" ")
+```
+
+```{r}
+paste("Found", length(out$alldata), "datasets", sep=" ")
 ```
 
 
@@ -264,7 +267,6 @@ ggplot(data=mur_sst$data, aes(x=lon, y=lat, fill=analysed_sst)) +
   scale_fill_gradientn(colours = colors$temperature, na.value = NA) +
   coord_fixed(1.3, ylim = c(32, 34), xlim = c(-119, -116))
 ```
-
 
 
 ## 2) OPeNDAP

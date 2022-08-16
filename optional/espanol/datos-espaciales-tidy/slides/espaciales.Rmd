@@ -1,0 +1,267 @@
+---
+title: "Graficando datos espaciales tidy"
+author: "Pao Corrales"
+institute: "UBA - CIMA - CONICET"
+output:
+  xaringan::moon_reader:
+    css: [default, "verde.css", default-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+options(htmltools.dir.version = FALSE)
+
+library(here)
+library(ggplot2)
+library(dplyr)
+library(metR)
+```
+class: center
+
+## Hola!
+
+```{r echo=FALSE, out.width='30%'}
+knitr::include_graphics(here("slides/img/pao_circle.png"))
+```
+
+@paobcorrales
+
+[paocorrales.github.io](https://paocorrales.github.io/)
+
+---
+
+## Datos espaciales
+
+.pull-left[
+
+### Pueden ser:
+
+* **puntos en el espacio**
+* segmentos
+* polígonos
+
+]
+
+.pull-right[
+
+### Representados como:
+
+* vectores
+* matrices u arrays
+* **data.frames**
+
+]
+---
+
+## Datos puntuales
+
+.pull-left[
+
+### Grillas regulares
+
+```{r echo=FALSE, fig.height=6}
+
+mapa <- rnaturalearth::ne_countries(country = c("argentina", "chile", "uruguay", 
+                                                "paraguay", "brazil", "bolivia", 
+                                                "falkland islands"), 
+                                    returnclass = "sf")
+
+sf::sf_use_s2(FALSE)
+
+temperature %>% 
+  .[lev == 1000 & between(lon, 275, 315) & between(lat, -60, -10)] %>% 
+  ggplot(aes(ConvertLongitude(lon), lat)) +
+  geom_point(aes(color = air-273.15)) +
+  scale_color_viridis_c(guide = guide_colorbar(barheight = 15,
+                                               barwidth = 0.7,
+                                               frame.colour = "black")) +
+  geom_sf(data = mapa, inherit.aes = FALSE, fill = NA) +
+  scale_x_latitude(ticks = 10) +
+  coord_sf(expand = FALSE, ylim = c(-60, -10), xlim = c(-85, -45)) +
+  labs(x = NULL, y = NULL, color = NULL,
+       title = "Temperatura en superficie") +
+  theme_minimal() +
+  theme()
+
+```
+
+
+
+]
+
+.pull-right[
+
+### Grillas irregulares
+
+```{r echo=FALSE, fig.height=6}
+observaciones <- readr::read_csv("https://raw.githubusercontent.com/eliocamp/r-clima/master/datos/observaciones_smn.csv") %>% 
+  group_by(station) %>% 
+  summarise(tmax_media = mean(tmax, na.rm = TRUE))
+
+estaciones <- readr::read_csv("https://raw.githubusercontent.com/eliocamp/r-clima/master/datos/estaciones_smn.csv") 
+
+observaciones <- left_join(observaciones, estaciones, by = c("station" = "nombre")) %>% 
+  filter(provincia != "ANTARTIDA")
+
+ggplot(observaciones, aes(lon, lat)) +
+  geom_point(aes(color = tmax_media)) +
+  scale_color_viridis_c(guide = guide_colorbar(barheight = 15,
+                                               barwidth = 0.7,
+                                               frame.colour = "black")) +
+  geom_sf(data = mapa, inherit.aes = FALSE, fill = NA) +
+  scale_x_latitude(ticks = 10) +
+  coord_sf(expand = FALSE, ylim = c(-60, -10), xlim = c(-85, -45)) +
+  labs(x = NULL, y = NULL, color = NULL,
+       title = "Temperatura en estaciones") +
+  theme_minimal() +
+  theme()
+```
+
+
+]
+
+---
+
+```{r eval=FALSE}
+temperature # datos incluidos en el paquete metR
+```
+
+```{r echo=FALSE}
+head(temperature, 10) %>% 
+  knitr::kable("html")
+```
+
+* `lon:` (dim) longitud, ubicación en x
+* `lat:` (dim) latitud, ubicación en y
+* `lev:` (dim) nivel de presión en la atmósfera. 1000 hPa es cercano al suelo
+* `air:` temperatura del aire
+
+---
+
+### Podemos aprovechar todas las herramientas del mundo "tidy"
+
+.pull-left[
+** ¿Cuál es la temperatura promedio en la provincia de Córdoba, Argentina?**
+
+```{r}
+t_promedio <- temperature %>% 
+  filter(between(lat, -33, -31),
+         between(lon, 294, 299)) %>% 
+  group_by(lev) %>% 
+  summarise(t_prom = mean(air - 273.15))
+```
+
+```{r, echo=FALSE}
+head(t_promedio) %>% 
+  knitr::kable("html")
+```
+
+]
+
+.pull-right[
+
+
+]
+
+---
+
+### Podemos aprovechar todas las herramientas del mundo "tidy"
+
+.pull-left[
+** ¿Cuál es la temperatura promedio en la provincia de Córdoba, Argentina?**
+
+```{r}
+t_promedio <- temperature %>% 
+  filter(between(lat, -33, -31),
+         between(lon, 294, 299)) %>% 
+  group_by(lev) %>% 
+  summarise(t_prom = mean(air - 273.15))
+```
+
+```{r, echo=FALSE}
+head(t_promedio) %>% 
+  knitr::kable("html")
+```
+
+]
+
+.pull-right[
+
+```{r, fig.height=4}
+t_promedio %>% 
+  ggplot(aes(t_prom, lev)) +
+  geom_path() +
+  scale_y_level() +
+  labs(title = "Perfil de temperatura",
+       subtitle = "Córdoba",
+       x = "Temperatura") +
+  theme(aspect.ratio = 1.2/1)
+```
+
+]
+
+---
+
+## Nuestro objetivo hoy
+
+```{r echo=FALSE, fig.align='center', out.width='60%'}
+mapa <- rnaturalearth::ne_coastline(returnclass = "sf")
+
+temperature %>% 
+  .[lev == 1000] %>% 
+  ggplot(aes(ConvertLongitude(lon), lat)) +
+  geom_contour_fill(aes(z = air-273.15, fill = stat(level))) +
+  scale_fill_viridis_c(super = metR::ScaleDiscretised,
+                       guide = guide_colorsteps(barwidth = 15)) +
+  geom_sf(data = mapa, inherit.aes = FALSE) +
+  coord_sf(expand = FALSE) +
+  scale_y_continuous(limits = c(-90, 90)) +
+  labs(x = NULL, y = NULL, fill = "Temperatura") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+---
+
+class: inverse
+
+## Manos a la obra!
+
+1. `r emo::ji("computer")` Entrá a este proyecto de RStudio Cloud: [rstudio.cloud/content/4312370](https://rstudio.cloud/content/4312370)  
+  `r emo::ji("exclamation")` (si nunca usaste RStudio Cloud, necesitas una cuenta)  
+  `r emo::ji("clock")` Puede demorar un par de minutos en abrir 
+  
+2. `r emo::ji("save")` Hacé click en "Save a permanent copy" (arriba a la derecha)
+
+5. `r emo::ji("white_check_mark")` Listo!
+
+---
+
+## ¿Más recursos?
+
+* `r emo::ji("point_right")` Tutorial: [Datos espaciales a lo tidy](https://eliocamp.github.io/espaciales-tidy-tutorial/)  
+  * [Descarga y lectura de datos](https://eliocamp.github.io/espaciales-tidy-tutorial/useR2021/02_lectura.html) (versión anterior del tutorial)
+
+* `r emo::ji("point_right")` Tutorial: [R para clima](https://eliocamp.github.io/r-clima)
+
+* `r emo::ji("point_right")` [Documentación de metR](https://eliocamp.github.io/metR/index.html)
+
+* `r emo::ji("point_right")` [Repositorio de datos climáticos](https://cds.climate.copernicus.eu/cdsapp#!/home)
+
+---
+
+background-image: url(https://github.com/paocorrales/datos-espaciales-ohw22/blob/main/slides/img/background.png?raw=true)
+background-size: 120%
+class: inverse, center, middle
+
+# ¡Gracias!
+
+
+
+@paobcorrales | `r emo::ji("globe_with_meridians")` paocorrales.github.io
