@@ -1,6 +1,10 @@
 ---
-title: "NDBC"
-output: html_document
+title: "Data Access in R - Part 2"
+author: "Johnathan Evanilla"
+date: "8/10/2022"
+output: 
+  html_document: default
+  github_document: default
 ---
 
 
@@ -25,7 +29,7 @@ suppressPackageStartupMessages({
 })
 ```
 
-## Generate a list of buoys, and, as an example, narrow the list to Gulf of Maine.
+### Generate a list of buoys, and, as an example, narrow the list to Gulf of Maine.
 
 ```{r}
 bb <- c(xmin = -72, xmax = -63, ymin = 39, ymax = 46)
@@ -36,16 +40,16 @@ buoys <- buoy_stations() |>
 glimpse(buoys)
 ```
 
-## We select one buoy, Cutler Farris Wharf, in Maine and filter the listing down to just that one record (row).
+### We select one buoy, Cutler Farris Wharf, in Maine and filter the listing down to just that one record (row).
  
 ```{r}
 CFW_id <- buoys |>
-filter(grepl("Cutler Farris Wharf", description, fixed = TRUE))
+filter(grepl("Portland", description, fixed = TRUE))
 
 glimpse(CFW_id)
 ```
 
-## Now we can pull buoy data, but only one dataset, such as standard meteorology, for a single year at a time may be requested. The function yields a list of two elements... 
+### Now we can pull buoy data, but only one dataset, such as standard meteorology, for a single year at a time may be requested. The function yields a list of two elements... 
 
  + `meta` a list variable descriptions
  
@@ -62,7 +66,7 @@ glimpse(stdmet$data)
 ```
 
 
-With just a little manipulation, we can start viewing the data graphically. First we must convert the timestamp data from character to numeric, specifically a POSIX timestamp (seconds of time since that start of an arbitrary origin, in this case 1970-01-01 00:00:00).
+### With just a little manipulation, we can start viewing the data graphically. First we must convert the timestamp data from character to numeric, specifically a POSIX timestamp (seconds of time since that start of an arbitrary origin, in this case 1970-01-01 00:00:00).
 
 ```{r}
 stdmet$data <- mutate(stdmet$data, time = as.POSIXct(time, format = "%Y-%m-%dT%H:%M:%SZ"))
@@ -70,16 +74,16 @@ stdmet$data <- mutate(stdmet$data, time = as.POSIXct(time, format = "%Y-%m-%dT%H
 
 
 ```{r, warning = FALSE, message = FALSE}
-sst_meta <- stdmet$meta$sea_surface_temperature
+wave_meta <- stdmet$meta$wave_height
 
 ggplot(data = stdmet$data, 
        aes(x = time, 
-           y = sea_surface_temperature)) +
+           y = wave_height)) +
   geom_point(size = 0.2, alpha = 0.4) + 
   labs(title = sub("National Data Buoy Center - Recent observations from station ", 
                    "",
                    CFW_id$description),
-       y = sprintf("%s\n(%s)", sst_meta$longname, sst_meta$units),
+       y = sprintf("%s\n(%s)", wave_meta$longname, wave_meta$units),
        x = "Date") 
 ```
 

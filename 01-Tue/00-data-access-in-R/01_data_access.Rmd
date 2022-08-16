@@ -2,7 +2,9 @@
 title: "Data Access in R - OceanHackWeek 2022"
 author: "Johnathan Evanilla"
 date: "8/10/2022"
-output: html_document
+output: 
+  html_document: default
+  github_document: default
 ---
 
 
@@ -19,6 +21,7 @@ suppressPackageStartupMessages({
   library(ncdf4)
   library(leaflet)
   library(ggplot2)
+  library(mapdata)
   
   # from Github
   library(xyzt)
@@ -42,33 +45,25 @@ s
 ```
 
 
+```{r}
+#View(s)
+```
+
+[Coastwatch ERDDAP Webpage](https://coastwatch.pfeg.noaa.gov/erddap/index.html)
 
 ```{r}
 s |> 
-  filter(short_name == "OOI")
+  filter(short_name == "CSWC")
 ```
 
-### What services are available in the server?
+### What types of data are available in the server?
 
 
 ```{r}
-ds <- ed_datasets(url="http://erddap.dataexplorer.oceanobservatories.org/erddap/")
+ds_t <- ed_datasets(url="https://coastwatch.pfeg.noaa.gov/erddap/")
+ds_g <- ed_datasets(url="https://coastwatch.pfeg.noaa.gov/erddap/", which="griddap")
 
-paste("We have", sum(ds$tabledap!=""), "tabledap", sum(ds$griddap!=""), "griddap, and", sum(ds$wms!=""), "wms.", sep=" ")
-```
-
-### Let's query all the datasets that have the _standard_name_ of _sea_water_practical_salinity_.
-
-```{r}
-out <- ed_search(query = "sea_water_practical_salinity", 
-                 which = "tabledap",
-                 url="http://erddap.dataexplorer.oceanobservatories.org/erddap/")
-
-out
-```
-
-```{r}
-paste("Found", length(out$alldata), "datasets", sep=" ")
+paste("We have", sum(ds_t$tabledap!=""), "tabledap", sum(ds_g$griddap!=""), "griddap", sep=" ")
 ```
 
 
@@ -77,8 +72,8 @@ paste("Found", length(out$alldata), "datasets", sep=" ")
 [leaflet](https://rstudio.github.io/leaflet/)
 
 ```{r}
-lon <- c(-72, -69)
-lat <- c(38, 41)
+lon <- c(-123, -117)
+lat <- c(30, 35)
 
 leaflet() |>
   addTiles() |>
@@ -94,86 +89,180 @@ leaflet() |>
 
 
 ```{r}
-out_bb <- ed_search_adv(standard_name= "sea_water_practical_salinity",
-                        which = "tabledap",
-                        url="http://erddap.dataexplorer.oceanobservatories.org/erddap/",
-                        minLat=38,
-                        maxLat=41,
-                        minLon=-72,
-                        maxLon=-69,
+out_td <- ed_search_adv(which = "tabledap",
+                        url="https://coastwatch.pfeg.noaa.gov/erddap/",
+                        minLat=30,
+                        maxLat=35,
+                        minLon=-123,
+                        maxLon=-117,
                         minTime = "2016-07-10T00:00:00Z",
                         maxTime = "2017-02-10T00:00:00Z")
 
-dataset_ids <- out_bb$info$dataset_id
-
-out_bb
+out_td
 ```
 
 ```{r}
-paste("Found", length(out_bb$alldata), "Datasets:", sep=" ")
-dataset_ids
+paste("Found", length(out_td$alldata), "Datasets:", sep=" ")
 ```
 
+
+
+### Let's query all the datasets that have _landings_ data
 
 ```{r}
-dataset_ids[1]
+out <- ed_search(query = "landings", 
+                 which = "tabledap",
+                 url="https://coastwatch.pfeg.noaa.gov/erddap/")
+
+dataset_ids <- out$info$dataset_id
+
+out
 ```
+
+### Get info on an erddap dataset
 
 ```{r}
 info(dataset_ids[1], 
-     url="http://erddap.dataexplorer.oceanobservatories.org/erddap/")
+     url="https://coastwatch.pfeg.noaa.gov/erddap/")
 ```
 
 
 ```{r}
-zz <- tabledap(x = dataset_ids[1],
-               fields = c("z", 
-                          "latitude", 
-                          "longitude", 
-                          "sea_water_practical_salinity_profiler_depth_enabled", 
-                          "sea_water_temperature_profiler_depth_enabled", 
-                          "time"),
-               url = "http://erddap.dataexplorer.oceanobservatories.org/erddap")
+landings <- tabledap(x = dataset_ids[1],
+                     url = "https://coastwatch.pfeg.noaa.gov/erddap/")
+
+landings
 ```
 
 ```{r}
-head(zz)
+class(landings)
 ```
 
 ```{r}
-summary(zz)
+summary(landings)
 ```
 
+
 ```{r}
-zz_sub <- zz |>
+landings_sub <- landings |>
   tibble() |>
-  mutate(time = as.POSIXct(time),
-         z = as.numeric(z),
-         temperature = as.numeric(sea_water_temperature_profiler_depth_enabled),
-         salinity = as.numeric(sea_water_practical_salinity_profiler_depth_enabled)) |>
-  select(-sea_water_temperature_profiler_depth_enabled, -sea_water_practical_salinity_profiler_depth_enabled) |>
-  filter(between(time, as.POSIXct("2016-01-01 00:00:00"), as.POSIXct("2016-12-31 00:00:00")),
-         z == min(z))
-```
-
-```{r}
-summary(zz_sub)
+  mutate(pounds = as.numeric(pounds)) |>
+  select(year, month, description, pounds)
 ```
 
 
 ```{r}
-plot(x=zz_sub$time, y=zz_sub$salinity)
+summary(landings_sub)
+```
+
+```{r}
+counts <- landings_sub |>
+  count(description) |>
+  arrange(desc(n))
+
+counts
 ```
 
 
 ```{r}
-plot(x=zz_sub$salinity, 
-     y=zz_sub$temperature)
+albacore <- landings_sub |>
+  filter(description == "Tuna, albacore") |>
+  group_by(year, month) |>
+  summarise(pounds = sum(pounds)) 
+
+albacore
+```
+
+
+```{r}
+plot(x=albacore$month, y=albacore$pounds)
+```
+
+
+```{r}
+albacore |>
+  group_by(year) |>
+  summarise(pounds = sum(pounds)) |>
+  ggplot(aes(x=year, y=pounds)) +
+  geom_line()
 ```
 
 ```{r}
-ggplot(data=zz_sub, aes(x=salinity, y=temperature)) +
+summary(albacore)
+```
+
+
+
+```{r}
+anchovies <- landings_sub |>
+  filter(description == "Anchovy, northern") |>
+  group_by(year) |>
+  summarise(pounds = sum(pounds)) 
+
+anchovies
+```
+
+```{r}
+albacore
+```
+
+
+```{r}
+albacore |>
+  group_by(year) |>
+  summarise(albacore_pounds = sum(pounds)) |>
+  mutate(anchovy_pounds = anchovies$pounds) |>
+  ggplot(aes(x = anchovy_pounds, y=albacore_pounds)) +
   geom_point()
+```
+
+
+
+
+### Accessing griddap data
+
+Make a sea surface temperature map with the latest mur data for the Southern California Bight
+
+
+```{r}
+out_gd <- ed_search_adv(query = "sst",
+                        which = "tabledap",
+                        url="https://coastwatch.pfeg.noaa.gov/erddap/",
+                        minLat=30,
+                        maxLat=35,
+                        minLon=-123,
+                        maxLon=-117,
+                        minTime = "2022-08-01T00:00:00Z",
+                        maxTime = "2022-08-15T00:00:00Z")
+
+out_gd
+
+```
+
+
+```{r}
+out_gd$info$dataset_id
+```
+
+```{r}
+mur_sst <- griddap("jplMURSST41", 
+                   latitude = c(32,34), 
+                   longitude = c(-119,-116), 
+                   time = c('last','last'), 
+                   fields = 'analysed_sst',
+                   url="https://coastwatch.pfeg.noaa.gov/erddap/")
+```
+
+
+
+```{r}
+worldmap <- map_data("worldHires", ylim = c(32, 34), xlim = c(-119, -116))
+
+ggplot(data=mur_sst$data, aes(x=lon, y=lat, fill=analysed_sst)) +
+  geom_polygon(data=worldmap, aes(x = long, y = lat, group = group), fill = "grey80") +
+  geom_tile() +
+  scale_fill_gradientn(colours = colors$temperature, na.value = NA) +
+  coord_fixed(1.3, ylim = c(32, 34), xlim = c(-119, -116))
 ```
 
 
@@ -190,8 +279,13 @@ ggplot(data=zz_sub, aes(x=salinity, y=temperature)) +
 [xyzt](https://github.com/BigelowLab/xyzt)
 [ghrsst](https://github.com/BigelowLab/ghrsst)
 
+[MUR Catalog](https://opendap.jpl.nasa.gov/opendap/hyrax/OceanTemperature/)
+
+### Compose a URL and open a connection to MUR data
+
 ```{r}
-url <- "https://opendap.jpl.nasa.gov/opendap/OceanTemperature/ghrsst/data/GDS2/L4/GLOB/JPL/MUR/v4.1/2022/221/20220809090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+url <- "https://opendap.jpl.nasa.gov/opendap/OceanTemperature/ghrsst/data/GDS2/L4/GLOB/JPL/MUR/v4.1/2022/226/20220814090000-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc"
+
 
 X <- nc_open(url)
 ```
@@ -221,6 +315,7 @@ x
 
 ```{r}
 points <- x |> 
+  head(n=12) |>
   as_POINT()
 ```
 
@@ -230,7 +325,7 @@ covars <- ghrsst::extract(points,
                           X, 
                           varname = "analysed_sst")
 
-(y <- dplyr::bind_cols(x, covars))
+(y <- dplyr::bind_cols(x |> head(n=12), covars))
 
 y
 ```
@@ -266,25 +361,31 @@ plot(layer, attr = 'analysed_sst', col = sf.colors(n=6), axes = TRUE, reset = FA
 plot(sf::st_geometry(points), add = TRUE, col = "black", pch = 19, cex = 1)
 ```
 
+### Close the connection
+
+```{r}
+nc_close(X)
+```
 
 
 ## 3) WMS
 
-### Learning Objectives:
+### Learning Objectives: Plot a WMS layer on an interactive map
 
 - Add a WMS layer to an interactive map. ("GEBCO - General Bathymetric Chart of the Oceans")
+
 
 ```{r}
 leaflet() |>
   addTiles() |>
-  setView(lng = -88,
-          lat = 30,
+  setView(lng = -117,
+          lat = 34,
           zoom = 5) |>
   addWMSTiles(
     "https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?",
     layers = "GEBCO_latest",
     options = WMSTileOptions(format = "image/png", transparent = TRUE),
-    attribution="Weather data © 2012 IEM Nexrad")
+    attribution="GEBCO")
 
 ```
 
