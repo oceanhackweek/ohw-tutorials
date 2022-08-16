@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introducción a R-Espacial</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lorena Abad" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: left, bottom, my-title, title-slide
+
+# Introducción a R-Espacial
+## OceanHackWeek 2022 - Español
+### Lorena Abad
+### 17.08.2022
+
+---
+
+
+
+
+
+
+
+class: middle, left
+
+
+.pull-left[
+#### ¿Por qué R?
+
+- Software abierto y libre
+
+- Lenguaje muy utilizado para ciencia de datos
+
+- Sólida comunidad de usuarios
+
+- **Excelentes librerias para análisis y visualización de datos espciales**
+]
+
+.pull-right[
+.center[
+![:scale 100%](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/r_first_then.png)
+]
+]
+.footnote[
+Arte de [@allison_horst](https://twitter.com/allison_horst)
+]
+
+---
+
+#### ¿Por qué R?
+
+&gt; Lo bueno de R es que es escrito por estadistas, lo malo de R es que es escrito por estadistas. Lo bueno de Python es que es escrito por informáticos, lo malo de Python es que es escrito por informáticos. 
+
+
+---
+
+## Análisis espacial
+
+.center[
+![](https://mgimond.github.io/Spatial/img/vector_vs_raster.jpg)
+]
+
+.footnote[
+Tomado de [Intro to GIS and Spatial Analysis | Manuel Gimond](https://mgimond.github.io/Spatial/index.html)
+]
+
+---
+class: middle, center
+
+## R-Espacial
+
+--
+
+en .emph[**3**] partes...
+
+--
+
+y un montón de paquetes a elegir!
+
+---
+
+## 1. Datos espaciales
+
+--
+
+.center[
+&lt;a href="https://docs.ropensci.org/rnaturalearth/"&gt;&lt;img src="https://docs.ropensci.org/rnaturalearth/hexlogo.png" width="250px"; height="300px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/walkerke/tigris"&gt;&lt;img src="https://raw.githubusercontent.com/walkerke/tigris/master/tools/readme/tigris_sticker.png" width="250px"; height="300px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/ipeaGIT/geobr"&gt;&lt;img src="https://github.com/ipeaGIT/geobr/raw/master/r-package/man/figures/geobr_logo_b.png?raw=true" width="250px"; height="300px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/ropensci/osmdata"&gt;&lt;img src="https://raw.githubusercontent.com/ropensci/osmdata/main/man/figures/logo.png" width="250px"; height="300px"/&gt;&lt;/a&gt;
+]
+
+&lt;br&gt; 
+
+- rnaturalearth
+- tigris
+- osmdata 
+
+
+--
+
+
+- **Tus propios datos**
+
+---
+
+## 1. Datos espaciales
+
+.center[
+&lt;a href="https://dankelley.github.io/oce/"&gt;&lt;img src="https://raw.githubusercontent.com/dankelley/oce/develop/oce-logo-3.png" width="250px"&gt;&lt;/a&gt;
+]
+
+&lt;br&gt; 
+
+- oce | [Tutorial de OHW21](https://www.youtube.com/watch?v=_1KhCMeEsY0&amp;ab_channel=UWeScienceInstitute)
+
+---
+
+## 2. Ciencia de datos
+
+.center[
+&lt;a href="https://github.com/r-spatial/sf"&gt;&lt;img src="https://raw.githubusercontent.com/loreabad6/sfnetworks_WiG/main/figs/sf.png" width="250px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/rspatial/terra"&gt;&lt;img src="https://raw.githubusercontent.com/rspatial/terra/master/man/figures/logo.png" width="250px"/&gt;&lt;/a&gt;
+]
+
+&lt;br&gt; 
+
+- sf
+- stars
+- terra (succesor de raster)
+- tidyverse
+
+---
+
+## 2. Ciencia de datos
+
+.pull-left[
+[Geocomputation with R](https://geocompr.robinlovelace.net)
+
+[Intro to GIS and Spatial Analysis | Manuel Gimond](https://mgimond.github.io/Spatial/index.html)
+]
+
+.pull-right[
+&lt;a href="https://geocompr.robinlovelace.net"&gt;&lt;img src="https://geocompr.robinlovelace.net/images/cover.png" width="300px"; height="450px"/&gt;&lt;/a&gt;
+]
+
+---
+
+## 3. Mapas y visualización
+
+--
+
+### Estáticos
+
+.center[
+&lt;a href="https://github.com/tidyverse/ggplot2"&gt;&lt;img src="https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png" width="200px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/mtennekes/tmap"&gt;&lt;img src="https://user-images.githubusercontent.com/3457131/78889069-479c5480-7a63-11ea-9d76-e8a0acc55c3f.png" width="200px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/riatelab/mapsf"&gt;&lt;img src="https://raw.githubusercontent.com/riatelab/mapsf/master/man/figures/logo.png" width="200px"/&gt;&lt;/a&gt;
+]
+
+&lt;br&gt;
+
+- R base
+- ggplot2 (+ [ggspatial](https://github.com/paleolimbot/ggspatial))
+- tmap
+- mapsf
+
+---
+
+## 3. Mapas y visualización
+
+### Interactivos
+
+.center[
+&lt;a href="https://github.com/mtennekes/tmap"&gt;&lt;img src="https://user-images.githubusercontent.com/3457131/78889069-479c5480-7a63-11ea-9d76-e8a0acc55c3f.png" width="200px"/&gt;&lt;/a&gt;
+&lt;a href="https://github.com/r-spatial/mapview/"&gt;&lt;img src="https://github.com/tim-salabim/mvl/blob/cstriestohelp/imagery/animated/box_anim.gif?raw=true" width="200px"/&gt;&lt;/a&gt;
+]
+
+&lt;br&gt;
+
+- tmap
+- mapview
+- [mapdeck](https://github.com/SymbolixAU/mapdeck/)
+- [leaflet](https://rstudio.github.io/leaflet/)
+- [rayshader](https://github.com/tylermorganwall/rayshader)
+
+---
+
+## 3. Mapas y visualización
+
+- Drawing beautiful maps programmatically with R, sf and ggplot 2 [part 1](https://r-spatial.org/r/2018/10/25/ggplot2-sf.html), [part 2](https://r-spatial.org/r/2018/10/25/ggplot2-sf-2.html) and [part 3](https://r-spatial.org/r/2018/10/25/ggplot2-sf-3.html)
+
+
+- [ggOceanMaps](https://mikkovihtakari.github.io/ggOceanMaps)
+
+---
+
+class: center, middle
+
+# ¡Manos a la obra!
+
+Contacto:
+
+[**@loreabad6**](https://twitter.com/loreabad6)
+
+[**loreabad6**](https://github.com/loreabad6
+
+&lt;br&gt;
+
+
+.left[.footnote[Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).]]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script src="macro.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(https://oceanhackweek.github.io/_static/logo.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

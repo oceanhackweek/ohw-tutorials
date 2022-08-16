@@ -1,0 +1,149 @@
+---
+title: "R-Espacial | Hands-on"
+date: "17.08.2022"
+output: html_document: default
+---
+
+# Ejercicio: trayectorias de ballenas jorobadas
+
+> En este ejercicio vamos a tomar datos tabulados de avistamientos de ballenas jorobadas en América del Sur.
+
+Los datos son de [Halpin et al. 2009](https://doi.org/10.15468/dl.s5jzav) y los encontramos en el repositorio de GBIF.org
+
+Referencia completa:
+Halpin, P.N., A.J. Read, E. Fujioka, B.D. Best, B. Donnelly, L.J. Hazen, C. Kot, K. Urian, E. LaBrecque, A. Dimatteo, J. Cleary, C. Good, L.B. Crowder, and K.D. Hyrenbach. 2009. OBIS-SEAMAP: The world data center for marine mammal, sea bird, 
+and sea turtle distributions. Oceanography 22(2):104-115. GBIF.org (21 November 2021) GBIF Occurrence Download  https://doi.org/10.15468/dl.s5jzav. https://www.gbif.org/dataset/2144434e-9e31-4558-8616-a2a301d02dc8#description
+
+## Cargar y explorar los datos
+
+Los datos fueron descargados previamente y se encuentran en el directorio `data/gbif`
+
+```{r}
+# Librerías
+library(here) # para establecer directorios parciales dentro de R
+library(readr) # para leer los datos
+library(dplyr) # para data wrangling
+library(sf) # para convertirlos en datos espaciales
+library(rnaturalearth) # para obtener información de países en América del Sur
+library(tmap) # para visualizacón de datos espaciales
+library(ggplot2) # para visualización
+```
+
+
+```{r}
+# Leer los datos 
+data = read_tsv("data/gbif/0061779-210914110416597.csv")
+glimpse(data)
+```
+
+```{r}
+# Convertirlos en datos espaciales
+datasf = data %>% 
+  st_as_sf(
+    coords = c("decimalLongitude", "decimalLatitude"),
+    crs = 4326
+  )
+
+head(datasf)
+```
+
+```{r}
+# Visualización rápida
+plot(datasf$geometry)
+```
+```{r}
+# Visualización interactiva con tmap
+tmap_mode('view')
+qtm(datasf)
+```
+
+## Manipulación de datos
+
+```{r}
+# Paises con avistamientos
+data %>% 
+  count(countryCode, sort = TRUE)
+```
+
+Para obtener solo datos de avistamientos en América del Sur, podemos seleccionar manualmente los países de la lista anterior:
+
+```{r}
+# Filtrando los datos para obtener solo Sudamérica
+data_sa1 = datasf %>% 
+  filter(countryCode %in% c("EC", "PE", "AR", "CL")) 
+plot(data_sa1$geometry)
+```
+
+
+Pero, ¿y si no tenemos la columna con el país? 
+Pues la opción sería la manipulación espacial de datos.
+
+
+## Manipulación de datos espaciales
+
+```{r}
+# Obtener vector de paises sudamericanos con rnaturalearth
+countries = ne_countries(scale = "large", returnclass = "sf")
+glimpse(countries)
+plot(countries$geometry)
+```
+```{r}
+# Extraer solo Sudamérica
+countries_sa = countries %>% 
+  filter(continent == "South America") 
+plot(countries_sa$geometry)
+```
+
+```{r}
+# Obtener el bounding box o contorno espacial de sudamérica
+bbox = st_bbox(countries_sa)
+bbox
+```
+```{r}
+bboxsf = st_as_sfc(bbox, crs = 4326)
+```
+
+```{r}
+data_sa2 = datasf %>% 
+  st_filter(bboxsf)
+plot(bboxsf, border = 'red', col = NA)
+plot(countries_sa$geometry, border = 'white', col = 'grey70', add = TRUE)
+plot(data_sa2$geometry, add = TRUE)
+
+```
+
+## Visualizando datos 
+
+```{r}
+# Armando un buen mapa
+ggplot() +
+  geom_sf(data = countries, fill = "black", alpha = 0.5,
+          color = NA, size = 0.2) +
+  geom_sf(data = data_sa, 
+          shape = 21, col = "grey90", fill = "grey10", stroke = 1.5,
+          alpha = 0.9, size = 2, show.legend = FALSE) +
+  coord_sf(
+    xlim = c(bbox["xmin"], bbox["xmax"]),
+    ylim = c(bbox["ymin"], bbox["ymax"])
+  ) +
+  labs(
+    title = "Humpback Whale\nobservations in\nthe South Pacific Ocean",
+    caption = glue::glue(
+      "Happywhale. 2021. Happywhale -\nHumpback Whale in South Pacific Ocean.\n",
+      "Accessed via GBIF.org on 2021-11-20"
+    )
+  ) +
+  theme_void() +
+  theme(
+    text = element_text(colour = "white"),
+    plot.caption = element_text(
+      size = 10, hjust = 0.5, family = 'sans',
+      margin = margin(t = 10, b = 10)
+    ),
+    plot.title = element_text(
+      hjust = 0.9, size = 13,
+      margin = margin(t = 10, b = -50)
+    ),
+    plot.background = element_rect(fill = "deepskyblue3", color = NA)
+  ) 
+```
