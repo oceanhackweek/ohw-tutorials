@@ -16,7 +16,7 @@ output:
       countIncrementalSlides: false
       ratio: 16:9
 ---
-class: center, middle, hide-logo
+class: center, top, hide-logo
 
 ```{r setup, include = F}
 # This is the recommended set up for flipbooks
@@ -75,17 +75,6 @@ options(crayon.enabled = TRUE)
 old_hooks <- fansi::set_knit_hooks(knitr::knit_hooks,
                                    which = c("output", "message", "error"))
 ```
-
-## ¡Comenzamos!
-
-Link a la presentación: https://sfnetworks.github.io/rladies-gye/slides
-
-Link al repositorio: https://github.com/sfnetworks/rladies-gye
-
-[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
-
----
-class: center, top, hide-logo
 
 ## <span style="color:#ffa500">Redes espaciales</span> <span style="color:#b3b3b3">*tidy* en R</span>
 
@@ -374,15 +363,6 @@ roxel |>
 ---
 class: center, middle
 
-## Live demo!
-
-Link al repositorio: https://github.com/sfnetworks/rladies-gye
-
-[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
-
----
-class: center, middle
-
 ### ¿Qué podemos hacer?
 
 #### Pre-procesamiento y limpieza de redes
@@ -666,18 +646,16 @@ st_network_cost(
 ---
 class: center, middle
 
-## Live demo!
+### ¿Qué más?
 
-Link al repositorio: https://github.com/sfnetworks/rladies-gye
-
-[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
+#### Mucho más...!
 
 ---
 class: center, middle
 
-### ¿Qué más?
+## Live demo!
 
-#### Mucho más...!
+[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
 
 ---
 class: center, middle
@@ -728,9 +706,9 @@ class: center, middle
 
 # Contacto:
 
-[**@loreabad6**](https://twitter.com/loreabad6)
+Twitter: [**@loreabad6**](https://twitter.com/loreabad6)
 
-[**loreabad6**](https://github.com/loreabad6
+GitHub: [**loreabad6**](https://github.com/loreabad6)
 
 <br>
 
@@ -745,6 +723,6 @@ Slides powered by [xaringan](https://github.com/yihui/xaringan), [xaringanthemer
 ]
 ]
 .pull-right-30[
-![:scale 50%](https://oceanhackweek.github.io/_static/logo.png)
+![:scale 30%](https://oceanhackweek.github.io/_static/logo.png)
 ]
 ]

@@ -12,17 +12,22 @@ library(tidyverse)
 library(sf)
 library(tidygraph)
 library(sfnetworks)
-library(tmap)
+library(mapview)
+library(rnaturalearth)
 ```
 
 ## Datos espaciales 
 
 Una pequeña introducción a `sf` y su estructura de datos. 
-Comenzamos con un archivo geojson con los cantones del Ecuador:
+Comencemos con polígonos de países en el mundo
 
 ```{r sf}
-cantones = read_sf("https://gist.githubusercontent.com/emamut/25912e117ab46fa00a63c6e890575201/raw/5a17bbadd509568a39fdb2994b2b9a205b720ad9/cantones-ecuador.geojson")
-cantones
+mundo = ne_countries(
+  scale = 110,
+  returnclass = 'sf'
+)
+mundo |>
+  select(admin, continent, type)
 ```
 
 El poder de `sf` recae en su capacidad de manejar datos espaciales de una manera
@@ -30,22 +35,21 @@ intuitiva y organizada: "tidy"!
 Por ejemplo, podemos cambiar rápidamente el sistema de coordenadas:
 
 ```{r sfcoord}
-cantones |> st_crs()
-cantones |> st_coordinates() |> head()
-cantones |> st_transform(24817) |> st_coordinates() |> head()
+mundo |> st_crs()
+mundo |> st_coordinates() |> head()
+mundo |> st_transform(3857) |> st_coordinates() |> head()
 ```
 
 Y visualizar la geometría con una línea de código:
 
 ```{r sfplot}
-plot(cantones$geometry)
+plot(mundo$geometry)
 ```
 
-¿Mapa interactivo? Podemos usar `tmap`:
+¿Mapa interactivo? Podemos usar `mapview`:
 
 ```{r sftmap}
-tmap_mode('view')
-qtm(cantones, fill = '#88398A', border = 'white')
+mapview(mundo)
 ```
 
 ## Redes espaciales
@@ -56,47 +60,73 @@ Llamamos a la libreria `sfnetworks` y a su red para ejemplos `roxel`.
 ```{r roxel}
 roxel$geometry |> plot()
 ```
-Roxel es un pueblo en Münster, Alemania. 
-Un poco lejano del Ecuador...
+
+Roxel representa la red vial de un pueblo en Münster, Alemania. 
+Estamos en el OHW, ¿qué tal si vamos por un ejemplo en el océano?
+
+#### Submarine Cable Map
+
+Cables submarinos son uno de los usos del océano que generalmente pasa desapercibido, pero son clave para la comunicación por Internet. Para aprender un poco más sobre esto: https://www.iscpc.org/documents/?id=132
+
+Los datos provienen de TeleGeography, demos in vistazo a su mapa interactivo:
+
+https://www.submarinecablemap.com/
+
+Los datos de este mapa están disponibles en GitHubÑ
+https://github.com/telegeography/www.submarinecablemap.com
+
+Vamos a verlos en R:
 
 ```{r}
-de = st_point(c(7.525859,51.9504935))
-ec = st_point(c(-79.0243995,-2.892183))
-qtm(st_sfc(c(de,ec)))
+cables = "https://raw.githubusercontent.com/telegeography/www.submarinecablemap.com/master/web/public/api/v3/cable/cable-geo.json"
+cables_sf = st_read(cables)
+cables_sf
+plot(cables_sf$geometry)
 ```
-Vamos, un poco más cerca: 
 
-```{r cuenca}
-load('data/cuenca.rda')
-par(mar = c(0,0,0,0))
-plot(cuenca$geometry)
+Arriba podemos ver un conjunto de líneas representando cables submarinos en el océano. 
+
+La página también provee puntos de desembarco (landing points)
+
+```{r}
+landing_point = "https://raw.githubusercontent.com/telegeography/www.submarinecablemap.com/master/web/public/api/v3/landing-point/landing-point-geo.json"
+landing_sf = st_read(landing_point)
+landing_sf
+mapview(landing_sf)
 ```
-El código para generar el objecto `cuenca` lo encuentran en [data/data_preparation.R](data/data_preparation.R).
 
-Los datos son obtenidos con [`osmdata`](https://cran.r-project.org/package=osmdata). 
-Por favor, úsenlo con moderación. 
-Descargas desde la API de OSM son limitadas, en especial para zonas grandes. 
-Opciones para obtener datos de ciudades más grandes son por ejemplo [`osmextract`](https://cran.r-project.org/package=osmextract).
+### Construcción
 
-### Explorar
+Ahora podemos convertir nuestra red de cables en un objeto `sfnetwork`. 
 
-Vamos a explorar un poco los datos:
-```{r cuencaexp}
-cuenca
+```{r}
+cables_sf |>
+  as_sfnetwork() 
 ```
-Ahora podemos convertir nuestra red vial en un objeto `sfnetwork`. 
-Existen varias formas de construir una red, y varias opciones. 
-Puedes explorarlas con `?sfnetwork`.
 
-```{r cuencacreate}
-cuenca |>
-  select(name, type) |>
+ERROR! Para convertir un objeto sf en un sfnetworks necesitamos una geometría de PUNTOS o LÍNEAS.
+
+```{r}
+cables_sf |>
+  st_geometry()
+```
+
+Intentemos de nuevo:
+
+```{r}
+cables_sf |>
+  st_cast("LINESTRING") |>
   as_sfnetwork() # prueba las opciones!
 ```
 
+Existen varias formas de construir una red, y varias opciones. 
+Puedes explorarlas con `?sfnetwork`.
+
 Guardemos la red en un objeto
-```{r cuencasave}
-net = cuenca |>
+```{r}
+net = cables_sf |>
+  select(name) |>
+  st_cast("LINESTRING") |>
   as_sfnetwork(directed = FALSE)
 net
 par(mar = c(0,0,0,0))
@@ -105,28 +135,30 @@ plot(net)
 
 ### Wrangle
 
-Podemos explorar la red con verbos de `dplyr`
+Podemos modificar la red con verbos de `dplyr`
 
 ```{r verbs}
  net |> 
-  activate('edges') |>
-  filter(type == 'residential')
+  activate('nodes') |>
+  mutate(id = paste0("A", row_number()))
 ```
 
 O, podemos aplicar filtros espaciales!
 
 ```{r sffilter}
+peru = mundo |> filter(admin == "Peru")
 net |> 
-  st_filter(sansebas) 
+  st_filter(peru)
 ```
 
 O funciones específicas para análisis de redes.
-Como por ejemplo la intermediación (cuantifica la frecuencia en que un nodo se encuentra entre los caminos más cortos de la red, https://es.wikipedia.org/wiki/Centralidad_de_intermediaci%C3%B3n)
+Como por ejemplo la intermediación (cuantifica la frecuencia en que un nodo o arista se encuentra entre los caminos más cortos de la red, https://es.wikipedia.org/wiki/Centralidad_de_intermediaci%C3%B3n)
 
 ```{r central}
 net |>
-  activate('nodes') |>
-  mutate(intermed = centrality_betweenness())
+  activate('edges') |>
+  mutate(intermed = centrality_edge_betweenness()) |>
+  arrange(desc(intermed))
 ```
 
 Por último, podemos aplicar funciones específicas para redes espaciales,
@@ -136,7 +168,7 @@ diseñadas para `sfnetworks`
 net |>
   activate('edges') |>
   select(to, from, geometry) |>
-  st_transform(24817) |> 
+  st_transform(3857) |> 
   mutate(
     longitud = edge_length()
   )
@@ -149,23 +181,59 @@ net_clean  = net |>
   convert(to_spatial_subdivision) |>
   convert(to_spatial_smooth) |>
   convert(to_spatial_simple) 
+net_clean
+```
+
+```{r}
+plot(net, col = 'grey70', cex = 1.5)
+plot(net_clean, col = 'grey20', cex = 0.7, add = TRUE)
 ```
 
 ## Aplicaciones 
+
+### Agregar puntos a la red
+
+Recuerdan los "landing points" que obtuvimos anteriormente. 
+
+```{r}
+plot(net_clean, col = 'grey70')
+plot(landing_sf, pch = 20, col = 'red', add = TRUE)
+```
+
+Estos no son parte de la red pero pueden serlo, utilizando `st_network_blend()`
+
+```{r}
+net_new = net_clean |>
+  st_network_blend(landing_sf)
+net_new
+```
 
 ### Ruteo
 
 Podemos hacer ruteo con `sfnetworks` gracias a los algoritmos implementados en `igraph`.
 
-En este ejemplo, podemos encontrar la ruta más corta desde el Parque Calderón hasta la Facultad de Artes o el Estadio 
+En este ejemplo, podemos encontrar la ruta más corta entre dos "landing points"
 ```{r ruteo}
-parque = st_sfc(st_point(c(-79.0044, -2.8977)), crs = 4326)
-artes = st_sfc(st_point(c(-79.0252, -2.9203)), crs= 4326)
-estadio = st_sfc(st_point(c(-79.00586, -2.90672)), crs= 4326) 
+janeiro = landing_sf |> filter(
+  str_detect(name, 'Janeiro')
+) |>
+  st_geometry()
+valencia = landing_sf |> filter(
+  str_detect(name, 'Valencia')
+) |>
+  st_geometry()
+lagos = landing_sf |> filter(
+  str_detect(name, 'Lagos')
+) |>
+  st_geometry()
+mumbai = landing_sf |> filter(
+  str_detect(name, 'Mumbai')
+) |>
+  st_geometry()
 paths = st_network_paths(
   net_clean, 
-  from = parque, 
-  to = c(artes,estadio)
+  from = janeiro, 
+  to = c(valencia, lagos, mumbai)
 ) 
 paths
 paths |>
@@ -184,9 +252,10 @@ plot_path = function(node_path) {
 } 
 par(mar = c(0,0,0,0), mfrow = c(1,1))
 plot(net_clean, col = 'grey') 
-plot(parque, col = "purple", pch = 8, add = T)
-plot(artes, col = "red", pch = 8, add = T)
-plot(estadio, col = "orange", pch = 8, add = T) 
+plot(janeiro, col = "purple", pch = 8, add = T)
+plot(valencia, col = "red", pch = 8, add = T)
+plot(lagos, col = "orange", pch = 8, add = T) 
+plot(mumbai, col = "magenta", pch = 8, add = T) 
 paths |>
   pull(node_paths) |>
   purrr::walk(plot_path)
@@ -217,72 +286,5 @@ grouped_net |>
   transmute(group = as.factor(group)) |>
   filter(group %in% c(1:20)) |>
   plot(lwd = 2, add = TRUE) 
-```
-
-### Centros más cercanos
-
-Podemos hacer un análisis de los centros más cercanos a puntos específicos de la ciudad. 
-
-Creemos puntos y centros aleatorios para el ejemplo. 
-
-```{r centros1}
-set.seed(7612)
-hull = net_clean |>
-  activate("nodes") |>
-  st_geometry() |>
-  st_transform(24817) |>
-  st_combine() |>
-  st_convex_hull() |>
-  st_buffer(-1000) |>
-  st_transform(4326)
-sites = st_sample(hull, 50, type = "random")
-facilities = st_sample(hull, 5, type = "random")
-```
-
-Combinemos los puntos y centros para mejores resultados. 
-
-Vamos a trabajar solo con la red conectada más grande.
-```{r centros2}
-new_net = net |>
-  activate("nodes") |>
-  filter(group_components() == 1) |>
-  st_network_blend(c(sites, facilities))
-```
-
-Calculamos la matriz de costos.
-El default es que la columna del peso sea `weight`.
-En nuestro caso crearemos esta columna como la longitud de las aristas.
-
-Vamos a aplicar un `morpher` para esta operación.
-
-```{r centros3}
-new_net_2 = new_net |>
-  activate('edges') |>
-  morph(to_spatial_transformed, 24817) |>
-  mutate(weight = edge_length()) |>
-  unmorph()
-  
-cost_matrix = st_network_cost(new_net_2, from = sites, to = facilities)
-```
-
-Encontramos el centro mas cercano y creamos una linea entre los centros y los puntos para visualizar el resultado
-
-```{r centros4}
-closest = facilities[apply(cost_matrix, 1, function(x) which(x == min(x))[1])]
-draw_lines = function(sources, targets) {
-  lines = mapply(
-    function(a, b) st_sfc(st_cast(c(a, b), "LINESTRING"), crs = st_crs(net)),
-    sources,
-    targets,
-    SIMPLIFY = FALSE
-  )
-  do.call("c", lines)
-}
-connections = draw_lines(sites, closest)
-colors = sf.colors(3, categorical = TRUE)
-plot(new_net_2, col = "grey")
-plot(connections, col = colors[2], lwd = 2, add = TRUE)
-plot(facilities, pch = 8, cex = 2, lwd = 2, col = colors[3], add = TRUE)
-plot(sites, pch = 20, cex = 2, col = colors[2], add = TRUE)
 ```
 
