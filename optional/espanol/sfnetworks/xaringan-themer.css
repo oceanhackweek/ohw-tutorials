@@ -79,7 +79,7 @@ h1, h2, h3 {
 .remark-slide-content {
   background-color: var(--background-color);
   font-size: 1rem;
-  background-image: url(figs/milano_bg.png);
+  background-image: url(https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano_bg.png);
   background-size: cover;
   padding: 16px 64px 16px 64px;
   width: 100%;
@@ -142,7 +142,7 @@ a, a > code {
 }
 .title-slide {
   background-color: var(--title-slide-background-color);
-  background-image: url("figs/milano.png");
+  background-image: url("https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano.png");
   background-size: cover;
 }
 .title-slide .remark-slide-number {

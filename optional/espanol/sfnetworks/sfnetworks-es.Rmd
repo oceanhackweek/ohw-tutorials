@@ -45,8 +45,8 @@ library(tidyverse)
 style_mono_accent(
   # hex color should be provided, or theme_xaringan doesn't work
   base_color = '#ffa500', #orange
-  title_slide_background_image = "figs/milano.png",
-  background_image = "figs/milano_bg.png",
+  title_slide_background_image = "https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano.png",
+  background_image = "https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano_bg.png",
   code_font_size = '14px',
   text_slide_number_color = '#b3b3b3', #grey70
   link_color = '#ff4500', #orangered  
@@ -80,7 +80,7 @@ old_hooks <- fansi::set_knit_hooks(knitr::knit_hooks,
 
 .left[
 .pull-left-70[
-![](figs/river_network.png)
+![](https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/river_network.png)
 ]
 ]
 
