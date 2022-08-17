@@ -1,0 +1,290 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Live demo
+
+## Paquetes
+
+```{r}
+library(tidyverse)
+library(sf)
+library(tidygraph)
+library(sfnetworks)
+library(mapview)
+library(rnaturalearth)
+```
+
+## Datos espaciales 
+
+Una pequeña introducción a `sf` y su estructura de datos. 
+Comencemos con polígonos de países en el mundo
+
+```{r sf}
+mundo = ne_countries(
+  scale = 110,
+  returnclass = 'sf'
+)
+mundo |>
+  select(admin, continent, type)
+```
+
+El poder de `sf` recae en su capacidad de manejar datos espaciales de una manera
+intuitiva y organizada: "tidy"!
+Por ejemplo, podemos cambiar rápidamente el sistema de coordenadas:
+
+```{r sfcoord}
+mundo |> st_crs()
+mundo |> st_coordinates() |> head()
+mundo |> st_transform(3857) |> st_coordinates() |> head()
+```
+
+Y visualizar la geometría con una línea de código:
+
+```{r sfplot}
+plot(mundo$geometry)
+```
+
+¿Mapa interactivo? Podemos usar `mapview`:
+
+```{r sftmap}
+mapview(mundo)
+```
+
+## Redes espaciales
+
+Ahora que somos expertos en `sf`, vamos directo a las redes espaciales. 
+Llamamos a la libreria `sfnetworks` y a su red para ejemplos `roxel`.
+
+```{r roxel}
+roxel$geometry |> plot()
+```
+
+Roxel representa la red vial de un pueblo en Münster, Alemania. 
+Estamos en el OHW, ¿qué tal si vamos por un ejemplo en el océano?
+
+#### Submarine Cable Map
+
+Cables submarinos son uno de los usos del océano que generalmente pasa desapercibido, pero son clave para la comunicación por Internet. Para aprender un poco más sobre esto: https://www.iscpc.org/documents/?id=132
+
+Los datos provienen de TeleGeography, demos in vistazo a su mapa interactivo:
+
+https://www.submarinecablemap.com/
+
+Los datos de este mapa están disponibles en GitHubÑ
+https://github.com/telegeography/www.submarinecablemap.com
+
+Vamos a verlos en R:
+
+```{r}
+cables = "https://raw.githubusercontent.com/telegeography/www.submarinecablemap.com/master/web/public/api/v3/cable/cable-geo.json"
+cables_sf = st_read(cables)
+cables_sf
+plot(cables_sf$geometry)
+```
+
+Arriba podemos ver un conjunto de líneas representando cables submarinos en el océano. 
+
+La página también provee puntos de desembarco (landing points)
+
+```{r}
+landing_point = "https://raw.githubusercontent.com/telegeography/www.submarinecablemap.com/master/web/public/api/v3/landing-point/landing-point-geo.json"
+landing_sf = st_read(landing_point)
+landing_sf
+mapview(landing_sf)
+```
+
+### Construcción
+
+Ahora podemos convertir nuestra red de cables en un objeto `sfnetwork`. 
+
+```{r}
+cables_sf |>
+  as_sfnetwork() 
+```
+
+ERROR! Para convertir un objeto sf en un sfnetworks necesitamos una geometría de PUNTOS o LÍNEAS.
+
+```{r}
+cables_sf |>
+  st_geometry()
+```
+
+Intentemos de nuevo:
+
+```{r}
+cables_sf |>
+  st_cast("LINESTRING") |>
+  as_sfnetwork() # prueba las opciones!
+```
+
+Existen varias formas de construir una red, y varias opciones. 
+Puedes explorarlas con `?sfnetwork`.
+
+Guardemos la red en un objeto
+```{r}
+net = cables_sf |>
+  select(name) |>
+  st_cast("LINESTRING") |>
+  as_sfnetwork(directed = FALSE)
+net
+par(mar = c(0,0,0,0))
+plot(net)
+```
+
+### Wrangle
+
+Podemos modificar la red con verbos de `dplyr`
+
+```{r verbs}
+ net |> 
+  activate('nodes') |>
+  mutate(id = paste0("A", row_number()))
+```
+
+O, podemos aplicar filtros espaciales!
+
+```{r sffilter}
+peru = mundo |> filter(admin == "Peru")
+net |> 
+  st_filter(peru)
+```
+
+O funciones específicas para análisis de redes.
+Como por ejemplo la intermediación (cuantifica la frecuencia en que un nodo o arista se encuentra entre los caminos más cortos de la red, https://es.wikipedia.org/wiki/Centralidad_de_intermediaci%C3%B3n)
+
+```{r central}
+net |>
+  activate('edges') |>
+  mutate(intermed = centrality_edge_betweenness()) |>
+  arrange(desc(intermed))
+```
+
+Por último, podemos aplicar funciones específicas para redes espaciales,
+diseñadas para `sfnetworks`
+
+```{r sfnfunc}
+net |>
+  activate('edges') |>
+  select(to, from, geometry) |>
+  st_transform(3857) |> 
+  mutate(
+    longitud = edge_length()
+  )
+```
+
+### Limpieza y pre-procesamiento
+
+```{r clean}
+net_clean  = net |>
+  convert(to_spatial_subdivision) |>
+  convert(to_spatial_smooth) |>
+  convert(to_spatial_simple) 
+net_clean
+```
+
+```{r}
+plot(net, col = 'grey70', cex = 1.5)
+plot(net_clean, col = 'grey20', cex = 0.7, add = TRUE)
+```
+
+## Aplicaciones 
+
+### Agregar puntos a la red
+
+Recuerdan los "landing points" que obtuvimos anteriormente. 
+
+```{r}
+plot(net_clean, col = 'grey70')
+plot(landing_sf, pch = 20, col = 'red', add = TRUE)
+```
+
+Estos no son parte de la red pero pueden serlo, utilizando `st_network_blend()`
+
+```{r}
+net_new = net_clean |>
+  st_network_blend(landing_sf)
+net_new
+```
+
+### Ruteo
+
+Podemos hacer ruteo con `sfnetworks` gracias a los algoritmos implementados en `igraph`.
+
+En este ejemplo, podemos encontrar la ruta más corta entre dos "landing points"
+```{r ruteo}
+janeiro = landing_sf |> filter(
+  str_detect(name, 'Janeiro')
+) |>
+  st_geometry()
+valencia = landing_sf |> filter(
+  str_detect(name, 'Valencia')
+) |>
+  st_geometry()
+lagos = landing_sf |> filter(
+  str_detect(name, 'Lagos')
+) |>
+  st_geometry()
+mumbai = landing_sf |> filter(
+  str_detect(name, 'Mumbai')
+) |>
+  st_geometry()
+paths = st_network_paths(
+  net_clean, 
+  from = janeiro, 
+  to = c(valencia, lagos, mumbai)
+) 
+paths
+paths |>
+  pull(node_paths) |>
+  unlist() 
+```
+
+Mucho número, más visual por favor!
+
+```{r ruteoplot}
+plot_path = function(node_path) {
+  net_clean |>
+    activate("nodes") |>
+    slice(node_path) |>
+    plot(cex = 0.5, lwd = 1, add = TRUE)
+} 
+par(mar = c(0,0,0,0), mfrow = c(1,1))
+plot(net_clean, col = 'grey') 
+plot(janeiro, col = "purple", pch = 8, add = T)
+plot(valencia, col = "red", pch = 8, add = T)
+plot(lagos, col = "orange", pch = 8, add = T) 
+plot(mumbai, col = "magenta", pch = 8, add = T) 
+paths |>
+  pull(node_paths) |>
+  purrr::walk(plot_path)
+```
+
+### Detección de comunidades
+
+```{r comm}
+grouped_net = net_clean |>
+  morph(to_linegraph) |>
+  mutate(group = group_louvain()) |>
+  unmorph()
+  
+grouped_net  |>
+  activate("edges")  |>
+  pull(group)  |>
+  unique()  |>
+  length() 
+
+par(mar = c(0,0,0,0), mfrow = c(1,1))
+plot(
+  st_geometry(net, "edges"), 
+  col = "grey", lwd = 0.5
+) 
+grouped_net |>
+  activate("edges") |>
+  st_as_sf() |>
+  transmute(group = as.factor(group)) |>
+  filter(group %in% c(1:20)) |>
+  plot(lwd = 2, add = TRUE) 
+```
+

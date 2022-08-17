@@ -1,0 +1,728 @@
+---
+title: "Análisis de redes espaciales con `sfnetworks`"
+subtitle: "OceanHackWeek 2022 - Español"
+author: "*Lorena Abad*, Lucas van der Meer, Andrea Gilardi, Robin Lovelace"
+date: "17.08.2022"
+output:
+  xaringan::moon_reader:
+    includes:
+      after_body: insert-logo.html
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      beforeInit: ["https://platform.twitter.com/widgets.js", "macro.js"]
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+class: center, top, hide-logo
+
+```{r setup, include = F}
+# This is the recommended set up for flipbooks
+# you might think about setting cache to TRUE as you gain practice --- building flipbooks from scratch can be time consuming
+options(width = 70)
+knitr::opts_chunk$set(
+  dev.args = list(bg = 'transparent'),
+  fig.width = 12, message = TRUE, fig.showtext = TRUE,
+  warning = FALSE, comment = "", cache = TRUE, fig.retina = 3
+)
+knitr::opts_knit$set(global.par = TRUE)
+Sys.setenv(`_R_S3_METHOD_REGISTRATION_NOTE_OVERWRITES_` = "false")
+# remotes::install_github("luukvdmeer/sfnetworks")
+# remotes::install_github("EvaMaeRey/flipbookr")
+library(flipbookr)
+library(xaringanthemer)
+library(sf)
+library(sfnetworks)
+library(tidygraph)
+library(igraph)
+library(tidyverse)
+```
+
+
+```{r xaringan-themer, include = F}
+style_mono_accent(
+  # hex color should be provided, or theme_xaringan doesn't work
+  base_color = '#ffa500', #orange
+  title_slide_background_image = "https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano.png",
+  background_image = "https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/milano_bg.png",
+  code_font_size = '14px',
+  text_slide_number_color = '#b3b3b3', #grey70
+  link_color = '#ff4500', #orangered  
+  footnote_font_size = '0.5em',
+  footnote_position_bottom = "30px",
+  code_highlight_color = "#ffedcc", #faded-orange
+  extra_css = list(
+    ".pull-left-70" = list("float" = "left", "width" = "65.8%"),
+    ".pull-right-30" = list("float" = "right", "width" = "28.2%"),
+    ".pull-left-30" = list("float" = "left", "width" = "28.2%"),
+    ".pull-right-70" = list("float" = "right", "width" = "65.8%"),
+    ".pull-left-40" = list("float" = "left", "width" = "37.6%"),
+    ".pull-right-60" = list("float" = "right", "width" = "56.4%"),
+    ".orange" = list("color" = "#ffa500"),
+    ".note" = list("font-size" = "0.8em", "position" = "absolute", 
+      "bottom" = "30px", "padding-right" = "4em")
+  )
+)
+```
+
+```{r color, echo = FALSE, results='asis'}
+# crayon needs to be explicitly activated in Rmd
+options(crayon.enabled = TRUE)
+# Hooks needs to be set to deal with outputs
+# thanks to fansi logic
+old_hooks <- fansi::set_knit_hooks(knitr::knit_hooks,
+                                   which = c("output", "message", "error"))
+```
+
+## <span style="color:#ffa500">Redes espaciales</span> <span style="color:#b3b3b3">*tidy* en R</span>
+
+.left[
+.pull-left-70[
+![](https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/river_network.png)
+]
+]
+
+.pull-right-30[
+
+Nodos y aristas se encuentran en el espacio geográfico
+
+Nodos se asocian a geometrías de puntos: **POINT**
+
+Aristas se asocian a geometías de líneas: **LINESTRING**
+
+La topología de la red no contiene *toda* la información de una red espacial
+
+La topología **_y_** la información espacial son esenciales para su análisis
+
+]
+
+---
+class: center, top, hide-logo
+
+## <span style="color:#b3b3b3">Redes espaciales</span> <span style="color:#ffa500">*tidy* en R</span>
+
+.left[
+.pull-left-70[
+```{r tidyverseex}
+library(tidyverse)
+library(sfnetworks)
+roxel |>
+  as_tibble() |>
+  select(name, type)
+```
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://raw.githubusercontent.com/tidyverse/tidyverse/master/man/figures/logo.png)
+
+**Tidyverse**
+
+Colección de paquetes de R para ciencia de datos
+
+Comparten una filosofía de estructura
+
+Aplican estructura de datos *tidy*
+
+]
+
+---
+class: center, top, hide-logo
+
+## <span style="color:#b3b3b3">Redes </span><span style="color:#ffa500">espaciales </span><span style="color:#b3b3b3">*tidy*</span><span style="color:#ffa500"> en R</span>
+
+.left[
+.pull-left-70[
+```{r sfex}
+library(sf)
+roxel
+```
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif)
+
+**El paquete sf**
+
+Paquete de R para ciencia de datos espaciales
+
+Almacenamiento estandarizado de elementos geográficos (puntos, líneas, polígonos)
+
+Operaciones geométricas (intersecciones, uniones, ..)
+
+Compatible con tidyverse
+
+Nuevos *verbos* específicos para datos espaciales
+
+]
+
+---
+class: center, top, hide-logo
+
+## <span style="color:#ffa500">Redes </span><span style="color:#b3b3b3">espaciales </span><span style="color:#ffa500"> *tidy* en R</span>
+
+.pull-left-70[
+.left[
+```{r}
+library(tidygraph)
+nodes = tibble(name = letters[1:4])
+edges = tibble(from = c(1,2,3,4), to = c(2,3,4,1))
+tbl_graph(nodes, edges)
+```
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://raw.githubusercontent.com/thomasp85/tidygraph/master/man/figures/logo.png)
+
+**El paquete tidygraph**
+
+Interfaz *tidy* al paquete `igraph` para análisis de redes
+
+Modela la red como una colección de dos tibbles
+
+Soporta algoritmos de redes (centralidad, clustering, ruteo, ..)
+
+Compatible con tidyverse
+
+Nuevos *verbos* específicos para estructuras de redes
+
+]
+
+---
+class: center, top, hide-logo
+
+##  <span style="color:#ffa500">¿Redes espaciales *tidy* en R?</span>
+
+<center><blockquote class="twitter-tweet"><p lang="en" dir="ltr">One of the biggest reasons we still have ArcGIS licenses is for Network Analysis (drive times, service areas etc). Does anyone have <a href="https://twitter.com/hashtag/foss4g?src=hash&amp;ref_src=twsrc%5Etfw">#foss4g</a> tools for this they like? Last time we tried pgRouting (yrs ago) it didn&#39;t feel fully formed yet, <a href="https://twitter.com/hashtag/gischat?src=hash&amp;ref_src=twsrc%5Etfw">#gischat</a></p>&mdash; Zev Ross (@zevross) <a href="https://twitter.com/zevross/status/1089908839816794118?ref_src=twsrc%5Etfw">January 28, 2019</a></blockquote></center> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+---
+class: center, top, hide-logo
+
+##  <span style="color:#ffa500">¡Redes espaciales *tidy* en R!</span>
+
+.pull-left[
+![](https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif)
+]
+
+.pull-right[
+![:scale 38%](https://raw.githubusercontent.com/thomasp85/tidygraph/master/man/figures/logo.png)
+]
+
+.center[
+![:scale 20%](https://raw.githubusercontent.com/luukvdmeer/sfnetworks/master/man/figures/logo.png)
+]
+
+---
+class: center, top
+
+##  <span style="color:#ffa500">¡Redes espaciales *tidy* en R!</span>
+
+`tidygraph`: 
+  
+  > "... una cercana aproximación de datos *ordenados* para datos relacionales son dos *tidy data frames*, uno que describa los *nodos* y otro describiendo las *aristas*."
+--
+  
+  <br>
+  <br>
+  
+`sfnetworks`:
+
+  > “Una cercana aproximación de datos *ordenados* para datos relacionales .orange[*geoespaciales*] son dos .orange[*objetos sf*], uno que describa los *nodos* y otro describiendo las *aristas*”
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel |> 
+  st_geometry() |>
+  plot()
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel |> 
+  st_geometry() |>
+  plot()
+```
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  plot()
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  plot()
+```
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel
+```
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel |> 
+  as_sfnetwork()
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel |> 
+  as_sfnetwork()
+```
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  activate(nodes) |>
+  st_as_sf()
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  activate(nodes) |>
+  st_as_sf()
+```
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+```{r, eval = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  activate(edges) |>
+  st_geometry()
+```
+]
+
+.pull-right-60[
+```{r, echo = FALSE}
+roxel |> 
+  as_sfnetwork() |>
+  activate(edges) |>
+  st_geometry()
+```
+]
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Pre-procesamiento y limpieza de redes
+
+---
+class: middle
+
+```{r clean1, include = F}
+p1 = st_point(c(0, 1))
+p2 = st_point(c(1, 1))
+p3 = st_point(c(2, 1))
+p4 = st_point(c(3, 1))
+p5 = st_point(c(4, 1))
+p6 = st_point(c(3, 2))
+p7 = st_point(c(3, 0))
+p8 = st_point(c(4, 3))
+p9 = st_point(c(4, 2))
+p10 = st_point(c(4, 0))
+p11 = st_point(c(5, 2))
+p12 = st_point(c(5, 0))
+p13 = st_point(c(5, -1))
+p14 = st_point(c(5.8, 1))
+p15 = st_point(c(6, 1.2))
+p16 = st_point(c(6.2, 1))
+p17 = st_point(c(6, 0.8))
+p18 = st_point(c(6, 2))
+p19 = st_point(c(6, -1))
+p20 = st_point(c(7, 1))
+l1 = st_sfc(st_linestring(c(p1, p2, p3)))
+l2 = st_sfc(st_linestring(c(p3, p4, p5)))
+l3 = st_sfc(st_linestring(c(p6, p4, p7)))
+l4 = st_sfc(st_linestring(c(p8, p11, p9)))
+l5 = st_sfc(st_linestring(c(p9, p5, p10)))
+l6 = st_sfc(st_linestring(c(p8, p9)))
+l7 = st_sfc(st_linestring(c(p10, p12, p13, p10)))
+l8 = st_sfc(st_linestring(c(p5, p14)))
+l9 = st_sfc(st_linestring(c(p15, p14)))
+l10 = st_sfc(st_linestring(c(p16, p15)))
+l11 = st_sfc(st_linestring(c(p14, p17)))
+l12 = st_sfc(st_linestring(c(p17, p16)))
+l13 = st_sfc(st_linestring(c(p15, p18)))
+l14 = st_sfc(st_linestring(c(p17, p19)))
+l15 = st_sfc(st_linestring(c(p16, p20)))
+lines = c(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15)
+net = as_sfnetwork(lines)
+```
+
+```{r, include = FALSE}
+edge_colors = function(x) ggsci::pal_igv(palette = "default")(ecount(x))
+par(mar = rep(1,4))
+```
+
+### Pre-procesamiento y limpieza de redes
+
+#### Red inicial
+
+```{r clean2, echo = F}
+plot(st_geometry(net, "edges"), col = edge_colors(net), lwd = 8)
+plot(st_geometry(net, "nodes"), pch = 20, cex = 4, add = TRUE)
+```
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Simplificar aristas
+
+```{r clean3, echo = F}
+simple = net |>
+  activate("edges") |> 
+  arrange(edge_length()) |> 
+  filter(!edge_is_multiple()) |> 
+  filter(!edge_is_loop())
+plot(st_geometry(simple, "edges"), col = edge_colors(simple), lwd = 8)
+plot(st_geometry(simple, "nodes"), pch = 20, cex = 4, add = TRUE)
+```
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Subdividir aristas
+
+```{r clean4, echo = F}
+subdivision = convert(simple, to_spatial_subdivision)
+plot(st_geometry(subdivision, "edges"), col = edge_colors(subdivision), lwd = 8)
+plot(st_geometry(subdivision, "nodes"), pch = 20, cex = 4, add = TRUE)
+```
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Remover pseudo-nodos
+
+```{r clean5, echo = F}
+smoothed = convert(subdivision, to_spatial_smooth)
+plot(st_geometry(smoothed, "edges"), col = edge_colors(smoothed), lwd = 8)
+plot(st_geometry(smoothed, "nodes"), pch = 20, cex = 4, add = TRUE)
+```
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Simplificar intersecciones
+
+```{r contract, include = FALSE}
+# Retrieve the coordinates of the nodes.
+node_coords = smoothed |>
+  activate("nodes") |>
+  st_coordinates()
+# Cluster the nodes with the DBSCAN spatial clustering algorithm.
+# We set eps = 0.5 such that:
+# Nodes within a distance of 0.5 from each other will be in the same cluster.
+# We set minPts = 1 such that:
+# A node is assigned a cluster even if it is the only member of that cluster.
+library(dbscan)
+clusters = dbscan(node_coords, eps = 0.5, minPts = 1)$cluster 
+# Add the cluster information to the nodes of the network.
+clustered = smoothed |>
+  activate("nodes") |>
+  mutate(cls = clusters)
+clustered = clustered |>
+  mutate(cmp = group_components())
+contracted = convert(clustered, to_spatial_contracted, cls, cmp, simplify = TRUE)
+```
+
+```{r clean6, echo = F}
+plot(st_geometry(contracted, "edges"), col = edge_colors(contracted), lwd = 8)
+plot(st_geometry(contracted, "nodes"), pch = 20, cex = 4, add = TRUE)
+```
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Snapping
+
+---
+class: middle
+
+`r chunk_reveal(chunk_name = "snap", break_type = "user", display_type = "output", title = "### Snapping \n #### Mover puntos al nodo más cercano")`
+
+```{r snap, include = F}
+# Create a network.
+node1 = st_point(c(0, 0))
+node2 = st_point(c(1, 0))
+edge = st_sfc(st_linestring(c(node1, node2)))
+net = as_sfnetwork(edge)
+# Create a set of POIs.
+pois = data.frame(poi_type = c("bakery", "butcher"),
+                  x = c(0, 0.6), y = c(0.2, 0.2)) |>
+  st_as_sf(coords = c("x", "y"))
+# Find indices of nearest nodes.
+nearest_nodes = st_nearest_feature(pois, net)
+# Snap geometries of POIs to the network.
+snapped_pois = pois |>
+  st_set_geometry(st_geometry(net)[nearest_nodes])
+# Plot.
+plot_connections = function(pois) {
+  for (i in seq_len(nrow(pois))) {
+    connection = st_nearest_points(pois[i, ], net)[nearest_nodes[i]]
+    plot(connection, col = "grey", lty = 2, lwd = 2, add = TRUE)
+  }
+}
+par(mfrow = c(1,2), mar = rep(0,4))
+plot(net, cex = 2, lwd = 4) #BREAK
+plot_connections(pois)
+plot(pois, pch = 8, cex = 2, lwd = 2, add = TRUE) #BREAK
+plot(net, cex = 2, lwd = 4) #BREAK
+plot(snapped_pois, pch = 8, cex = 2, lwd = 2, add = TRUE)
+```
+
+---
+class: middle
+
+`r chunk_reveal(chunk_name = "blend", break_type = "user", display_type = "output", title = "### Snapping \n #### Integrar puntos a la red")`
+
+```{r blend, include = F}
+node1 = st_point(c(0, 0))
+node2 = st_point(c(1, 0))
+edge = st_sfc(st_linestring(c(node1, node2)))
+net = as_sfnetwork(edge)
+pois = data.frame(poi_type = c("bakery", "butcher"),
+            x = c(0, 0.6), y = c(0.1, 0.1)) |>
+  st_as_sf(coords = c("x", "y")) 
+blended = st_network_blend(net, pois) 
+plot_connections = function(pois) {
+  for (i in seq_len(nrow(pois))) {
+    connection = st_nearest_points(
+      pois[i, ],
+      activate(net, "edges")
+    )
+    plot(
+      connection,
+      col = "grey", lty = 2, lwd = 4,
+      add = TRUE
+    )
+  }
+}
+par(mfrow = c(1,2), mar = rep(0,4))
+plot(net, cex = 2, lwd = 4) #BREAK
+plot_connections(pois)
+plot(pois, pch = 8, cex = 2, lwd = 2, add = TRUE) #BREAK
+plot(blended, cex = 2, lwd = 4)
+```
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Ruteo
+
+---
+class: top
+
+`r chunk_reveal(chunk_name = "plotpath", break_type = "user", display_type = "output", title = "### Ruteo \n #### Calcular el camino más corto")`
+
+```{r plotpath, include = FALSE, fig.align='center'}
+
+net = as_sfnetwork(
+  roxel,
+  directed = FALSE
+  ) |> 
+  st_transform(3035) |> 
+  activate("edges") |> 
+  mutate(weight = edge_length())
+paths = st_network_paths(
+  net,
+  from = 495,
+  to = c(458, 121)
+)
+plot_path = function(node_path) {
+  net |>
+    activate("nodes") |>
+    slice(node_path) |>
+    plot(cex = 1.5, lwd = 1.5, add = TRUE)
+}
+colors = sf.colors(3, categorical = TRUE)
+par(mfrow = c(1,2), mar = rep(0,4))
+plot(net, col = "grey") #BREAK
+net |>
+  activate("nodes") |>
+  st_as_sf() |>
+  slice(c(495, 121, 458)) |>
+  plot(col = colors, pch = 8, cex = 2, lwd = 2, add = TRUE) #BREAK
+paths |>
+  pull(node_paths) |>
+  walk(plot_path) #BREAK
+p1 = st_geometry(net, "nodes")[495] + st_sfc(st_point(c(50, -50)))
+st_crs(p1) = st_crs(net)
+p2 = st_geometry(net, "nodes")[458]
+p3 = st_geometry(net, "nodes")[121] + st_sfc(st_point(c(-10, 100)))
+st_crs(p3) = st_crs(net)
+paths = st_network_paths(net, from = p1, to = c(p2, p3))
+plot(net, col = "grey") #BREAK
+plot(c(p1, p2, p3), col = colors, pch = 8, cex = 2, lwd = 2, add = TRUE)  #BREAK
+paths |>
+  pull(node_paths) |>
+  walk(plot_path)
+```
+
+---
+class: top
+
+### Ruteo
+
+#### Obtener una matriz origen/destino
+
+```{r costmatrix}
+st_network_cost(
+  net, 
+  from = c(p1, p2, p3),
+  to = c(p1, p2, p3)
+)
+```
+
+---
+class: center, middle
+
+### ¿Qué más?
+
+#### Mucho más...!
+
+---
+class: center, middle
+
+## Live demo!
+
+[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
+
+---
+class: center, middle
+## Instalación:
+
+Desde CRAN:
+
+```{r, eval = F}
+install.packages("sfnetworks")
+```
+
+Versión en desarrollo en GitHub:
+
+```{r, eval = F}
+remotes::install_github("luukvdmeer/sfnetworks")
+```
+
+---
+class: center, middle
+
+### ¿Quieren más?
+
+
+--
+
+Dense una vuelta por las [viñetas del paquete](https://luukvdmeer.github.io/sfnetworks/index.html)
+
+--
+
+### ¿Tienen sus propios ejemplos o ideas?
+
+--
+
+Únanse a la  [Discusión en GitHub](https://github.com/luukvdmeer/sfnetworks/discussions)
+
+--
+
+### ¿Encontraron un bug?
+
+--
+
+Hágannos saber en un [issue aquí](https://github.com/luukvdmeer/sfnetworks/issues)!
+
+
+---
+
+class: center, middle
+
+# Contacto:
+
+Twitter: [**@loreabad6**](https://twitter.com/loreabad6)
+
+GitHub: [**loreabad6**](https://github.com/loreabad6)
+
+<br>
+
+.note[
+.pull-left-70[
+.pull-left[
+Projecto financiado por:<br>![:scale 50%](https://raw.githubusercontent.com/RConsortium/artwork/main/r_consortium/R_Consortium-logo-horizontal-color.png)
+]
+
+.pull-right[
+Slides powered by [xaringan](https://github.com/yihui/xaringan), [xaringanthemer](https://github.com/gadenbuie/xaringanthemer) and [flipbookr](https://github.com/EvaMaeRey/flipbookr)<br><br>
+]
+]
+.pull-right-30[
+![:scale 30%](https://oceanhackweek.github.io/_static/logo.png)
+]
+]

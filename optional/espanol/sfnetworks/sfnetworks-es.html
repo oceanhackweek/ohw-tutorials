@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Análisis de redes espaciales con sfnetworks</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lorena Abad, Lucas van der Meer, Andrea Gilardi, Robin Lovelace" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Análisis de redes espaciales con <code>sfnetworks</code>
+## OceanHackWeek 2022 - Español
+### <em>Lorena Abad</em>, Lucas van der Meer, Andrea Gilardi, Robin Lovelace
+### 17.08.2022
+
+---
+
+class: center, top, hide-logo
+
+
+
+
+
+
+&lt;STYLE type='text/css' scoped&gt;
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+&lt;/STYLE&gt;
+
+## &lt;span style="color:#ffa500"&gt;Redes espaciales&lt;/span&gt; &lt;span style="color:#b3b3b3"&gt;*tidy* en R&lt;/span&gt;
+
+.left[
+.pull-left-70[
+![](https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/river_network.png)
+]
+]
+
+.pull-right-30[
+
+Nodos y aristas se encuentran en el espacio geográfico
+
+Nodos se asocian a geometrías de puntos: **POINT**
+
+Aristas se asocian a geometías de líneas: **LINESTRING**
+
+La topología de la red no contiene *toda* la información de una red espacial
+
+La topología **_y_** la información espacial son esenciales para su análisis
+
+]
+
+---
+class: center, top, hide-logo
+
+## &lt;span style="color:#b3b3b3"&gt;Redes espaciales&lt;/span&gt; &lt;span style="color:#ffa500"&gt;*tidy* en R&lt;/span&gt;
+
+.left[
+.pull-left-70[
+
+```r
+library(tidyverse)
+library(sfnetworks)
+roxel |&gt;
+  as_tibble() |&gt;
+  select(name, type)
+```
+
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;&lt;span style='color: #555555;'&gt;# A tibble: 851 x 2&lt;/span&gt;
+   name                  type       
+   &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;chr&amp;gt;&lt;/span&gt;                 &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;fct&amp;gt;&lt;/span&gt;      
+&lt;span style='color: #555555;'&gt; 1&lt;/span&gt; Havixbecker Strasse   residential
+&lt;span style='color: #555555;'&gt; 2&lt;/span&gt; Pienersallee          secondary  
+&lt;span style='color: #555555;'&gt; 3&lt;/span&gt; Schulte-Bernd-Strasse residential
+&lt;span style='color: #555555;'&gt; 4&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path       
+&lt;span style='color: #555555;'&gt; 5&lt;/span&gt; Welsingheide          residential
+&lt;span style='color: #555555;'&gt; 6&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway    
+&lt;span style='color: #555555;'&gt; 7&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway    
+&lt;span style='color: #555555;'&gt; 8&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path       
+&lt;span style='color: #555555;'&gt; 9&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track      
+&lt;span style='color: #555555;'&gt;10&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track      
+&lt;span style='color: #555555;'&gt;# ... with 841 more rows&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://raw.githubusercontent.com/tidyverse/tidyverse/master/man/figures/logo.png)
+
+**Tidyverse**
+
+Colección de paquetes de R para ciencia de datos
+
+Comparten una filosofía de estructura
+
+Aplican estructura de datos *tidy*
+
+]
+
+---
+class: center, top, hide-logo
+
+## &lt;span style="color:#b3b3b3"&gt;Redes &lt;/span&gt;&lt;span style="color:#ffa500"&gt;espaciales &lt;/span&gt;&lt;span style="color:#b3b3b3"&gt;*tidy*&lt;/span&gt;&lt;span style="color:#ffa500"&gt; en R&lt;/span&gt;
+
+.left[
+.pull-left-70[
+
+```r
+library(sf)
+roxel
+```
+
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;Simple feature collection with 851 features and 2 fields
+Geometry type: LINESTRING
+Dimension:     XY
+Bounding box:  xmin: 7.522594 ymin: 51.94151 xmax: 7.546705 ymax: 51.9612
+Geodetic CRS:  WGS 84
+&lt;span style='color: #555555;'&gt;# A tibble: 851 x 3&lt;/span&gt;
+   name                  type                                 geometry
+ &lt;span style='color: #555555;'&gt;*&lt;/span&gt; &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;chr&amp;gt;&lt;/span&gt;                 &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;fct&amp;gt;&lt;/span&gt;                        &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;LINESTRING [°]&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt; 1&lt;/span&gt; Havixbecker Strasse   residential (7.533722 51.95556, 7.533461 51.~
+&lt;span style='color: #555555;'&gt; 2&lt;/span&gt; Pienersallee          secondary   (7.532442 51.95422, 7.53236 51.9~
+&lt;span style='color: #555555;'&gt; 3&lt;/span&gt; Schulte-Bernd-Strasse residential (7.532709 51.95209, 7.532823 51.~
+&lt;span style='color: #555555;'&gt; 4&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path        (7.540063 51.94468, 7.539696 51.~
+&lt;span style='color: #555555;'&gt; 5&lt;/span&gt; Welsingheide          residential (7.537673 51.9475, 7.537614 51.9~
+&lt;span style='color: #555555;'&gt; 6&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway     (7.543791 51.94733, 7.54369 51.9~
+&lt;span style='color: #555555;'&gt; 7&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway     (7.54012 51.94478, 7.539931 51.9~
+&lt;span style='color: #555555;'&gt; 8&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path        (7.53822 51.94546, 7.538131 51.9~
+&lt;span style='color: #555555;'&gt; 9&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track       (7.540063 51.94468, 7.540338 51.~
+&lt;span style='color: #555555;'&gt;10&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track       (7.5424 51.94599, 7.54205 51.946~
+&lt;span style='color: #555555;'&gt;# ... with 841 more rows&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif)
+
+**El paquete sf**
+
+Paquete de R para ciencia de datos espaciales
+
+Almacenamiento estandarizado de elementos geográficos (puntos, líneas, polígonos)
+
+Operaciones geométricas (intersecciones, uniones, ..)
+
+Compatible con tidyverse
+
+Nuevos *verbos* específicos para datos espaciales
+
+]
+
+---
+class: center, top, hide-logo
+
+## &lt;span style="color:#ffa500"&gt;Redes &lt;/span&gt;&lt;span style="color:#b3b3b3"&gt;espaciales &lt;/span&gt;&lt;span style="color:#ffa500"&gt; *tidy* en R&lt;/span&gt;
+
+.pull-left-70[
+.left[
+
+```r
+library(tidygraph)
+nodes = tibble(name = letters[1:4])
+edges = tibble(from = c(1,2,3,4), to = c(2,3,4,1))
+tbl_graph(nodes, edges)
+```
+
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;&lt;span style='color: #555555;'&gt;# A tbl_graph: 4 nodes and 4 edges
+#
+# A directed simple graph with 1 component
+#
+# Node Data: 4 x 1 (active)&lt;/span&gt;
+  name 
+  &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;chr&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;1&lt;/span&gt; a    
+&lt;span style='color: #555555;'&gt;2&lt;/span&gt; b    
+&lt;span style='color: #555555;'&gt;3&lt;/span&gt; c    
+&lt;span style='color: #555555;'&gt;4&lt;/span&gt; d    
+&lt;span style='color: #555555;'&gt;#
+# Edge Data: 4 x 2&lt;/span&gt;
+   from    to
+  &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;int&amp;gt;&lt;/span&gt; &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;int&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;1&lt;/span&gt;     1     2
+&lt;span style='color: #555555;'&gt;2&lt;/span&gt;     2     3
+&lt;span style='color: #555555;'&gt;3&lt;/span&gt;     3     4
+&lt;span style='color: #555555;'&gt;# ... with 1 more row&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+]
+
+.pull-right-30[
+
+![:scale 15%](https://raw.githubusercontent.com/thomasp85/tidygraph/master/man/figures/logo.png)
+
+**El paquete tidygraph**
+
+Interfaz *tidy* al paquete `igraph` para análisis de redes
+
+Modela la red como una colección de dos tibbles
+
+Soporta algoritmos de redes (centralidad, clustering, ruteo, ..)
+
+Compatible con tidyverse
+
+Nuevos *verbos* específicos para estructuras de redes
+
+]
+
+---
+class: center, top, hide-logo
+
+##  &lt;span style="color:#ffa500"&gt;¿Redes espaciales *tidy* en R?&lt;/span&gt;
+
+&lt;center&gt;&lt;blockquote class="twitter-tweet"&gt;&lt;p lang="en" dir="ltr"&gt;One of the biggest reasons we still have ArcGIS licenses is for Network Analysis (drive times, service areas etc). Does anyone have &lt;a href="https://twitter.com/hashtag/foss4g?src=hash&amp;amp;ref_src=twsrc%5Etfw"&gt;#foss4g&lt;/a&gt; tools for this they like? Last time we tried pgRouting (yrs ago) it didn&amp;#39;t feel fully formed yet, &lt;a href="https://twitter.com/hashtag/gischat?src=hash&amp;amp;ref_src=twsrc%5Etfw"&gt;#gischat&lt;/a&gt;&lt;/p&gt;&amp;mdash; Zev Ross (@zevross) &lt;a href="https://twitter.com/zevross/status/1089908839816794118?ref_src=twsrc%5Etfw"&gt;January 28, 2019&lt;/a&gt;&lt;/blockquote&gt;&lt;/center&gt; &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
+
+---
+class: center, top, hide-logo
+
+##  &lt;span style="color:#ffa500"&gt;¡Redes espaciales *tidy* en R!&lt;/span&gt;
+
+.pull-left[
+![](https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif)
+]
+
+.pull-right[
+![:scale 38%](https://raw.githubusercontent.com/thomasp85/tidygraph/master/man/figures/logo.png)
+]
+
+.center[
+![:scale 20%](https://raw.githubusercontent.com/luukvdmeer/sfnetworks/master/man/figures/logo.png)
+]
+
+---
+class: center, top
+
+##  &lt;span style="color:#ffa500"&gt;¡Redes espaciales *tidy* en R!&lt;/span&gt;
+
+`tidygraph`: 
+  
+  &gt; "... una cercana aproximación de datos *ordenados* para datos relacionales son dos *tidy data frames*, uno que describa los *nodos* y otro describiendo las *aristas*."
+--
+  
+  &lt;br&gt;
+  &lt;br&gt;
+  
+`sfnetworks`:
+
+  &gt; “Una cercana aproximación de datos *ordenados* para datos relacionales .orange[*geoespaciales*] son dos .orange[*objetos sf*], uno que describa los *nodos* y otro describiendo las *aristas*”
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel |&gt; 
+  st_geometry() |&gt;
+  plot()
+```
+]
+
+.pull-right-60[
+&lt;img src="sfnetworks-es_files/figure-html/unnamed-chunk-3-1.png" width="864" /&gt;
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel |&gt; 
+  as_sfnetwork() |&gt;
+  plot()
+```
+]
+
+.pull-right-60[
+&lt;img src="sfnetworks-es_files/figure-html/unnamed-chunk-5-1.png" width="864" /&gt;
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel
+```
+]
+
+.pull-right-60[
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;Simple feature collection with 851 features and 2 fields
+Geometry type: LINESTRING
+Dimension:     XY
+Bounding box:  xmin: 7.522594 ymin: 51.94151 xmax: 7.546705 ymax: 51.9612
+Geodetic CRS:  WGS 84
+&lt;span style='color: #555555;'&gt;# A tibble: 851 x 3&lt;/span&gt;
+   name                  type                                 geometry
+ &lt;span style='color: #555555;'&gt;*&lt;/span&gt; &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;chr&amp;gt;&lt;/span&gt;                 &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;fct&amp;gt;&lt;/span&gt;                        &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;LINESTRING [°]&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt; 1&lt;/span&gt; Havixbecker Strasse   residential (7.533722 51.95556, 7.533461 51.~
+&lt;span style='color: #555555;'&gt; 2&lt;/span&gt; Pienersallee          secondary   (7.532442 51.95422, 7.53236 51.9~
+&lt;span style='color: #555555;'&gt; 3&lt;/span&gt; Schulte-Bernd-Strasse residential (7.532709 51.95209, 7.532823 51.~
+&lt;span style='color: #555555;'&gt; 4&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path        (7.540063 51.94468, 7.539696 51.~
+&lt;span style='color: #555555;'&gt; 5&lt;/span&gt; Welsingheide          residential (7.537673 51.9475, 7.537614 51.9~
+&lt;span style='color: #555555;'&gt; 6&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway     (7.543791 51.94733, 7.54369 51.9~
+&lt;span style='color: #555555;'&gt; 7&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    footway     (7.54012 51.94478, 7.539931 51.9~
+&lt;span style='color: #555555;'&gt; 8&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    path        (7.53822 51.94546, 7.538131 51.9~
+&lt;span style='color: #555555;'&gt; 9&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track       (7.540063 51.94468, 7.540338 51.~
+&lt;span style='color: #555555;'&gt;10&lt;/span&gt; &lt;span style='color: #BB0000;'&gt;NA&lt;/span&gt;                    track       (7.5424 51.94599, 7.54205 51.946~
+&lt;span style='color: #555555;'&gt;# ... with 841 more rows&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel |&gt; 
+  as_sfnetwork()
+```
+]
+
+.pull-right-60[
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;&lt;span style='color: #555555;'&gt;# A sfnetwork with&lt;/span&gt; &lt;span style='color: #555555;'&gt;701&lt;/span&gt; &lt;span style='color: #555555;'&gt;nodes and&lt;/span&gt; &lt;span style='color: #555555;'&gt;851&lt;/span&gt; &lt;span style='color: #555555;'&gt;edges
+#
+# CRS: &lt;/span&gt; &lt;span style='color: #555555;'&gt;EPSG:4326&lt;/span&gt; &lt;span style='color: #555555;'&gt;
+#
+# A directed multigraph with 14 components with spatially explicit edges
+#
+# Node Data:     701 x 1 (active)&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Geometry type: POINT&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Dimension:     XY&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Bounding box:  xmin: 7.522622 ymin: 51.94151 xmax: 7.546705 ymax:
+#   51.9612&lt;/span&gt;
+             geometry
+          &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;POINT [°]&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;1&lt;/span&gt; (7.533722 51.95556)
+&lt;span style='color: #555555;'&gt;2&lt;/span&gt; (7.533461 51.95576)
+&lt;span style='color: #555555;'&gt;3&lt;/span&gt; (7.532442 51.95422)
+&lt;span style='color: #555555;'&gt;4&lt;/span&gt;  (7.53209 51.95328)
+&lt;span style='color: #555555;'&gt;5&lt;/span&gt; (7.532709 51.95209)
+&lt;span style='color: #555555;'&gt;6&lt;/span&gt; (7.532869 51.95257)
+&lt;span style='color: #555555;'&gt;# ... with 695 more rows&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;#
+# Edge Data:     851 x 5&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Geometry type: LINESTRING&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Dimension:     XY&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;# Bounding box:  xmin: 7.522594 ymin: 51.94151 xmax: 7.546705 ymax:
+#   51.9612&lt;/span&gt;
+   from    to name                  type                         geometry
+  &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;int&amp;gt;&lt;/span&gt; &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;int&amp;gt;&lt;/span&gt; &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;chr&amp;gt;&lt;/span&gt;                 &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;fct&amp;gt;&lt;/span&gt;                &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;LINESTRING [°]&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt;1&lt;/span&gt;     1     2 Havixbecker Strasse   residential (7.533722 51.95556, 7.53~
+&lt;span style='color: #555555;'&gt;2&lt;/span&gt;     3     4 Pienersallee          secondary   (7.532442 51.95422, 7.53~
+&lt;span style='color: #555555;'&gt;3&lt;/span&gt;     5     6 Schulte-Bernd-Strasse residential (7.532709 51.95209, 7.53~
+&lt;span style='color: #555555;'&gt;# ... with 848 more rows&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel |&gt; 
+  as_sfnetwork() |&gt;
+  activate(nodes) |&gt;
+  st_as_sf()
+```
+]
+
+.pull-right-60[
+&lt;PRE class="fansi fansi-output"&gt;&lt;CODE&gt;Simple feature collection with 701 features and 0 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 7.522622 ymin: 51.94151 xmax: 7.546705 ymax: 51.9612
+Geodetic CRS:  WGS 84
+&lt;span style='color: #555555;'&gt;# A tibble: 701 x 1&lt;/span&gt;
+              geometry
+           &lt;span style='color: #555555; font-style: italic;'&gt;&amp;lt;POINT [°]&amp;gt;&lt;/span&gt;
+&lt;span style='color: #555555;'&gt; 1&lt;/span&gt; (7.533722 51.95556)
+&lt;span style='color: #555555;'&gt; 2&lt;/span&gt; (7.533461 51.95576)
+&lt;span style='color: #555555;'&gt; 3&lt;/span&gt; (7.532442 51.95422)
+&lt;span style='color: #555555;'&gt; 4&lt;/span&gt;  (7.53209 51.95328)
+&lt;span style='color: #555555;'&gt; 5&lt;/span&gt; (7.532709 51.95209)
+&lt;span style='color: #555555;'&gt; 6&lt;/span&gt; (7.532869 51.95257)
+&lt;span style='color: #555555;'&gt; 7&lt;/span&gt; (7.540063 51.94468)
+&lt;span style='color: #555555;'&gt; 8&lt;/span&gt;  (7.53822 51.94546)
+&lt;span style='color: #555555;'&gt; 9&lt;/span&gt;  (7.537673 51.9475)
+&lt;span style='color: #555555;'&gt;10&lt;/span&gt; (7.537614 51.94562)
+&lt;span style='color: #555555;'&gt;# ... with 691 more rows&lt;/span&gt;
+&lt;/CODE&gt;&lt;/PRE&gt;
+]
+
+---
+class: top
+
+## Objeto `sfnetwork`
+
+.pull-left-40[
+
+```r
+roxel |&gt; 
+  as_sfnetwork() |&gt;
+  activate(edges) |&gt;
+  st_geometry()
+```
+]
+
+.pull-right-60[
+
+```
+Geometry set for 851 features 
+Geometry type: LINESTRING
+Dimension:     XY
+Bounding box:  xmin: 7.522594 ymin: 51.94151 xmax: 7.546705 ymax: 51.9612
+Geodetic CRS:  WGS 84
+First 5 geometries:
+```
+
+```
+LINESTRING (7.533722 51.95556, 7.533461 51.95576)
+```
+
+```
+LINESTRING (7.532442 51.95422, 7.53236 51.95377...
+```
+
+```
+LINESTRING (7.532709 51.95209, 7.532823 51.9523...
+```
+
+```
+LINESTRING (7.540063 51.94468, 7.539696 51.9447...
+```
+
+```
+LINESTRING (7.537673 51.9475, 7.537614 51.94562)
+```
+]
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Pre-procesamiento y limpieza de redes
+
+---
+class: middle
+
+
+
+
+
+### Pre-procesamiento y limpieza de redes
+
+#### Red inicial
+
+&lt;img src="sfnetworks-es_files/figure-html/clean2-1.png" width="864" /&gt;
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Simplificar aristas
+
+&lt;img src="sfnetworks-es_files/figure-html/clean3-1.png" width="864" /&gt;
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Subdividir aristas
+
+&lt;img src="sfnetworks-es_files/figure-html/clean4-1.png" width="864" /&gt;
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Remover pseudo-nodos
+
+&lt;img src="sfnetworks-es_files/figure-html/clean5-1.png" width="864" /&gt;
+
+---
+class: middle
+### Pre-procesamiento y limpieza de redes
+
+#### Simplificar intersecciones
+
+
+
+&lt;img src="sfnetworks-es_files/figure-html/clean6-1.png" width="864" /&gt;
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Snapping
+
+---
+class: middle
+
+count: false
+### Snapping 
+ #### Mover puntos al nodo más cercano
+&lt;img src="sfnetworks-es_files/figure-html/snap_user_01_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Snapping 
+ #### Mover puntos al nodo más cercano
+&lt;img src="sfnetworks-es_files/figure-html/snap_user_02_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Snapping 
+ #### Mover puntos al nodo más cercano
+&lt;img src="sfnetworks-es_files/figure-html/snap_user_03_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Snapping 
+ #### Mover puntos al nodo más cercano
+&lt;img src="sfnetworks-es_files/figure-html/snap_user_04_output-1.png" width="864" /&gt;
+
+&lt;style&gt;
+.panel1-snap-user {
+  color: black;
+  width: 99%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-snap-user {
+  color: black;
+  width: NA%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-snap-user {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: middle
+
+count: false
+### Snapping 
+ #### Integrar puntos a la red
+&lt;img src="sfnetworks-es_files/figure-html/blend_user_01_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Snapping 
+ #### Integrar puntos a la red
+&lt;img src="sfnetworks-es_files/figure-html/blend_user_02_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Snapping 
+ #### Integrar puntos a la red
+&lt;img src="sfnetworks-es_files/figure-html/blend_user_03_output-1.png" width="864" /&gt;
+
+&lt;style&gt;
+.panel1-blend-user {
+  color: black;
+  width: 99%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-blend-user {
+  color: black;
+  width: NA%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-blend-user {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: center, middle
+
+### ¿Qué podemos hacer?
+
+#### Ruteo
+
+---
+class: top
+
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_01_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_02_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_03_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_04_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_05_output-1.png" width="864" /&gt;
+
+---
+count: false
+### Ruteo 
+ #### Calcular el camino más corto
+&lt;img src="sfnetworks-es_files/figure-html/plotpath_user_06_output-1.png" width="864" /&gt;
+
+&lt;style&gt;
+.panel1-plotpath-user {
+  color: black;
+  width: 99%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-plotpath-user {
+  color: black;
+  width: NA%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-plotpath-user {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+class: top
+
+### Ruteo
+
+#### Obtener una matriz origen/destino
+
+
+```r
+st_network_cost(
+  net, 
+  from = c(p1, p2, p3),
+  to = c(p1, p2, p3)
+)
+```
+
+```
+         [,1]     [,2]     [,3]
+[1,]    0.000 1614.252 2094.555
+[2,] 1614.252    0.000 1315.965
+[3,] 2094.555 1315.965    0.000
+```
+
+---
+class: center, middle
+
+### ¿Qué más?
+
+#### Mucho más...!
+
+---
+class: center, middle
+
+## Live demo!
+
+[![Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sfnetworks/rladies-gye/main?urlpath=rstudio)
+
+---
+class: center, middle
+## Instalación:
+
+Desde CRAN:
+
+
+```r
+install.packages("sfnetworks")
+```
+
+Versión en desarrollo en GitHub:
+
+
+```r
+remotes::install_github("luukvdmeer/sfnetworks")
+```
+
+---
+class: center, middle
+
+### ¿Quieren más?
+
+
+--
+
+Dense una vuelta por las [viñetas del paquete](https://luukvdmeer.github.io/sfnetworks/index.html)
+
+--
+
+### ¿Tienen sus propios ejemplos o ideas?
+
+--
+
+Únanse a la  [Discusión en GitHub](https://github.com/luukvdmeer/sfnetworks/discussions)
+
+--
+
+### ¿Encontraron un bug?
+
+--
+
+Hágannos saber en un [issue aquí](https://github.com/luukvdmeer/sfnetworks/issues)!
+
+
+---
+
+class: center, middle
+
+# Contacto:
+
+Twitter: [**@loreabad6**](https://twitter.com/loreabad6)
+
+GitHub: [**loreabad6**](https://github.com/loreabad6)
+
+&lt;br&gt;
+
+.note[
+.pull-left-70[
+.pull-left[
+Projecto financiado por:&lt;br&gt;![:scale 50%](https://raw.githubusercontent.com/RConsortium/artwork/main/r_consortium/R_Consortium-logo-horizontal-color.png)
+]
+
+.pull-right[
+Slides powered by [xaringan](https://github.com/yihui/xaringan), [xaringanthemer](https://github.com/gadenbuie/xaringanthemer) and [flipbookr](https://github.com/EvaMaeRey/flipbookr)&lt;br&gt;&lt;br&gt;
+]
+]
+.pull-right-30[
+![:scale 30%](https://oceanhackweek.github.io/_static/logo.png)
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script src="macro.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(https://raw.githubusercontent.com/sfnetworks/rladies-gye/main/figs/logo.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 110px;
+  height: 128px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
