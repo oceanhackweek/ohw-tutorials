@@ -2,7 +2,7 @@
 
 Tutorial en español del [satélite en Español](https://oceanhackweek.github.io/ohw22/espanol/index.es.html) del OceanHackWeek 2022.
 
-- **Título:** Extracción de datos de OBIS por regiones de Large Marine Ecosystems (LME)
+- **Título:** Extracción de datos de OBIS por regiones de Large Marine Ecosystems (LME), en R
 - **Instructor:** Enrique Montes, [https://github.com/eqmh](https://github.com/eqmh)
 - **Fecha:** Agosto 16 (fuera del horario regular)
 - [Grabación en YouTube](https://www.youtube.com/watch?v=1O1RoXyet5g&list=PLA6PlfxWZPLTPQ_OIr3dDPF9FRiHQXoVF&index=1)
