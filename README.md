@@ -1,11 +1,5 @@
 # Ocean Hack Week - 2021
 
-## Continuous Integration Tests
-
- <a href="https://github.com/oceanhackweek/ohw-tutorials/actions">
-<img src="https://github.com/oceanhackweek/ohw-tutorials/actions/workflows/tests.yml/badge.svg"
- alt="GHA-tests" /></a>
-
 ## MyBinder
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/oceanhackweek/ohw-tutorials/master?urlpath=lab)
