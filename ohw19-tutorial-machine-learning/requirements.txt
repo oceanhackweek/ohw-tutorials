@@ -1,0 +1,6 @@
+anaconda
+keras
+matplotlib
+seaborn
+scikit-learn
+pandas
