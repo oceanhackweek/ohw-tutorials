@@ -1,0 +1,8 @@
+name: synoptics
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - boto
+  - boto3
+  - networkx

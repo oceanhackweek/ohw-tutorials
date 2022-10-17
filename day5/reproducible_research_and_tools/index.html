@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Filipe Fernandes">
+  <title>Reproducible Research and Tools</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="reveal.js/css/reveal.css">
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="reveal.js/css/theme/black.css" id="theme">
+  <link rel="stylesheet" href="slides.css"/>
+  <!-- Printing and PDF exports -->
+  <script>
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal.js/css/print/pdf.css' : 'reveal.js/css/print/paper.css';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );
+  </script>
+  <!--[if lt IE 9]>
+  <script src="reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+
+
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+  <script defer src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
+  <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" rel="stylesheet">
+
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide">
+  <h1 class="title">Reproducible Research and Tools</h1>
+  <p class="author">Filipe Fernandes</p>
+  <p class="date">Aug 24, 2018</p>
+</section>
+
+<section id="whoami" class="slide level1">
+<h1><code>whoami</code></h1>
+<p><a href="https://github.com/ocefpaf"><i class="fab fa-github-alt"></i></a> <a href="https://twitter.com/ocefpaf"><i class="fab fa-twitter"></i></a> ocefpaf</p>
+<div class="fragment">
+<p><img src="images/bucket.jpeg" width="75" style="background-color:white"></p>
+</div>
+</section>
+<section id="reproducibility-problem" class="slide level1">
+<h1>Reproducibility problem</h1>
+<p><del>Rather than a reproducibility crisis</del></p>
+<figure class="display">
+<img src="images/excel_depression.png" width="650" style="background-color:white">
+<figcaption>
+<a href="https://www.nytimes.com/2013/04/19/opinion/krugman-the-excel-depression.html"> https://www.nytimes.com/2013/04/19/opinion/krugman-the-excel-depression.html</a>
+</figcaption>
+</section>
+<section id="could-the-notebook-be-a-solution" class="slide level1">
+<h1>Could the notebook be a solution?</h1>
+<iframe src="https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261" width="750px" height="450px">
+</iframe>
+<p><a href="https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261" class="uri">https://www.nature.com/news/interactive-notebooks-sharing-the-code-1.16261</a></p>
+</section>
+<section id="but-which-notebook" class="slide level1">
+<h1>But which notebook?</h1>
+<iframe src="https://www.theatlantic.com/science/archive/2018/04/the-scientific-paper-is-obsolete/556676" width="750px" height="450px">
+</iframe>
+<p><a href="https://www.theatlantic.com/science/archive/2018/04/the-scientific-paper-is-obsolete/556676" class="uri">https://www.theatlantic.com/science/archive/2018/04/the-scientific-paper-is-obsolete/556676</a></p>
+</section>
+<section id="ocean-sciences-is-way-more-difficult" class="slide level1">
+<h1>Ocean sciences is way more difficult</h1>
+<p>Numerical model example</p>
+<ul>
+<li class="fragment">data preprocessing provenance</li>
+<li class="fragment">data assimilation techniques/parameters</li>
+<li class="fragment">numerical model parameters</li>
+</ul>
+<div class="fragment">
+<p>How to properly document all that so others can reproduce the simulation?</p>
+</div>
+</section>
+<section id="what-is-reproducibility" class="slide level1">
+<h1>What is reproducibility?</h1>
+<figure class="display">
+<img src="images/spectrum.png" width="650" style="background-color:white">
+<figcaption>
+Peng (2011) <a href="https://doi.org/10.1126/science.1213847"> https://doi.org/10.1126/science.1213847</a>
+</figcaption>
+</figcaption>
+</section>
+<section id="discussion-time" class="slide level1">
+<h1>Discussion time</h1>
+<ul>
+<li class="fragment">What measures do you take to ensure your analyses are:</li>
+</ul>
+<ul>
+<li class="fragment">reproducible,</li>
+<li class="fragment">replicable,</li>
+<li class="fragment">robust?</li>
+</ul>
+<div class="fragment">
+<p>Write your answers on the <a href="https://etherpad.wikimedia.org/p/ohw-discussion">etherpad <i class="far fa-edit"></i></a> and comment on the barriers, if any, you encountered?</p>
+<p><a href="https://etherpad.wikimedia.org/p/ohw-discussion" class="uri">https://etherpad.wikimedia.org/p/ohw-discussion</a></p>
+</div>
+<div class="fragment">
+<p><small>PS: shameless copied from the awesome tutorials available at: <a href="http://bitsandchips.me/Talks/PyCon.html" class="uri">http://bitsandchips.me/Talks/PyCon.html</a> and <a href="http://bitsandchips.me/JNB_reproducible" class="uri">http://bitsandchips.me/JNB_reproducible</a>. </small></p>
+</div>
+</section>
+<section id="simple-steps-to-reproducible-research" class="slide level1">
+<h1>Simple steps to reproducible research</h1>
+<ul>
+<li class="fragment"><i class="fab fa-git-square"></i> record the project’s provenance</li>
+<li class="fragment"><i class="fas fa-database"></i> data and metadata curation</li>
+<li class="fragment"><i class="fas fa-code-branch"></i> establish a testing/analysis workflow</li>
+<li class="fragment"><i class="fas fa-upload"></i> test, document, and publish your code…</li>
+</ul>
+<div class="fragment">
+<p><i class="fas fa-share-alt"></i> … and share it!</p>
+</div>
+</section>
+<section id="what-are-we-going-to-do-today" class="slide level1">
+<h1>What are we going to do today?</h1>
+<ul>
+<li class="fragment"><i class="fab fa-git-square"></i> <del>record the project’s provenance</del></li>
+<li class="fragment"><i class="fas fa-database"></i> <del>data and metadata curation</del></li>
+<li class="fragment"><i class="fas fa-code-branch"></i> <del>establish a testing/analysis workflow</del></li>
+<li class="fragment"><i class="fas fa-upload"></i> <strong>test, document, and publish your code!</strong></li>
+</ul>
+</section>
+<section id="why" class="slide level1">
+<h1>Why?</h1>
+<p>In research, experiments/results are not trusted unless:</p>
+<ul>
+<li>The experimental setup is tested</li>
+<li>The method is well-documented</li>
+<li>We can demonstrate that our results are reproducible and reliable</li>
+</ul>
+<div class="fragment">
+<p>So why would scientific software be any different?</p>
+</div>
+</section>
+<section id="clear-code-is-paramount" class="slide level1">
+<h1>Clear code is paramount</h1>
+<p><img data-src="images/code_quality_2.png" /></p>
+</section>
+<section id="as-is-good-practices-for-the-scientific-env-creation" class="slide level1">
+<h1>As is good practices for the scientific env creation</h1>
+<p><img data-src="images/universal_install_script.png" /></p>
+</section>
+<section id="introducing" class="slide level1">
+<h1>Introducing:</h1>
+<p>The <strong>code</strong> <em>test-document-publish</em> cookie cutter!</p>
+<div class="fragment">
+<p>(Yep! Another cookie cutter for Scientific Python package!)</p>
+<p><img data-src="images/standards.png" /></p>
+<p><a href="https://nsls-ii.github.io/scientific-python-cookiecutter" class="uri">https://nsls-ii.github.io/scientific-python-cookiecutter</a></p>
+</div>
+</section>
+<section id="we-will-need" class="slide level1">
+<h1>We will need</h1>
+<p><i class="fas fa-cookie"></i> <a href="https://github.com/lsetiawan/rppc" class="uri">https://github.com/lsetiawan/rppc</a></br> <i class="fab fa-github"></i> <a href="https://github.com">GitHub account</a></br> <img src="images/TravisCI-Mascot-grey.svg" width="48" style="background-color:transparent"> <a href="https://travis-ci.org">Travis-CI account</a></br></p>
+</section>
+<section id="for-the-hack-session" class="slide level1">
+<h1>For the hack session</h1>
+<p><i class="fas fa-terminal"></i> hands on…</br> <i class="fab fa-python"></i> … python package</br> <i class="fab fa-osi"></i> choose a license https://choosealicense.com</br> <i class="fas fa-laptop-code"></i> write doctest…</br> <i class="fas fa-bug"></i> … with a bug</br> <i class="fas fa-flask"></i> fix test / <i class="fas fa-vial"></i> re-run </br> <i class="fab fa-linux"></i> / <i class="fab fa-apple"></i> Travis-CI / CircleCI <i class="fab fa-windows"></i> AppVeyor</br> <i class="fas fa-cloud-upload-alt"></i> upload source dist and docs</br> <img data-src="https://zenodo.org/badge/104919828.svg" /> DOI</p>
+</section>
+<section id="the-end" class="slide level1">
+<h1>The End</h1>
+<p><img data-src="images/the_end.gif" /></p>
+</section>
+    </div>
+  </div>
+
+  <script src="reveal.js/lib/js/head.min.js"></script>
+  <script src="reveal.js/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Push each slide change to the browser history
+        history: true,
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal.js/plugin/math/math.js', async: true },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true }
+        ]
+      });
+    </script>
+    </body>
+</html>
