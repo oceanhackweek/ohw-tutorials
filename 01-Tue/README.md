@@ -15,4 +15,4 @@
 
 - Presenter: [Filipe Fernandes](https://github.com/ocefpaf)
 - Presentation materials: Follow the sequence of four Jupyter notebooks in the [`machine-learning` directory](machine-learning) starting with [00-what-is-a-pellet.ipynb](machine-learning/00-what-is-a-pellet.ipynb) (then `01-unsupervised-...`, etc)
-- YouTube recording: *Coming soon!*
+- [YouTube recording](https://youtu.be/e2FgBC6GGBM)
