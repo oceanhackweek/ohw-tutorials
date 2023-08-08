@@ -1,5 +1,10 @@
 # Tuesday tutorials
 
+## Introduction to git and github
+
+- Presenter: [Derya Gumustel](https://github.com/dgumustel)
+- [YouTube recording](https://youtu.be/f3SHMOp9OZk)
+
 ## Programmatic access of oceanographic data
 
 - Presenter: [Marty Hidas](https://github.com/mhidas)
