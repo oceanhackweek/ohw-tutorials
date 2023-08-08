@@ -9,5 +9,5 @@
 ## Software installation survival guide
 
 - Instructor: [Filipe Fernandes](https://github.com/ocefpaf)
-- Presentation materials: https://hackmd.io/@iKjr9f0pTj6CZO1DZOjJyw/BkqeRfYjh#/
+- [Presentation materials](https://hackmd.io/@iKjr9f0pTj6CZO1DZOjJyw/BkqeRfYjh#/)
 - [YouTube recording](https://youtu.be/pIJXHyLcxjY)
