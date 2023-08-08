@@ -1,4 +1,4 @@
-# Monday tutorials
+# Tuesday tutorials
 
 ## Programmatic access of oceanographic data
 
