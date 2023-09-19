@@ -3,7 +3,7 @@
 
 Software Carpentry has this amazing incubated tutorial that is worth reading:
 
-https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/
+[https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/](https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/)
 
 
 However, if you are in a hurry, we need you all know at least these 3 concepts captured in a screencast.
