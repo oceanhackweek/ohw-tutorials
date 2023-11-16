@@ -15,4 +15,4 @@
 ## Mental Health/Stress in the Geosciences
 
 - Presenter: [Alex Kerney](https://gmri.org/our-approach/staff/alex-kerney/)
-- Presentation materials: [PDF with presenter notes](02-Wed/OHW23-Stress-in-the-Geosciences.pdf)
+- Presentation materials: [PDF with presenter notes](OHW23-Stress-in-the-Geosciences.pdf)
