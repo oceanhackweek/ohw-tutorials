@@ -2,6 +2,7 @@
 
 Please check the branches for past tutorials:
 
+- [OHW24](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW24)
 - [OHW23](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW23)
 - [OHW22](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW22)
 - [OHW21](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW21)
