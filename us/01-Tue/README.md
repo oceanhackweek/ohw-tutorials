@@ -8,7 +8,7 @@
 
 ## Xarray
 - Presenter: Richard Signell
-- Presentation materials: 
+- Presentation materials: [xarray](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW24/us/01-Tue/xarray)
 - YouTube recording:
 
 ## Assessing weather model skill during extreme events: NOAA GFS vs. Sofar Spotter buoy observations of Hurricane Henri
