@@ -3,7 +3,7 @@
 ## Data Access in Python
 
 - Presenter: Callum Rollo
-- Presentation materials: [data-access](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW24/us/01-Tue/data-access-in-python)
+- Presentation materials: [data-access-in-python](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW24/us/01-Tue/data-access-in-python)
 - YouTube recording: 
 
 ## Xarray
