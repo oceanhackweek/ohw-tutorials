@@ -6,6 +6,7 @@
 library(tidyverse)
 library(robis) # retrieves open source species occurrence data
 library(biomod2) # species distribution modeling package
+library(terra)
 
 # Basic R ----
 # Assignment operators
@@ -94,7 +95,7 @@ RightWhale <- RightWhale |>
   dplyr::filter(lon >= BB[1] & lon <= BB[2] &
                   lat >= BB[3] & lat <= BB[4]) |>
   # Select relevant columns
-  dplyr::select(lon, lat, year, month)
+  dplyr::select(lon, lat, year)
   
 # Plot again
 ggplot2::ggplot(data = RightWhale, mapping = aes(x = lon, y = lat)) +
@@ -110,31 +111,27 @@ ggplot2::ggplot(data = RightWhale, mapping = aes(x = lon, y = lat)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 # Load environmental predictors
+# Monthly depth (static), SST (contemporaneous), and CHL (contemporaneous) for summer (jul-sep)
 env_dat <- raster::brick("env_stack.tif")
 
 # Add names to raster stack
 vars <- c("Depth", "SST", "CHL")
-months <- 7:9
 years <- 2005:2015
-names(env_dat) <- paste(rep(vars, times = 33), rep(months, each = 3, times = 11), rep(years, each = 9), sep = ".")
+names(env_dat) <- paste(rep(vars, times = 11), rep(years, each = 3), sep = ".")
 
 # Crop to bounding box
 env_dat <- crop(env_dat, extent(-75, -60, 35, 46))
 
-# Plot first layer
-plot(env_dat$Depth.7.2005)
+# Plot first depth layer
+plot(env_dat$Depth.2005)
+# Plot first SST layer
+plot(env_dat$SST.2005)
+# Plot first CHL layer
+plot(env_dat$CHL.2005)
 
 # Add presence/absence column to right whale data
 RightWhale <- RightWhale |>
-  dplyr::mutate(pa = 1)
-
-# Select background points and filter out NAs
-background <- as.data.frame(env_dat$Depth.7.2005, xy = TRUE) |> # pull locations from environmental data grid
-  dplyr::rename(lon = x, lat = y) |>
-  sample_n(500) |>
-  dplyr::mutate(pa = 0, year = 2005) |>
-  dplyr::filter(!is.na(Depth.7.2005)) |>
-  dplyr::select(lon, lat, pa, year)
+  dplyr::mutate(pa = 1) # we will generate pseudo absences later
 
 # Plot occurence data w/ background points
 ggplot2::ggplot(data = RightWhale, mapping = aes(x = lon, y = lat)) +
@@ -151,73 +148,83 @@ ggplot2::ggplot(data = RightWhale, mapping = aes(x = lon, y = lat)) +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-# Bind occurrence and background data
-RightWhale.training <- rbind(RightWhale, background)
-
-# Isolate binary presence/absence data
-trainingPA <- RightWhale.training |>
+# Isolate binary presence/absence data - training years 2005-2010
+trainingPA <- RightWhale |>
   dplyr::filter(year < 2011) |>
   dplyr::select(pa)
 # Isolate presence/absence coordinates
-trainingXY <- RightWhale.training |>
+trainingXY <- RightWhale |>
   dplyr::filter(year < 2011) |>
   dplyr::select(lon, lat)
 
-# Isolate binary presence/absence data
-evalPA <- RightWhale.training |>
-  dplyr::filter(year < 2011) |>
+
+# Select background points and filter out NAs
+# Ideally absence data is available
+background <- as.data.frame(env_dat$Depth.2005, xy = TRUE) |> # pull locations from environmental data grid
+  dplyr::rename(lon = x, lat = y) |>
+  sample_n(30) |>
+  dplyr::mutate(pa = 0, year = sample(c(2005, 2011), n(), replace = TRUE)) |>
+  dplyr::filter(!is.na(Depth.2005)) |>
+  dplyr::select(lon, lat, pa, year)
+
+# Isolate binary presence/absence data - test years 2011-2014
+evalPA <- RightWhale |>
+  rbind(background) |> # attach background points
+  dplyr::filter(year >= 2011 & year < 2015) |>
   dplyr::select(pa)
 # Isolate presence/absence coordinates
-evalXY <- RightWhale.training |>
-  dplyr::filter(year < 2011) |>
+evalXY <- RightWhale |>
+  rbind(background) |> # attach background points
+  dplyr::filter(year >= 2011 & year < 2015) |>
   dplyr::select(lon, lat)
 
-# Create climatology of environmental training data for July through September for 2005-2010
-env_summer <- raster::subset(env_dat, c(grep('2005', names(env_dat)),
-                                        grep('2005', names(env_dat)),
+# Create climatology of environmental training data for summer 2005-2010
+# There is definitely a better way to do this
+env_train <- raster::subset(env_dat, c(grep('2005', names(env_dat)),
                                         grep('2007', names(env_dat)),
                                         grep('2008', names(env_dat)),
                                         grep('2009', names(env_dat)),
                                         grep('2010', names(env_dat))))
-sst <- raster::subset(env_summer, grep('SST', names(env_summer))) |>
+sst <- raster::subset(env_train, grep('SST', names(env_train))) |>
   mean(na.rm = TRUE)
-chl <- raster::subset(env_summer, grep('CHL', names(env_summer))) |>
+chl <- raster::subset(env_train, grep('CHL', names(env_train))) |>
   mean(na.rm = TRUE)
-depth <- env_dat$Depth.7.2005 # static variable
+depth <- env_train$Depth.2005 # static variable
 
-env_clim <- stack(depth, sst, chl)
-names(env_clim) <- vars
+env_train <- stack(depth, sst, chl)
+names(env_train) <- vars
 
-# Create climatology of environmental testing data for July through September for 2011-2015
-env_summer.eval <- raster::subset(env_dat, c(grep('2011', names(env_dat)),
+# Create climatology of environmental testing data for July 2011-2014
+env_eval <- raster::subset(env_dat, c(grep('2011', names(env_dat)),
                                         grep('2012', names(env_dat)),
                                         grep('2013', names(env_dat)),
-                                        grep('2014', names(env_dat)),
-                                        grep('2015', names(env_dat))))
-sst.eval <- raster::subset(env_summer, grep('SST', names(env_summer))) |>
+                                        grep('2014', names(env_dat))))
+sst.eval <- raster::subset(env_eval, grep('SST', names(env_eval))) |>
   mean(na.rm = TRUE)
-chl.eval <- raster::subset(env_summer, grep('CHL', names(env_summer))) |>
+chl.eval <- raster::subset(env_eval, grep('CHL', names(env_eval))) |>
   mean(na.rm = TRUE)
-depth.eval <- env_dat$Depth.7.2005 # static variable
+depth.eval <- env_eval$Depth.2011 # static variable
 
-env_clim.eval <- stack(depth.eval, sst.eval, chl.eval)
-names(env_clim.eval) <- vars
+env_eval <- stack(depth.eval, sst.eval, chl.eval)
+names(env_eval) <- vars
 
 # Specify models to run
-modelFormulas <- c("GLM", "GAM", "RF")
+modelFormulas <- c('GLM', 'GAM', 'ANN')
 
-# Set aside random 15% of the data for evaluation
-#idx <- sample(1:nrow(trainingPA), round(0.15*nrow(trainingPA)), replace=FALSE)
-
-# Format data for use in Biomod2 modelling function
-biomodData <- BIOMOD_FormatingData(resp.var = trainingPA[-idx,],
-                                   expl.var = env_clim,
-                                   resp.xy = trainingXY[-idx,],
-                                   eval.resp.var = trainingPA[idx,],
-                                   eval.expl.var = env_clim,
-                                   eval.resp.xy = trainingXY[idx,],
+# Format data for use in Biomod2 modelling function & generate random pseudo-absences
+biomodData <- BIOMOD_FormatingData(resp.var = trainingPA,
+                                   expl.var = env_train,
+                                   resp.xy = trainingXY,
+                                   eval.resp.var = evalPA,
+                                   eval.resp.xy = evalXY,
+                                   eval.expl.var = env_eval,
+                                   PA.nb.rep = 4,
+                                   PA.nb.absences = 200,
+                                   PA.strategy = "random",
                                    resp.name = "RightWhale",
                                    filter.raster = TRUE)
+
+biomodData
 
 # Build the models
 modelOut <- BIOMOD_Modeling(bm.format = biomodData,
@@ -271,18 +278,9 @@ bm_PlotResponseCurves(bm.out = modelOut,
                       do.plot = TRUE,
                       do.progress = TRUE)
 
-# Project models
-
-# Create climatology of environmental data for 2010
-env_2010 <- raster::subset(env_dat, grep('2010', names(env_dat)))
-sst <- raster::subset(env_2010, grep('SST', names(env_2010))) |>
-  mean(na.rm = TRUE)
-chl <- raster::subset(env_2010, grep('CHL', names(env_2010))) |>
-  mean(na.rm = TRUE)
-depth <- env_dat$Depth.1.2010 # static variable
-
-env_clim <- stack(depth, sst, chl)
-names(env_clim) <- vars
+# Project models onto year 2015 (witheld from model)
+env_proj <- raster::subset(env_dat, c(grep('2015', names(env_dat))))
+names(env_proj) <- vars
 
 # Select highest performing GLMs
 select_models <- modelEvals[order(-modelEvals$TSS),] |>
@@ -290,7 +288,7 @@ select_models <- modelEvals[order(-modelEvals$TSS),] |>
   head(5)
 
 glmProj <- BIOMOD_Projection(bm.mod = modelOut,
-                            new.env = env_clim,
+                            new.env = env_proj,
                             proj.name = "GLM",
                             models.chosen = select_models$name,
                             metric.binary = "TSS",
@@ -303,7 +301,7 @@ select_models <- modelEvals[order(-modelEvals$TSS),] |>
   head(5)
 
 gamProj <- BIOMOD_Projection(bm.mod = modelOut,
-                             new.env = env_clim,
+                             new.env = env_proj,
                              proj.name = "gam",
                              models.chosen = select_models$name,
                              metric.binary = "TSS",
@@ -316,7 +314,7 @@ select_models <- modelEvals[order(-modelEvals$TSS),] |>
   head(5)
 
 annProj <- BIOMOD_Projection(bm.mod = modelOut,
-                             new.env = env_clim,
+                             new.env = env_proj,
                              proj.name = "ANN",
                              models.chosen = select_models$name,
                              metric.binary = "TSS",
@@ -329,6 +327,23 @@ plot(gamProj)
 
 plot(annProj)
 
+# Look closer at GAM projection
+gamProj
+
+fp <- gamProj@proj.out@link[1]
+
+# Load in as SpatRaster
+gamStack <- terra::rast(fp)
+
+# fetch right whale sightings
+whales2015 <- RightWhale |>
+  dplyr::filter(year == 2015)
+
+# Plot highest performing GAM (slot 1)
+plot(gamStack$RightWhale_PA1_RUN1_GAM) 
+# Add whale sightings
+points(x = whales2015$lon, y = whales2015$lat, cex = 2, pch = 16)
+  
 
 
 
