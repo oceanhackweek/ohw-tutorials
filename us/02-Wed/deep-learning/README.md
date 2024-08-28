@@ -22,11 +22,12 @@
   * Fine Tuning a CNN model: [notebook](https://github.com/valentina-s/TeachingDeepLearning/blob/main/model_tuning_flowers.ipynb)
  
 * Computational Resources:
-  * Colab
+  * [Colab](https://colab.research.google.com/)
     * if GPU's used often can lose access to GPU (not clear for how long), Pro version not helpful
-  * Amazon Sagemaker Studio:
+  * [Amazon Sagemaker Studio](https://aws.amazon.com/sagemaker/studio/):
     * transparent about usage limits, occasionally resources are not available
-  * Kaggle Notebooks
+  * [Kaggle Notebooks](https://www.kaggle.com/code)
+     
    
  
   
