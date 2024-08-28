@@ -22,11 +22,14 @@
   * Fine Tuning a CNN model: [notebook](https://github.com/valentina-s/TeachingDeepLearning/blob/main/model_tuning_flowers.ipynb)
  
 * Computational Resources:
-  * [Colab](https://colab.research.google.com/)
+  * [Colab](https://colab.research.google.com/): 13GB RAM, 107 GB disk, GPU support
     * if GPU's used often can lose access to GPU (not clear for how long), Pro version not helpful
-  * [Amazon Sagemaker Studio](https://aws.amazon.com/sagemaker/studio/):
+  * [Amazon Sagemaker Studio](https://aws.amazon.com/sagemaker/studio/): 16 GB RAM, 15 GB disk, 8h CPU per day, 4h GPU per day
     * transparent about usage limits, occasionally resources are not available
-  * [Kaggle Notebooks](https://www.kaggle.com/code)
+  * [Kaggle Notebooks](https://www.kaggle.com/code): 30GB RAM, 20GB disk, GPU support
+    * longer GPU usage before being locked out 
+ 
+
      
    
  
