@@ -14,7 +14,12 @@
 * Oceanography Applications:
   * Convolutional Neural Network Classification of Phytoplankton Images: [repo](https://github.com/ifcb-utopia/plankton-CNN-DEMO)
   * U-Net (pixel level prediction) for Chlorophyll Gap Filling: [repo](https://github.com/geo-smart/mind-the-chl-gap/blob/main/notebooks/U-Net_Tutorial.ipynb)
-  * SST prediction with ConvLSTM (spatio-temporal model): [repo](https://github.com/SAFS-Varanasi-Internship/2024-tutorials/blob/main/notebooks-ml/ConvLSTM_Tutorial.ipynb) 
+  * SST prediction with ConvLSTM (spatio-temporal model): [repo](https://github.com/SAFS-Varanasi-Internship/2024-tutorials/blob/main/notebooks-ml/ConvLSTM_Tutorial.ipynb)
+ 
+
+* General Resources:
+  * Computer Vision Task Overview (image classification, segmentation, object detection): [slides](https://docs.google.com/presentation/d/1F0RgaGmoA_QVcmEqfVoovi5rfRYvSq3IstLHrT1j0sg/edit#slide=id.g2ce1d6cca0a_0_329) 
+  * Fine Tuning a CNN model: [notebook](https://github.com/valentina-s/TeachingDeepLearning/blob/main/model_tuning_flowers.ipynb)
  
   
 
