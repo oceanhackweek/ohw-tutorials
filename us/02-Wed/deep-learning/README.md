@@ -21,6 +21,14 @@
   * Computer Vision Task Overview (image classification, segmentation, object detection): [slides](https://docs.google.com/presentation/d/1F0RgaGmoA_QVcmEqfVoovi5rfRYvSq3IstLHrT1j0sg/edit#slide=id.g2ce1d6cca0a_0_329) 
   * Fine Tuning a CNN model: [notebook](https://github.com/valentina-s/TeachingDeepLearning/blob/main/model_tuning_flowers.ipynb)
  
+* Computational Resources:
+  * Colab
+    * if GPU's used often can lose access to GPU (not clear for how long), Pro version not helpful
+  * Amazon Sagemaker Studio:
+    * transparent about usage limits, occasionally resources are not available
+  * Kaggle Notebooks
+   
+ 
   
 
   
