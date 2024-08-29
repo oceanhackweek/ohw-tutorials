@@ -1,0 +1,554 @@
+---
+title: "Species distribution modeling in R"
+author: "C.H. Ross"
+date: "2024-08-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Brief intro to R
+
+```{r load_libraries, message=FALSE, warning=FALSE}
+# Load libraries
+library(tidyverse)
+library(robis) # retrieves open source species occurrence data
+library(biomod2) # species distribution modeling package
+library(terra)
+library(raster)
+```
+
+
+```{r R_basics}
+# R basics ----
+# Assignment operators
+x <- 2 # preferred
+x = 2 # also works
+
+# Math operations
+x * 2
+x^2 == x**2
+x/10
+
+1e+12
+
+log(pi)
+log10(pi)
+
+# Useful tip -- pipes
+# create some data
+x <- c(1, 2, 3, 4, 5, 6) # Create a vector
+x <- 1:6 # alternate notation
+# Compute mean of x
+mean(x)
+# Alternative with piping
+x |> mean()
+
+# Data frame example with made up data
+fake.zoop.data <- data.frame("Genus" = c("Calanus", "Temora", "Centropages"),
+                           "Species" = c("finmarchicus", "longicornis", "typicus"),
+                           "Abundance" = c(250, 450, 500),
+                           "NumAdults" = c(175, 300, 450),
+                           "MeanDryWeight" = c(17, 10, 8),
+                           "StErrDryWeight" = c(3.4, 1.6, 0.5))
+
+# View data frame
+View(fake.zoop.data)
+
+# Accessing data frame columns
+fake.zoop.data$Genus
+
+# Accessing multiple columns
+fake.zoop.data[c("Genus", "Species")]
+
+# Add a column (base R)
+fake.zoop.data$NumJuvenile <- c(75, 150, 50)
+
+# Modifying a column
+fake.zoop.data$NumJuvenile <- fake.zoop.data$Abundance - fake.zoop.data$NumAdults
+```
+
+We can do similar data manipulation using more intuitive methods from the [dplyr](https://dplyr.tidyverse.org) package. The dplyr package is part of the larger [tidyverse](https://www.tidyverse.org), which is also worth familiarizing yourself with if you program in R a lot. There are many helpful cheat sheets available. Here are a few examples below:
+
+```{r dplyr}
+# Add a column to original data frame
+fake.zoop.data <- fake.zoop.data |>
+  dplyr::mutate(SampMethod = c("Vertical", "Vertical", "Vertical"))
+
+fake.zoop.data
+
+# Filter the data frame
+one.genus <- fake.zoop.data |>
+  dplyr::filter(Genus == "Calanus" )
+
+one.genus
+
+# Can combine these functions calls in a pipe
+one.species <- fake.zoop.data |>
+  dplyr::mutate(SampMethod = c("Vertical", "Vertical", "Vertical")) |>
+  dplyr::filter(Genus == "Calanus" ) |>
+  dplyr::select(Genus, Abundance, SampMethod)
+
+one.species
+```
+
+Next, we'll plot the fake data in base R.
+
+```{r plotting}
+# Plot the data
+plot(x = fake.zoop.data$Abundance, y = fake.zoop.data$MeanDryWeight)
+```
+
+The base R plot function works fine, but there are also plotting packages with a lot more flexibility and features.
+
+One example is the [ggplot2](https://ggplot2.tidyverse.org) package, also from the tidyverse:
+
+```{r ggplot}
+# A better way to plot the data
+ggplot(data = fake.zoop.data, mapping = aes(x = Abundance, y = MeanDryWeight)) +
+  geom_point()
+
+# Alternative notation
+ggplot() +
+  geom_point(data = fake.zoop.data, mapping = aes(x = Abundance, y = MeanDryWeight))
+
+# Add error bars
+ggplot(data = fake.zoop.data, mapping = aes(x = Abundance, y = MeanDryWeight)) +
+  geom_point() + 
+  geom_errorbar(mapping = aes(ymin = MeanDryWeight-StErrDryWeight, ymax = MeanDryWeight+StErrDryWeight))
+
+# Improve plot aesthetics
+ggplot(data = fake.zoop.data, mapping = aes(x = Abundance, y = MeanDryWeight)) +
+  geom_point() + 
+  geom_errorbar(mapping = aes(ymin = MeanDryWeight-StErrDryWeight, ymax = MeanDryWeight+StErrDryWeight)) +
+  labs(x = bquote("Abundance (individuals"~m^{-3}*")"), y = "Mean Dry Weight (mg)") +
+  theme_bw() # many theme options
+```
+
+## Species distribution modeling in R
+
+Species distribution models (SDMs) are an important tool used often in ecology to model habitat suitability for a given species. There are many ways to produce SDMs in R. Below is a simple example using the package [biomod2](https://cran.r-project.org/web/packages/biomod2/biomod2.pdf), which has the capability to simultaneously produce multiple types of models and build ensembles. This package can be a good introduction to SDMs if you are new to coding and/or modeling. Biomod2 can produce models using up to 11 different algorithms. It runs the models behind the scenes using the respective R packages, which makes it a great package for introducing SDMs and quickly comparing different models using relatively little code. 
+
+The biomod2 github page is a really helpful resource: [Ensemble Platform for Species Distribution Modeling][https://biomodhub.github.io/biomod2/]
+
+### Fetch species data
+
+The first step is fetching the species data. For this example, I will be using right whale occurence data from the [Ocean Biodiversity Information System](https://obis.org) (OBIS), which is a global open access resource for marine biodiversity data and information. 
+
+```{r fetch_data}
+# Fetching species data
+RightWhale <- robis::occurrence("Eubalaena glacialis", # Right whale
+                                startdate = as.Date("2005-01-01"),
+                                enddate = as.Date("2015-12-31"))
+```
+
+Pulling records from OBIS for right whales between 2005 and 2015 resulted in 1,549 data points. Next, we will visualize our species data using ggplot2.
+
+```{r plot_species_data}
+# Load world map data 
+worldmap <- ggplot2::map_data("world")
+
+# Plot occurrences on world map
+ggplot2::ggplot(data = RightWhale, mapping = aes(x = decimalLongitude, y = decimalLatitude)) +
+  # Add occurrence data
+  geom_point() +
+  # Add map data
+  geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = "gray43") +
+  # Sets map bounds to geographic range of the species data
+  coord_quickmap(xlim = c(round(min(RightWhale$decimalLongitude)), 
+                          round(max(RightWhale$decimalLongitude))), 
+                 ylim = c(round(min(RightWhale$decimalLatitude)), 
+                          round(max(RightWhale$decimalLatitude))),
+                 expand = TRUE) +
+  # Clean up theme
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+We can see that the data are largely concentrated along the east coast of the United States, with one point in the Azores. Since the environmental data we will use for modeling are regional and only for the summer, we need to crop the data to that bounding box and select only data from July through September.
+
+```{r crop}
+# Define bounding box for data -- zoom in on Gulf of Maine
+BB <- c(-75, -60, 35, 46)
+
+# Crop data to bounding box
+RightWhale <- RightWhale |>
+  # Shorten names
+  dplyr::rename(lon = decimalLongitude,
+                lat = decimalLatitude) |>
+  dplyr::mutate(year = as.numeric(year),
+                month = as.numeric(month)) |>
+  # Filter July, Aug, Sep
+  dplyr::filter(month %in% 7:9) |>
+  # Filter to bounding box
+  dplyr::filter(lon >= BB[1] & lon <= BB[2] &
+                  lat >= BB[3] & lat <= BB[4]) |>
+  # Select relevant columns
+  dplyr::select(lon, lat, year)
+  
+# Plot again
+ggplot2::ggplot(data = RightWhale, mapping = aes(x = lon, y = lat)) +
+  # Add occurrence data
+  geom_point() +
+  # Add map data
+  geom_polygon(data = worldmap, aes(long, lat, group = group), fill = NA, colour = "gray43") +
+  coord_quickmap(xlim = c(BB[1], BB[2]), 
+                 ylim = c(BB[3], BB[4]),
+                 expand = TRUE) +
+  # Clean up theme
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+### Loading environmetnal data
+
+Next, we need to load some environmental data to use as predictors in our model. 
+
+```{r load_env}
+# Load environmental predictors
+# Monthly depth (static), SST (contemporaneous), and CHL (contemporaneous) for summer (jul-sep)
+env_dat <- raster::brick("env_stack.tif")
+
+# Set extent
+extent(env_dat) <- extent(-82.92685,
+                          -55.67632,
+                          22.56053,
+                          48.26303)
+
+# Add names to raster stack -- were not saved in original tif -- workaround
+vars <- c("Depth", "SST", "CHL")
+years <- 2005:2015
+names(env_dat) <- paste(rep(vars, times = 11), rep(years, each = 3), sep = ".")
+
+env_dat
+
+# Crop to bounding box
+env_dat <- crop(env_dat, extent(BB))
+
+# Plot first depth layer
+plot(env_dat$Depth.2005)
+# Plot first SST layer
+plot(env_dat$SST.2005)
+# Plot first CHL layer
+plot(env_dat$CHL.2005)
+```
+### Format model data
+
+An important thing to consider when producing SDMs is what sort of response you want to model. For example, SDMs can model presence-only, presence/absence, and abundance data. Approaches can be extended further to model things like density, but that requires the survey design to meet certain assumptions.
+
+The right whale data from OBIS does have an individual count column, but the data are from many different sources, and likely of varying quality. Due to these variations in the data, a presence-only or presence/absence approach would make the most sense. Presence-only limits the types of models that can be used (e.g., MaxEnt is a good option), whereas a presence/absence approach is more readily adaptable to different model types. Another option is to create "pseudo-absences," which are essentially fake absence data sampled from background points on the environmental data grid. Biomod2 has the ability to produce pseudo-absences, allowing us to produce models using algorithms beyond MaxEnt. 
+
+The next step is to format our data for the biomod2 package with a pseudo-absence generation approach. 
+
+```{r format_model_data}
+# Add presence/absence column to right whale data -- binary
+RightWhale <- RightWhale |>
+  dplyr::mutate(pa = 1) # we will generate pseudo absences later
+
+# Isolate binary presence/absence data - training years 2005-2010
+trainingPA <- RightWhale |>
+  dplyr::filter(year < 2011) |>
+  dplyr::select(pa)
+
+# Isolate presence/absence coordinates
+trainingXY <- RightWhale |>
+  dplyr::filter(year < 2011) |>
+  dplyr::select(lon, lat)
+```
+
+We also want to set some data aside for model evaluation. For this, we will use 2011-2014. Biomod2 will generate pseudo-absences for the training data, but I am not sure if it does that for the evaluation data. So here is a workaround sampling from the boundaries of the environmental data for background points.
+
+```{r format_eval_data}
+# Select background points and filter out NAs
+# Ideally absence data is available
+background <- as.data.frame(env_dat$Depth.2005, xy = TRUE) |> # pull locations from environmental data grid
+  dplyr::rename(lon = x, lat = y) |>
+  sample_n(30) |>
+  dplyr::mutate(pa = 0, year = sample(c(2005, 2011), n(), replace = TRUE)) |>
+  dplyr::filter(!is.na(Depth.2005)) |>
+  dplyr::select(lon, lat, pa, year)
+
+# Isolate binary presence/absence data - test years 2011-2014
+evalPA <- RightWhale |>
+  rbind(background) |> # attach background points
+  dplyr::filter(year >= 2011 & year < 2015) |>
+  dplyr::select(pa)
+# Isolate presence/absence coordinates
+evalXY <- RightWhale |>
+  rbind(background) |> # attach background points
+  dplyr::filter(year >= 2011 & year < 2015) |>
+  dplyr::select(lon, lat)
+```
+
+We need to subset the environmental data raster to select only layers before 2010. For simplicity, we will take a climatalogical approach to the model by using the average summer SST and CHL values across the training time period. This is definitely not best practice. 
+
+```{r env_train}
+# Create climatology of environmental training data for summer 2005-2010
+# There is definitely a better way to do this
+env_train <- raster::subset(env_dat, c(grep('2005', names(env_dat)),
+                                        grep('2007', names(env_dat)),
+                                        grep('2008', names(env_dat)),
+                                        grep('2009', names(env_dat)),
+                                        grep('2010', names(env_dat))))
+sst <- raster::subset(env_train, grep('SST', names(env_train))) |>
+  mean(na.rm = TRUE)
+chl <- raster::subset(env_train, grep('CHL', names(env_train))) |>
+  mean(na.rm = TRUE)
+depth <- env_train$Depth.2005 # static variable
+
+env_train <- stack(depth, sst, chl)
+names(env_train) <- vars
+```
+
+Do the same for the evaluation environmental data
+
+```{r env_eval}
+# Create climatology of environmental testing data for July 2011-2014
+env_eval <- raster::subset(env_dat, c(grep('2011', names(env_dat)),
+                                        grep('2012', names(env_dat)),
+                                        grep('2013', names(env_dat)),
+                                        grep('2014', names(env_dat))))
+sst.eval <- raster::subset(env_eval, grep('SST', names(env_eval))) |>
+  mean(na.rm = TRUE)
+chl.eval <- raster::subset(env_eval, grep('CHL', names(env_eval))) |>
+  mean(na.rm = TRUE)
+depth.eval <- env_eval$Depth.2011 # static variable
+
+env_eval <- stack(depth.eval, sst.eval, chl.eval)
+names(env_eval) <- vars
+```
+
+Now that our data are ready to go, we will input them to the biomod2 data formatting function. We will try three different models: [generalized linear models](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/glm) (GLMs), [generalized additive models](https://cran.r-project.org/web/packages/gam/gam.pdf) (GAMs), and [random forests](https://cran.r-project.org/web/packages/randomForest/randomForest.pdf) (RFs). 
+
+For a complete list of model options available in biomod2 and dependencies see [model options vignette](https://cran.r-project.org/web/packages/biomod2/vignettes/vignette_modelingOptions.html).
+
+```{r format_data_biomod}
+# Specify models to run
+modelFormulas <- c('GLM', 'GAM', 'RF')
+
+# Format data for use in Biomod2 modelling function & generate random pseudo-absences
+biomodData <- BIOMOD_FormatingData(resp.var = trainingPA,
+                                   expl.var = env_train,
+                                   resp.xy = trainingXY,
+                                   eval.resp.var = evalPA,
+                                   eval.resp.xy = evalXY,
+                                   eval.expl.var = env_eval,
+                                   PA.nb.rep = 4, 
+                                   PA.nb.absences = 200,
+                                   PA.strategy = "random",
+                                   resp.name = "RightWhale",
+                                   filter.raster = TRUE)
+
+biomodData
+```
+
+### Build models
+
+We are now ready for the modeling stage.
+
+```{r run_model, message=FALSE, results=FALSE}
+# Build the models
+modelOut <- BIOMOD_Modeling(bm.format = biomodData,
+                            modeling.id = "RightWhale",
+                            models = c("GLM", "GAM", "RF"),
+                            CV.nb.rep = 5, # 5-fold cross validation
+                            data.split.perc = 70, # 70%/30% training/testing data split
+                            prevalence = 0.5,
+                            var.import = 5,
+                            metric.eval = c('ROC', 'TSS', 'KAPPA'),
+                            scale.models = FALSE,
+                            do.progress = TRUE)
+```
+
+### Model evaluations
+
+Evaluations for each model formula, evaluation, and estimate of pseudo-absences is available in the output model object.
+
+```{r model_evals}
+# Extract model evaluations
+modelEvals <- get_evaluations(obj = modelOut)
+modelEvals
+
+# Select TSS
+modelEvals <- modelEvals |>
+  dplyr::filter(metric.eval == "TSS") |>
+  dplyr::group_by(algo) |>
+  dplyr::reframe(TSS = evaluation,
+                 name = full.name)
+
+# Plot TSS
+ggplot(data = modelEvals, mapping = aes(x = algo, y = TSS)) +
+  geom_boxplot() +
+  labs(x = "Model") +
+  theme_bw()
+```
+
+### Variable contributions
+
+The contributions of different variables are also in the output model object. Last time I checked the contributions were not relative, but that may have changed.
+
+
+```{r var_importance}
+# Extract variable importance
+varImportance <- get_variables_importance(obj = modelOut)
+
+# Plot variable importance
+ggplot(data = varImportance, mapping = aes(x = algo, y = var.imp)) +
+  geom_boxplot() +
+  facet_wrap(~expl.var) +
+  labs(x = "Model") +
+  theme_bw()
+```
+
+### Response curves
+ 
+Response curves show the predicted values of the response across the range of each environmental variable. Checking the response curves is a nice way to see what relationships the model may be picking up on, and to look at the ecological plausiblity of a model. If you get a really wacky response curve, it's a good idea to go back and check that model. It might mean that the model does not meet the right statistical assumptions or a term is insignificant.
+
+
+```{r glm_response_curves, results=FALSE}
+# Select highest performing GLMs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "GLM") |>
+  head(5)
+
+# GLM response curves
+par(mar=c(3,3,3,3))
+bm_PlotResponseCurves(bm.out = modelOut,
+                      models.chosen = select_models$name,
+                      new.env = get_formal_data(modelOut, "expl.var"),
+                      show.variables = get_formal_data(modelOut, "expl.var.names"),
+                      fixed.var = "mean",
+                      do.bivariate = FALSE,
+                      do.plot = TRUE,
+                      do.progress = TRUE)
+```
+
+
+```{r gam_response_curves, results=FALSE}
+# Select highest performing GAMs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "GAM") |>
+  head(5)
+
+# GAM response curves
+par(mar=c(3,3,3,3))
+bm_PlotResponseCurves(bm.out = modelOut,
+                      models.chosen = select_models$name,
+                      new.env = get_formal_data(modelOut, "expl.var"),
+                      show.variables = get_formal_data(modelOut, "expl.var.names"),
+                      fixed.var = "mean",
+                      do.bivariate = FALSE,
+                      do.plot = TRUE,
+                      do.progress = TRUE)
+```
+
+
+```{r RF_response_curves, results=FALSE}
+# Select highest performing RFs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "GLM") |>
+  head(5)
+
+# RF response curves
+par(mar=c(3,3,3,3))
+bm_PlotResponseCurves(bm.out = modelOut,
+                      models.chosen = select_models$name,
+                      new.env = get_formal_data(modelOut, "expl.var"),
+                      show.variables = get_formal_data(modelOut, "expl.var.names"),
+                      fixed.var = "mean",
+                      do.bivariate = FALSE,
+                      do.plot = TRUE,
+                      do.progress = TRUE)
+```
+
+### Project models onto summer 2015
+
+Finally, we will project our model onto the environmental data from 2015 (the year we left out). To "quality-control" the projections we will only use the top 5 performing models for each algorithm. This is also a good chance to see how predictions from different model formulas differ.
+
+```{r glm_projections}
+# Project models onto year 2015 (witheld from model)
+env_proj <- raster::subset(env_dat, c(grep('2015', names(env_dat))))
+names(env_proj) <- vars
+
+# Select highest performing GLMs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "GLM") |>
+  head(5)
+
+glmProj <- BIOMOD_Projection(bm.mod = modelOut,
+                            new.env = env_proj,
+                            proj.name = "GLM",
+                            models.chosen = select_models$name,
+                            metric.binary = "TSS",
+                            compress = TRUE)
+
+```
+
+
+```{r gam_projections}
+# Select highest performing GAMs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "GAM") |>
+  head(5)
+
+gamProj <- BIOMOD_Projection(bm.mod = modelOut,
+                             new.env = env_proj,
+                             proj.name = "gam",
+                             models.chosen = select_models$name,
+                             metric.binary = "TSS",
+                             compress = TRUE)
+```
+
+
+```{r RF_projections}
+# Select highest performing RFs
+select_models <- modelEvals[order(-modelEvals$TSS),] |>
+  dplyr::filter(algo == "RF") |>
+  head(5)
+
+rfProj <- BIOMOD_Projection(bm.mod = modelOut,
+                             new.env = env_proj,
+                             proj.name = "RF",
+                             models.chosen = select_models$name,
+                             metric.binary = "TSS",
+                             compress = TRUE)
+```
+
+
+```{r plot_glm_projections}
+plot(glmProj)
+```
+
+
+```{r plot_gam_projections}
+plot(gamProj)
+```
+
+
+```{r plot_rf_projections}
+plot(rfProj)
+```
+
+Looking a little further into the projection objects (using GAM as an example):
+
+```{r}
+# Look closer at GAM projection
+gamProj
+
+fp <- gamProj@proj.out@link[1]
+
+# Load in as SpatRaster
+gamStack <- terra::rast(fp)
+
+# fetch right whale sightings
+whales2015 <- RightWhale |>
+  dplyr::filter(year == 2015)
+
+# Plot highest performing GAM (slot 1)
+plot(gamStack$RightWhale_PA1_RUN1_GAM) 
+points(x = whales2015$lon, y = whales2015$lat, cex = 2, pch = 16) # Add whale sightings
+  
+```
+
