@@ -9,5 +9,5 @@
 ## Packages/JupyterLab(Hub)
 - Presenter: Christian Sarason
 - Presentation materials: [packages-and-jupyter](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW24/us/00-Mon/packages-and-jupyter)
-- [YouTube recording](https://youtu.be/6jw6iiJvFpM?feature=shared)
+- [YouTube recording](https://youtu.be/rjWtRFXRRko?feature=shared)
 
