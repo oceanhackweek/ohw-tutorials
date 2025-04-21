@@ -275,7 +275,7 @@ pool_images_and_labels <- function(image_list_subset,
     replace_na(missing_value = missing_value)
 
   labels <- sapply(xx, function(x){return(x$classification)}) %>%
-    keras::to_categorical(num_classes = num_classes)
+    keras3::to_categorical(num_classes = num_classes)
 
   classifications <- sapply(xx, function(x){return(x$classification)})
   attr(classifications, "names") <- NULL
