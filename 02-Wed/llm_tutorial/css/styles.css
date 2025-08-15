@@ -1,0 +1,321 @@
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+/* Reset for full screen */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    font-family: 'Droid Serif';
+    background-color: black !important;
+    color: white !important;
+}
+
+h1, h2, h3 {
+    font-family: 'Yanone Kaffeesatz';
+    font-weight: normal;
+    margin-bottom: 30px;
+}
+
+/* Better heading sizes */
+.remark-slide-content h1 {
+    font-size: 3.2em;
+    margin-bottom: 40px;
+    margin-top: 0;
+    color: #ffffff !important;
+    text-align: left;
+}
+
+.remark-slide-content h2 {
+    font-size: 2.4em;
+    margin-bottom: 25px;
+    margin-top: 30px;
+    color: #e0e0e0 !important;
+}
+
+.remark-slide-content h3 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    margin-top: 25px;
+    color: #d0d0d0 !important;
+}
+
+.remark-code, .remark-inline-code {
+    font-family: 'Ubuntu Mono';
+}
+
+/* Force remark.js to use full viewport */
+.remark-slides-area {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* This is the key fix - force slide containers to fill the screen */
+.remark-slide-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+/* Force the actual slide content to fill the container */
+.remark-slide-scaler {
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+/* Global font size for all slides */
+.remark-slide-content {
+    font-size: 28px;
+    line-height: 1.4;
+    background-color: black !important;
+    color: white !important;
+    padding: 60px 80px !important;
+    box-sizing: border-box;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    /* Override remark.js default dimensions */
+    max-width: none !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Styling specifically for the title slide */
+.title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background-color: black !important;
+    color: white !important;
+    padding: 60px;
+    box-sizing: border-box;
+}
+
+.title-slide h1 {
+    font-size: 4em;
+    margin-bottom: 30px;
+    color: white !important;
+    text-align: center;
+    font-weight: 300;
+}
+
+.title-slide img {
+    width: 500px;
+    height: 500px;
+    margin-bottom: 40px;
+}
+
+/* Center image class */
+.center-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.center-image {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.img-right {
+    margin-left: 250px;
+}
+
+.img-bit-right {
+    margin-left: 30px;
+}
+
+.qr-code-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-bottom: 30px;
+    margin-right: 20px;
+    z-index: 0;
+}
+
+.no-line-break {
+    line-height: 1;
+}
+
+/* Ensure remark.js title slide has black background */
+.remark-slide-content.title-slide {
+    background-color: black !important;
+    color: white !important;
+}
+
+/* Additional rule for remark.js compatibility */
+.remark-slide-container .title-slide {
+    background-color: black !important;
+}
+
+/* Force white text on all slide elements */
+.remark-slide-content * {
+    color: white !important;
+}
+
+/* Ensure links are visible on black background */
+.remark-slide-content a {
+    color: #66ccff !important;
+    text-decoration: none;
+    border-bottom: 1px solid #66ccff;
+    transition: all 0.3s ease;
+}
+
+.remark-slide-content a:hover {
+    color: #88ddff !important;
+    border-bottom-color: #88ddff;
+}
+
+/* Ensure code blocks are visible */
+.remark-code, .remark-inline-code {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* Special styling for specific slide elements */
+.remark-slide-content b, .remark-slide-content strong {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Better spacing for mathematical content */
+.remark-slide-content .MathJax {
+    font-size: 1.1em !important;
+}
+
+/* Improve blockquotes */
+.remark-slide-content blockquote {
+    border-left: 4px solid #66ccff;
+    margin: 20px 0;
+    padding-left: 20px;
+    font-style: italic;
+    color: #e0e0e0;
+}
+
+/* Better paragraph and list styling */
+.remark-slide-content p {
+    margin-bottom: 20px;
+    line-height: 1.5;
+    max-width: 90%;
+}
+
+.remark-slide-content ul, .remark-slide-content ol {
+    margin-bottom: 25px;
+    padding-left: 30px;
+}
+
+.remark-slide-content li {
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* Better table styling */
+.remark-slide-content table {
+    width: 100%;
+    margin: 30px 0;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.remark-slide-content th {
+    padding: 15px 12px;
+    background-color: #333;
+    border-bottom: 2px solid #555;
+    font-weight: bold;
+    text-align: left;
+}
+
+.remark-slide-content td {
+    padding: 12px;
+    border-bottom: 1px solid #444;
+    vertical-align: top;
+}
+
+/* Better image containers */
+.remark-slide-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+    margin: 20px 0;
+}
+
+/* Improve flex layouts in slides */
+.remark-slide-content div[style*="display: flex"] {
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Better code styling */
+.remark-code, .remark-inline-code {
+    background-color: #2d2d2d !important;
+    color: #f8f8f2 !important;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.remark-code {
+    display: block;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+/* Hide slide numbers for cleaner look */
+.remark-slide-number {
+    display: none !important;
+}
+
+/* Make sure the presentation container uses full viewport */
+.remark-container {
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* Override remark.js default positioning */
+.remark-visible .remark-slide-container {
+    display: block !important;
+    width: 100vw !important;
+    height: 100vh !important;
+}
+
+/* Hide scrollbars for cleaner full-screen experience */
+::-webkit-scrollbar {
+    /* display: none; */
+}
+
+/* Firefox */
+html {
+    scrollbar-width: none;
+}
+
+/* Force full screen ratio override */
+.remark-slides-area {
+    position: relative !important;
+}
+
+/* Additional override to prevent centering with margins */
+.remark-slide-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
