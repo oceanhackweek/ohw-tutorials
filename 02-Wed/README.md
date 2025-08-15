@@ -6,6 +6,6 @@
 - [YouTube recording]()                                                                                                  
 
 ## Tutorial 2
-- Presenter:               
-- Presentation materials:     
+- Presenter: Kristen Thyng — Visualization Tutorial
+- Presentation materials: viz.ipynb
 - [YouTube recording]()  
