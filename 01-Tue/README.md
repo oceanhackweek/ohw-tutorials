@@ -1,11 +1,11 @@
 # Tuesday tutorials
 
-## Tutorial 1           
-- Presenter:
-- Presentation materials:
+## Ocean Data Access        
+- Presenter: Filipe Fernandes
+- Presentation materials: [repo](https://github.com/oceanhackweek/ohw-tutorials/tree/OHW25/01-Tue/00-data-access-in-python)
 - [YouTube recording]()                                                                                                  
 
-## Tutorial 2
-- Presenter:               
-- Presentation materials:     
+## Introduction to Xarray
+- Presenter: Finn Wimberly        
+- Presentation materials: [repo]()   
 - [YouTube recording]()  
