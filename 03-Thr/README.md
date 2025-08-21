@@ -15,7 +15,8 @@ Winds and Waves in the Gulf of Mexico
 
 ### Deep Learning for Oil Spill Detection in SAR Imagery
 - Presenter: Bruna Candido
-- Presentation Materials: [slides](https://gamma.app/docs/deeplearning-workflow-q994ucje9izcn39?mode=doc)  - [YouTube recording]()                                                                                     
+- Presentation Materials: [slides](https://gamma.app/docs/deeplearning-workflow-q994ucje9izcn39?mode=doc)
+- [YouTube recording]()                                                                                     
 
 ## Reproducible Workflows
 - Presenter: Valentina Staneva              
