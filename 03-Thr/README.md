@@ -3,7 +3,6 @@
 ## OHW Fellows Talks      
 
 ### Enhancing Predictive Capabilities for Hurricane Winds and Waves in the Gulf of Mexico
-Winds and Waves in the Gulf of Mexico
 - Presenter: Hafeez Oladejo
 - Presentation materials: [slides](https://smttt-my.sharepoint.com/:p:/g/personal/w10131973_usm_edu/EYn1daUXdEtMk6c0Yx49Ug8B3I6SCuAIZO-zTjO3CYjGrg?rtime=i1GiuIDg3Ug)
 - [YouTube recording]()
