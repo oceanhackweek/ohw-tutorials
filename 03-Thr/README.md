@@ -19,5 +19,5 @@
 
 ## Reproducible Workflows
 - Presenter: Valentina Staneva              
-- Presentation materials:     
+- Presentation materials: [repo](https://github.com/oceanhackweek/ohwyy_proj_template/issues)    
 - [YouTube recording]()  
