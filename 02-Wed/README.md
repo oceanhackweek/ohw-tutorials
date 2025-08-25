@@ -8,4 +8,4 @@
 ## Visualization
 - Presenter: Kristen Thyng 
 - Presentation materials: [viz.ipynb](https://github.com/oceanhackweek/ohw-tutorials/blob/OHW25/02-Wed/viz_tutorial/viz.ipynb)
-- [YouTube recording]([https://www.youtube.com/watch?v=q3t4Dokbkqs](https://www.youtube.com/watch?v=KY1rlai0Xk8))  
+- [YouTube recording](https://www.youtube.com/watch?v=KY1rlai0Xk8)
