@@ -5,7 +5,7 @@ Tutorial en español del [satélite en Español](https://oceanhackweek.github.io
 - **Título:** Análisis de redes espaciales con sfnetworks
 - **Instructores:** Lorena Abad, [https://github.com/loreabad6](https://github.com/loreabad6)
 - **Fecha:** Agosto 17
-- [Grabación en YouTube - no disponible aún]()
+- [Grabación en YouTube](https://youtu.be/G6nTyJZI2tU?si=0Zeqo-FoB9sEh6Py)
 
 ## Contenido
 
