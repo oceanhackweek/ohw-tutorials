@@ -103,10 +103,6 @@ $h3-font-size: 1.15em !default;
   font-family: $presentation-heading-font;
 }
 
-.footer {
-  color: $link-color;
-  font-family: $presentation-heading-font;
-}
 
 .reveal .slide-number {
   color: $link-color;
@@ -114,11 +110,15 @@ $h3-font-size: 1.15em !default;
 }
 
 .reveal .panel-tabset [role=tab] {
-    font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .reveal .footer {
-    color: $link-color;
+  color: $link-color;
+}
+
+.reveal .footer a {
+  color: $body-color;
 }
 
 .huge-primary {

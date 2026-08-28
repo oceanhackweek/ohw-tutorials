@@ -46,6 +46,7 @@ adapt to an evolving softwarescape.
 ## FAIR Principles
 
 ::: {.columns}
+
 ::::: {.column width="40%"}
 - **F**indable
 - **A**ccessible
@@ -54,25 +55,68 @@ adapt to an evolving softwarescape.
 :::::
 
 ::::: {.column width="60%"}
-![](img/FAIR.png){height="500px"} :
+![](img/FAIR.png){height="500px"}
 :::::
+
 :::
 
+::: aside
+
+<https://www.go-fair.org/fair-principles/>
 <https://www.nature.com/articles/sdata201618>
+
+:::
+
+::: notes
+
+F1. (Meta)data are assigned a globally unique and persistent identifier
+
+F2. Data are described with rich metadata (defined by R1 below)
+
+F3. Metadata clearly and explicitly include the identifier of the data they describe
+
+F4. (Meta)data are registered or indexed in a searchable resource
+
+A1. (Meta)data are retrievable by their identifier using a standardised communications protocol
+
+A1.1 The protocol is open, free, and universally implementable
+
+A1.2 The protocol allows for an authentication and authorisation procedure, where necessary
+
+A2. Metadata are accessible, even when the data are no longer available
+
+I1. (Meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
+
+I2. (Meta)data use vocabularies that follow FAIR principles
+
+I3. (Meta)data include qualified references to other (meta)data
+
+R1. (Meta)data are richly described with a plurality of accurate and relevant attributes
+
+R1.1. (Meta)data are released with a clear and accessible data usage license
+
+R1.2. (Meta)data are associated with detailed provenance
+
+R1.3. (Meta)data meet domain-relevant community standards
+:::
 
 ## CARE Principles
 
 ![](img/CARE.png)
 
+::: aside
 <https://www.gida-global.org/careprinciples>
+:::
 
 ::: notes
+**pronounce: ho-ay-at**
+
 emphasis on greater data sharing creates a tension for Indigenous Peoples who
 are also asserting greater control over the application and use of Indigenous
 data and Indigenous Knowledge for collective benefit.
 
-- FAIR is mostly about how data is managed and stored, while CARE is about how
-  data is used and shared with respect to Indigenous Peoples.
+- FAIR is mostly about how data is managed and stored, accessed.
+- while CARE is about how data is used and shared with respect to Indigenous Peoples.
 
 - **Collective Benefit** Data ecosystems shall be designed and function in ways that
 enable Indigenous Peoples to derive benefit from the data.
@@ -97,21 +141,31 @@ all stages of the data life cycle and across the data ecosystem.
 
 ![](img/CARE-1.png)
 
+::: aside
 [Reused under CC-BY 4.0 license, from
 https://www.gida-global.org/careprinciples](https://static1.squarespace.com/static/5d3799de845604000199cd24/t/640792a43ba5c11a1073bbc8/1678217895508/TheCAREPrinciples.pdf){.small}
+:::
+
+::: notes
+**pronounce: ho-ay-at**
+:::
 
 --------------------------------------------------------------------------------
 
 ![](img/CARE-2.png)
 
+::: aside
 [Reused under CC-BY 4.0 license, from
 https://www.gida-global.org/careprinciples](https://static1.squarespace.com/static/5d3799de845604000199cd24/t/640792a43ba5c11a1073bbc8/1678217895508/TheCAREPrinciples.pdf){.small}
+:::
 
 ## FNIGC in Canada
 
 ![](img/FNIGC-OCAP.png)
 
+::: aside
 <https://fnigc.ca/ocap-training/>
+:::
 
 ::: notes
 - FNIGC is the First Nations Information Governance Centre
@@ -158,20 +212,24 @@ https://www.gida-global.org/careprinciples](https://static1.squarespace.com/stat
 **Saving code is an absolute requirement for reproducibility. (Future you,
 future us)**
 
+::: small
+
 - Save commands as scripts (`.R`/`.py`) or notebooks (`.qmd`/`.ipynb`).
-
 - It doesn't have to be polished.
-
 - Just save it!
-
 - Everything that really matters should be achieved through code that you save
-
 - Contrast: Series of unrecorded mouse clicks
+
+:::
 
 The **process** is important, the **product** is just an outcome
 
+::: small
+
 - Outputs should be treated as disposable
 - Scripts are the source of truth
+
+:::
 
 ## Adopt a project-oriented workflow
 
@@ -262,11 +320,34 @@ foofy/
 - All paths in code are relative to this root
 :::
 
-## Practice "safe paths" in your code
+## Name files deliberately
 
-The chance of `setwd()` (or `os.chdir()`), or reading/writing from/to an 
-absolute path, having the desired effect -- making the file paths work -- for 
-anyone besides its author is **`~0%`**.
+#### Jenny Bryan’s [3 rules for Naming Things](https://www.youtube.com/watch?v=ES1LTlnpLMk)
+
+- machine readable (letters, numbers, “_”, and “-”) 
+- human readable
+- plays well with default ordering
+
+::: {.columns}
+
+::: {.column}
+
+![](img/naming-things-1.png)
+
+:::
+
+::: {.column}
+
+![](img/naming-things-2.png)
+
+:::
+
+:::
+
+## Practice "safe paths"
+
+The chance of `setwd()` (or `os.chdir()`) having the desired effect -- making 
+the file paths work -- for anyone besides its author is **`~0%`**.
 
 ::: panel-tabset
 ### R
@@ -290,17 +371,21 @@ plt.savefig("/Users/andy/cuddly_broccoi/ambiguous/fig.png")
 
 . . .
 
-It's also unlikely to work for the author one or two years or computers
-from now.
+::: small
 
-Hard-wired, absolute paths, especially when sprinkled throughout the code, make
-a project brittle. Such code does not travel well across time or space.
+- It's also unlikely to work for the author one or two years or computers
+from now.
+- Hard-wired, absolute paths make a project brittle. Such code does not travel 
+well across time or space.
+
+:::
 
 ## Practice "safe paths"
 
 - Work in a project and use relative paths
 - Relative to a **stable base**, not **absolute paths**.
-- Use **file system functions**, not `paste()`, etc.
+- Use **file system functions** to assemble paths, not `paste()`, `f` strings, 
+  etc.
 
 . . .
 
@@ -327,31 +412,40 @@ my_data = pd.read_csv(Path("data") / "my_data.csv")
   paths in scripts resolve consistently no matter who opens the project or from
   where.
 - It pairs naturally with a git repo
-
-- never rely on a global/absolute-path setup that only works on your machine. The
-project root becomes the one fixed reference point, so the project runs
-identically for a collaborator or your future self.
+- never rely on a global/absolute-path setup that only works on your machine.
 :::
 
 # Version Control
 
-## {background-image="img/why-github.png" background-size="contain"}
+---
+
+![](img/why-github.png)
+
+::: aside
+Artwork by [Allison Horst](https://allisonhorst.com/), CC-BY 4.0
+:::
 
 ::: notes
 - Git is the tool that tracks history locally; a **remote** (GitHub, GitLab,
-  Codeberg, ...) is what turns that into backup + collaboration.
+  Codeberg, ...) is what turns that into backup + collaboration tool.
 - Contrast with "final_v2_reallyfinal.R" style versioning by filename -- Git
   replaces that with real history you can diff, branch, and revert.
 :::
 
-## {background-image="img/commits.png" background-size="contain"}
+---
+
+![](img/commits.png)
+
+::: aside
+Artwork by [Allison Horst](https://allisonhorst.com/), CC-BY 4.0
+:::
 
 ::: notes
 - having files named with `_v1`, `_v2`, `_final`, etc. is a barrier to
 collaboration and reproducibility because it becomes hard to know what you did.
 - Version control helps prevent that
 :::
-## README.md
+## GitHub: `README.md`
 
 **The first thing a human (including future you) sees when they open the
 repo.**
@@ -369,7 +463,7 @@ Treat it as living documentation -- update it as the project evolves.
   to get started within a minute or two.
 :::
 
-## LICENSE.md
+## GitHub: `LICENSE.md`
 
 > By default, a GitHub repo without an open source licence applied to it is
 > **not open source** (All Rights Reserved).
@@ -393,29 +487,27 @@ Copyright (c) 2026 Andy Teucher
 
 ## Other important files
 
-### CONTRIBUTING.md
+### `CONTRIBUTING.md`
 
-### CODE_OF_CONDUCT.md
+### `CODE_OF_CONDUCT.md`
 
 # Dependency Management
 
 ## Why manage dependencies?
 
-- Code depends on specific packages -- **and specific versions** of them
+- Code depends on specific packages -- **often specific versions** of them
 
 - "Works on my machine" isn't reproducible
 
 - A **lockfile** records the exact environment (packages + versions) so it can
   be recreated on another machine, months or years later
 
-- Goal: one command to install/restore the *exact* environment a project needs
+- Goal: record/restore the *exact* environment a project needs
 
 ::: notes
 - Package APIs and behaviour change over time; a script that
-  works today may silently break (or silently give different results) after an
+  works today may silently break (or worse silently give different results) after an
   update.
-- The lockfile is what gets committed to the repo, not the packages
-  themselves -- it's small, diffable, and versioned alongside the code.
 :::
 
 ## `renv` (R) and `pixi` (Python)
@@ -446,6 +538,8 @@ Produces `pixi.toml` + `pixi.lock`.
 :::
 
 ::: notes
+- The lockfile is what gets committed to the repo, not the packages
+  themselves -- it's small, diffable, and versioned alongside the code.
 - Collaborators (or your future self) run one restore/install command instead
   of manually reinstalling packages and hoping for the same versions.
 - `pixi` also manages the Python interpreter version itself (via conda-forge),
@@ -454,10 +548,8 @@ Produces `pixi.toml` + `pixi.lock`.
 
 # Reproducible Reporting
 
-Research is considered to be reproducible when the exact results can be 
-reproduced if given access to the original data, software, and code.
-
-\
+Exact results can be reproduced if given access to the original data, software, 
+and code.
 
 . . .
 
@@ -488,7 +580,9 @@ If we can put our code and narrative text in a single document, it means:
 - ✅ Literate Programming (Quarto, Jupyter Notebooks)
 - Containerization (e.g., Docker)
 
+::: aside
 Checklists: <https://github.com/oceanhackweek/ohwyy_proj_template/issues>
+:::
 
 ::: notes
 Containers
@@ -502,3 +596,8 @@ Containers
 
 - What is one step you can take right now to make your work more reproducible?
 - What is the biggest challenge in your work to making it more reproducible?
+
+::: aside
+Slides: [pdf](https://github.com/oceanhackweek/ohw-tutorials/blob/OHW26/03-Thr/open-science/reproducible-workflows.pdf) / 
+[Quarto source](https://github.com/oceanhackweek/ohw-tutorials/blob/OHW26/03-Thr/open-science/slides.qmd)
+:::
